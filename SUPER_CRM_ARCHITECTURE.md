@@ -129,6 +129,18 @@ balances, total udhaar ₹49,475.50 to the paisa.
   page in 4 steps. This TinyFish account has no custom step limit (beta), so the client falls
   back to the provider default and relies on the daily run cap. 208 tests pass.
 
+**UI refresh + live Google Sheets (14 Nov 2026):**
+- Warm grey palette (grey page, off-white cards, deep-green accent) as Tailwind tokens; Plus Jakarta
+  Sans for text, Fraunces for page titles.
+- Customers: the scatter plot is replaced by a clickable donut (share of sales by segment) and
+  a "when did they last come" bar chart; both filter the table, with removable filter chips.
+- Restock: "Order progress" view - each supplier order as connected 3D blocks
+  (Drafted → Sent → Delivered → Stock updated), late deliveries in red, a log per step.
+- Google Sheets: paste a link shared as "Anyone with the link can view"; Muneem reads it via
+  Google's CSV export (docs.google.com only), runs the smart mapping review, then re-reads every
+  2 minutes (`SHEETS_POLL_MINUTES`). Each sheet feeds one table; a change is applied only if the
+  whole dataset still validates. Linked sheets are saved in Postgres. 228 tests pass.
+
 ## 1. Verdict in one paragraph
 
 The current Muneem already has the hardest part of the vision right: **a deterministic engine

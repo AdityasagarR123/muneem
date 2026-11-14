@@ -20,20 +20,20 @@ export default function Insights() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:px-6">
       <PageHeader title="Insights" sub="What happened, why it matters, and what to do next - found by rules on your data." />
-      <div className="mb-4 flex flex-wrap items-center gap-1 border-b border-slate-200">
+      <div className="mb-4 flex flex-wrap items-center gap-1 border-b border-line">
         {TABS.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === t.key ? "border-slate-900 font-medium text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
+            className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === t.key ? "border-ink font-medium text-ink" : "border-transparent text-muted hover:text-ink"}`}>
             {t.label}
           </button>
         ))}
-        <label className="ml-auto flex items-center gap-1.5 pb-1 text-xs text-slate-500">
+        <label className="ml-auto flex items-center gap-1.5 pb-1 text-xs text-muted">
           <input type="checkbox" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> Show done & dismissed
         </label>
       </div>
       {q.loading ? <Spinner /> : q.error ? <ErrorBox error={q.error} onRetry={q.reload} /> : (
         <div className="space-y-3">
-          {list.length === 0 && <p className="text-sm text-slate-500">Nothing here.</p>}
+          {list.length === 0 && <p className="text-sm text-muted">Nothing here.</p>}
           {list.map((f) => (
             <div key={f.id} className={f.status === "acted" || f.status === "dismissed" ? "opacity-60" : ""}>
               <FindingRow f={f} onStatus={onStatus} />

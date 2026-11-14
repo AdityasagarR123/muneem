@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     webhook_secret: str = ""
     allow_sqlite_connector: bool = False  # tests only: never read server-local SQLite files
 
+    # live Google Sheets (shared as "Anyone with the link can view"); 0 = no background polling
+    sheets_poll_minutes: float = 2
+
     # web research (optional)
     tavily_api_key: str = ""
     tinyfish_api_key: str = ""

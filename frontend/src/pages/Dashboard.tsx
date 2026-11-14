@@ -45,8 +45,8 @@ export default function Dashboard() {
     <div className="space-y-5">
       <header className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-500">Last 30 days · data as of {alerts.as_of}</p>
+          <h1 className="text-xl font-bold text-ink">Dashboard</h1>
+          <p className="text-sm text-muted">Last 30 days · data as of {alerts.as_of}</p>
         </div>
         <Link to="/" className="btn btn-dark">Ask Muneem</Link>
       </header>
@@ -68,7 +68,7 @@ export default function Dashboard() {
               { key: "stock", label: "Stock" }, { key: "days_left", label: "Days left" },
               { key: "lead_time_days", label: "Supplier needs (days)" }, { key: "order_qty", label: "Order qty" },
             ]} />
-          ) : <p className="text-sm text-slate-500">Nothing is running out. 🎉</p>}
+          ) : <p className="text-sm text-muted">Nothing is running out. 🎉</p>}
         </Card>
 
         <Card title="📞 Call first">
@@ -79,7 +79,7 @@ export default function Dashboard() {
                 <Badge tone="red">{pri.critical} critical</Badge>
                 <Badge tone="amber">{pri.soon} soon</Badge>
               </div>
-              <p className="text-slate-600">
+              <p className="text-ink/80">
                 First item runs out in <b>{num(pri.first_stockout_days)} days</b>; delivery takes {pri.lead_time_days}.
                 Order ≈ <b>{inr(pri.cash_needed_rs)}</b> incl. GST.
               </p>
@@ -87,21 +87,21 @@ export default function Dashboard() {
                 onClick={() => run({ type: "restock_draft", label: "", payload: { supplier_id: pri.supplier_id } })}>
                 Draft order for {pri.supplier}
               </button>
-              <p className="text-[11px] text-slate-400">via {alerts.supplier_priority.engine}</p>
+              <p className="text-[11px] text-muted/80">via {alerts.supplier_priority.engine}</p>
             </div>
-          ) : <p className="text-sm text-slate-500">No supplier needs an urgent call.</p>}
+          ) : <p className="text-sm text-muted">No supplier needs an urgent call.</p>}
         </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card title="🪙 Money stuck in dead stock">
           <div className="text-2xl font-semibold">{inr(alerts.dead_stock.headline.money_trapped_rs)}</div>
-          <p className="mb-2 text-xs text-slate-500">{alerts.dead_stock.headline.items} items, no sale in 30 days</p>
+          <p className="mb-2 text-xs text-muted">{alerts.dead_stock.headline.items} items, no sale in 30 days</p>
           <ul className="space-y-1 text-sm">
             {alerts.dead_stock.rows.slice(0, 4).map((r) => (
               <li key={r.item_id} className="flex justify-between gap-2">
                 <span className="truncate">{r.name}</span>
-                <span className="whitespace-nowrap text-slate-600" title={`Up to ${r.max_discount_pct}% discount still breaks even`}>
+                <span className="whitespace-nowrap text-ink/80" title={`Up to ${r.max_discount_pct}% discount still breaks even`}>
                   {inr(r.money_trapped_rs)}
                 </span>
               </li>
@@ -118,8 +118,8 @@ export default function Dashboard() {
                 </li>
               ))}
             </ul>
-          ) : <p className="text-sm text-slate-500">No item flagged.</p>}
-          <p className="mt-2 text-[11px] text-slate-400">Margin after backing GST out of MRP</p>
+          ) : <p className="text-sm text-muted">No item flagged.</p>}
+          <p className="mt-2 text-[11px] text-muted/80">Margin after backing GST out of MRP</p>
         </Card>
         <Card title="🧾 Watch out">
           <ul className="space-y-2 text-sm">
@@ -136,10 +136,10 @@ export default function Dashboard() {
               </li>
             )}
             {alerts.insufficient_data.map((r) => (
-              <li key={r.item_id} className="text-slate-600">{r.name}: only {r.history_days} days of history — no forecast yet.</li>
+              <li key={r.item_id} className="text-ink/80">{r.name}: only {r.history_days} days of history — no forecast yet.</li>
             ))}
             {!spikes.length && !alerts.festival_adjustments.items.length && !alerts.insufficient_data.length &&
-              <li className="text-slate-500">All quiet.</li>}
+              <li className="text-muted">All quiet.</li>}
           </ul>
         </Card>
       </div>
@@ -152,7 +152,7 @@ export default function Dashboard() {
         <Card title="How customers pay (90 days)">
           <ChartView spec={{ kind: "pie", x: "payment_mode", unit: "₹", series: [{ key: "value_rs", label: "Value" }], data: pay.rows }} />
           {pay.headline.upi_trend && (
-            <p className="text-center text-xs text-slate-500">
+            <p className="text-center text-xs text-muted">
               UPI share {pct(pay.headline.upi_trend.first_4_weeks_pct)} → {pct(pay.headline.upi_trend.last_4_weeks_pct)}
             </p>
           )}
@@ -186,7 +186,7 @@ function BriefCard() {
           <a className="btn btn-green mt-3 w-full justify-center" href={q.data.whatsapp_url} target="_blank" rel="noreferrer">
             Share on WhatsApp
           </a>
-          <p className="mt-1 text-center text-[11px] text-slate-400">{q.data.note}</p>
+          <p className="mt-1 text-center text-[11px] text-muted/80">{q.data.note}</p>
         </>
       )}
     </Card>

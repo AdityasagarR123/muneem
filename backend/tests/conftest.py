@@ -7,6 +7,7 @@ os.environ["LLM_API_KEY"] = ""
 os.environ["DATABASE_URL"] = ""
 os.environ["TAVILY_API_KEY"] = ""
 os.environ["TINYFISH_API_KEY"] = ""
+os.environ["SHEETS_POLL_MINUTES"] = "0"
 
 import pytest  # noqa: E402
 

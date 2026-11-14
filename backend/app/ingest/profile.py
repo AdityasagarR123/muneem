@@ -22,6 +22,9 @@ _GSTIN = re.compile(r"^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$")
 _UPI = re.compile(r"^[\w.\-]{2,}@[a-z]{2,}$", re.I)
 _MONEY = re.compile(r"^(₹|rs\.?|inr)?\s*-?[\d,]+(\.\d{1,2})?$", re.I)
 _PCT = re.compile(r"^\d{1,2}(\.\d+)?\s*%$")
+# headers that mean rupees (checked on normalized names like 'amount_rs'); quantities never count
+_MONEY_HEADER = re.compile(r"(?i)^(?!.*(qty|quantity|units|pcs|count|stock))(.*[_\s(])?"
+                           r"(amount|amt|rs|inr|rupees?|price|mrp|total|cost|paid)([_\s)].*)?$")
 _CODE = re.compile(r"^[A-Za-z]{0,6}[-_/]?\d{1,10}[A-Za-z]?$")
 _BOOL = {"yes", "no", "y", "n", "true", "false", "haan", "nahi", "0", "1"}
 GST_VALUES = {0.0, 0.25, 3.0, 5.0, 12.0, 18.0, 28.0, 40.0}
@@ -66,7 +69,8 @@ def profile_column(name: str, raw: pd.Series) -> dict:
     if kind is None and _share(numeric) >= FIT:
         vals = nums[numeric]
         integral = _share((vals % 1).abs() < 1e-9)
-        has_currency = _share(sample.str.contains(r"(?i)₹|rs\.?|inr|,", regex=True)) > 0.3
+        has_currency = _share(sample.str.contains(r"(?i)₹|rs\.?|inr|,", regex=True)) > 0.3 or bool(
+            _MONEY_HEADER.search(name))  # 'Amount (Rs)' with plain 25000-style values is still money
         two_dp = _share(sample.str.match(r"^-?[\d,]+\.\d{2}$")) > 0.5
         if set(vals.round(2).unique()) <= GST_VALUES and distinct <= 6:
             kind = "percent"

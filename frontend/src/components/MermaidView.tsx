@@ -27,7 +27,7 @@ export default function MermaidView({ code }: { code: string }) {
     return () => { alive = false; };
   }, [code, id]);
 
-  if (failed) return <pre className="overflow-x-auto rounded bg-slate-100 p-2 text-xs">{code}</pre>;
-  if (!svg) return <p className="text-sm text-slate-500">Drawing diagram…</p>;
+  if (failed) return <pre className="overflow-x-auto rounded bg-surface-2 p-2 text-xs">{code}</pre>;
+  if (!svg) return <p className="text-sm text-muted">Drawing diagram…</p>;
   return <div className="overflow-x-auto [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:max-w-full" dangerouslySetInnerHTML={{ __html: svg }} />;
 }

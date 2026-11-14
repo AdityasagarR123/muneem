@@ -2,32 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-white text-slate-800 antialiased;
-  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
-    "Noto Sans Devanagari", sans-serif;
-  font-feature-settings: "cv11", "ss01";
+/* Warm grey palette: page is grey, cards are off-white, nothing is pure white. */
+:root {
+  --canvas: 236 234 229;     /* page */
+  --surface: 248 247 244;    /* cards */
+  --surface-2: 228 226 220;  /* hover, insets, table heads */
+  --line: 218 214 205;       /* borders */
+  --ink: 31 30 27;           /* main text */
+  --muted: 110 106 98;       /* secondary text */
+  --accent: 47 111 79;       /* deep green */
+  --accent-soft: 220 233 224;
 }
 
+body {
+  @apply bg-canvas text-ink antialiased;
+  font-family: "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, "Noto Sans Devanagari", sans-serif;
+}
+h1 { font-family: "Fraunces", Georgia, serif; font-optical-sizing: auto; letter-spacing: -0.01em; }
+.tabular-nums, td, .num { font-variant-numeric: tabular-nums; }
+
 .btn {
-  @apply inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5
-    text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5
+    text-sm font-medium text-ink transition hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50;
 }
 .btn-dark {
-  @apply border-slate-900 bg-slate-900 text-white hover:bg-slate-800;
+  @apply border-ink bg-ink text-surface hover:bg-ink/85;
 }
 .btn-primary {
-  @apply border-blue-600 bg-blue-600 text-white hover:bg-blue-700;
+  @apply border-accent bg-accent text-surface hover:bg-accent/90;
 }
 .btn-green {
   @apply border-green-600 bg-green-600 text-white hover:bg-green-700;
 }
 .input {
-  @apply rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm focus:border-blue-500
-    focus:outline-none focus:ring-1 focus:ring-blue-500;
+  @apply rounded-md border border-line bg-surface px-2.5 py-1.5 text-sm text-ink placeholder:text-muted/70
+    focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent;
 }
 .prose-chat p { @apply my-1.5; }
 .prose-chat ul { @apply my-1.5 list-disc pl-5; }
 .prose-chat ol { @apply my-1.5 list-decimal pl-5; }
 .prose-chat strong { @apply font-semibold; }
-.prose-chat pre { @apply my-2 whitespace-pre-wrap rounded bg-slate-100 p-2 text-sm; }
+.prose-chat pre { @apply my-2 whitespace-pre-wrap rounded bg-surface-2 p-2 text-sm; }

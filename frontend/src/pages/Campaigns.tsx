@@ -19,15 +19,15 @@ export default function Campaigns() {
         right={<button className="btn btn-dark" onClick={() => setCreating(!creating)}>{creating ? "Close" : "New campaign"}</button>} />
       {creating && <NewCampaign onCreated={(id) => navigate(`/campaigns/${id}`)} />}
       {list.loading ? <Spinner /> : list.error ? <ErrorBox error={list.error} /> : (
-        <div className="divide-y divide-slate-100 rounded-xl border border-slate-200">
-          {list.data!.length === 0 && <p className="p-4 text-sm text-slate-500">No campaigns yet.</p>}
+        <div className="divide-y divide-line/60 rounded-xl border border-line">
+          {list.data!.length === 0 && <p className="p-4 text-sm text-muted">No campaigns yet.</p>}
           {list.data!.map((c) => (
-            <Link key={c.campaign_id} to={`/campaigns/${c.campaign_id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50">
+            <Link key={c.campaign_id} to={`/campaigns/${c.campaign_id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-surface-2">
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium text-slate-900">{c.name}</div>
-                <div className="truncate text-xs text-slate-500">{c.sample_message}</div>
+                <div className="truncate font-medium text-ink">{c.name}</div>
+                <div className="truncate text-xs text-muted">{c.sample_message}</div>
               </div>
-              <div className="shrink-0 text-right text-xs text-slate-500">
+              <div className="shrink-0 text-right text-xs text-muted">
                 <div><Badge tone={STATUS_TONE[c.status]}>{c.status}</Badge></div>
                 <div className="mt-1">{c.targets} messaged · {c.holdout} hold-out</div>
               </div>
@@ -96,9 +96,9 @@ function NewCampaign({ onCreated }: { onCreated: (id: string) => void }) {
       </div>
       {err != null && <div className="mt-3"><ErrorBox error={err} /></div>}
       {preview && (
-        <div className="mt-4 rounded-lg bg-slate-50 p-3 text-sm">
+        <div className="mt-4 rounded-lg bg-surface-2/60 p-3 text-sm">
           <b>{preview.targets}</b> customers get a message, <b>{preview.holdout}</b> are held out.
-          {preview.examples.map((m: string, i: number) => <p key={i} className="mt-2 rounded-lg bg-white p-2 text-slate-700 shadow-sm">{m}</p>)}
+          {preview.examples.map((m: string, i: number) => <p key={i} className="mt-2 rounded-lg bg-surface p-2 text-ink shadow-sm">{m}</p>)}
         </div>
       )}
     </Card>
@@ -127,11 +127,11 @@ export function CampaignDetail() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 md:px-6">
-      <Link to="/campaigns" className="text-sm text-slate-500 hover:text-slate-900">← Campaigns</Link>
+      <Link to="/campaigns" className="text-sm text-muted hover:text-ink">← Campaigns</Link>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{k.name}</h1>
-          <p className="text-sm text-slate-500">{targets.length} get a message · {holdout} held out ({k.holdout_pct}%) · measured over {k.measure_after_days} days{k.sent_at && ` · sent ${k.sent_at.slice(0, 10)}`}</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">{k.name}</h1>
+          <p className="text-sm text-muted">{targets.length} get a message · {holdout} held out ({k.holdout_pct}%) · measured over {k.measure_after_days} days{k.sent_at && ` · sent ${k.sent_at.slice(0, 10)}`}</p>
         </div>
         <Badge tone={STATUS_TONE[k.status]}>{k.status}</Badge>
       </div>
@@ -151,7 +151,7 @@ export function CampaignDetail() {
             )}
             {offer !== null && offer !== k.offer && <button className="btn btn-dark" onClick={() => { save({ offer }); setOffer(null); }}>Save</button>}
           </div>
-          <p className="mt-3 text-xs text-slate-500">{k.note}</p>
+          <p className="mt-3 text-xs text-muted">{k.note}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <a className="btn" href={`/api/campaigns/${id}/export.csv`}>Download CSV (for broadcast tools)</a>
             <button className="btn btn-dark" onClick={() => status("sent")}>I have sent the messages ✓</button>
@@ -161,14 +161,14 @@ export function CampaignDetail() {
       )}
       {err != null && <div className="mt-3"><ErrorBox error={err} /></div>}
 
-      <h2 className="mb-2 mt-6 text-sm font-semibold text-slate-900">Messages ({targets.length})</h2>
-      <div className="divide-y divide-slate-100 rounded-xl border border-slate-200">
+      <h2 className="mb-2 mt-6 text-sm font-semibold text-ink">Messages ({targets.length})</h2>
+      <div className="divide-y divide-line/60 rounded-xl border border-line">
         {targets.slice(0, 100).map((m: any) => (
           <div key={m.customer_id} className="flex items-start gap-3 px-4 py-3">
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-slate-900">{m.name || m.customer_id}
-                {m.amount_paise != null && <span className="ml-2 text-xs font-normal text-slate-500">owes {paise(m.amount_paise)}</span>}</div>
-              <p className="mt-0.5 text-sm text-slate-600">{m.message}</p>
+              <div className="text-sm font-medium text-ink">{m.name || m.customer_id}
+                {m.amount_paise != null && <span className="ml-2 text-xs font-normal text-muted">owes {paise(m.amount_paise)}</span>}</div>
+              <p className="mt-0.5 text-sm text-ink/80">{m.message}</p>
             </div>
             {k.status === "draft" && (
               <a className="btn btn-green shrink-0" href={m.whatsapp_url} target="_blank" rel="noreferrer">WhatsApp</a>
@@ -176,13 +176,13 @@ export function CampaignDetail() {
           </div>
         ))}
       </div>
-      {holdout > 0 && <p className="mt-2 text-xs text-slate-500">{holdout} hold-out customers get no message - they show what would have happened anyway.</p>}
+      {holdout > 0 && <p className="mt-2 text-xs text-muted">{holdout} hold-out customers get no message - they show what would have happened anyway.</p>}
     </div>
   );
 }
 
 function Result({ r }: { r: any }) {
-  if (!r.groups) return <Card className="mt-5"><p className="text-sm text-slate-600">{r.message}</p></Card>;
+  if (!r.groups) return <Card className="mt-5"><p className="text-sm text-ink/80">{r.message}</p></Card>;
   const t = r.groups.target, h = r.groups.holdout;
   const max = Math.max(t.rate_pct ?? 0, h.rate_pct ?? 0, 1);
   return (
@@ -192,26 +192,26 @@ function Result({ r }: { r: any }) {
       <div className="space-y-2 text-sm">
         {[["Got the message", t], ["Hold-out (no message)", h]].map(([label, g]: any) => (
           <div key={label} className="flex items-center gap-3">
-            <span className="w-44 shrink-0 text-slate-600">{label}</span>
-            <div className="h-6 flex-1 rounded bg-slate-100">
-              <div className={`flex h-6 items-center rounded px-2 text-xs font-medium text-white ${g === t ? "bg-slate-900" : "bg-slate-400"}`}
+            <span className="w-44 shrink-0 text-ink/80">{label}</span>
+            <div className="h-6 flex-1 rounded bg-surface-2">
+              <div className={`flex h-6 items-center rounded px-2 text-xs font-medium text-white ${g === t ? "bg-ink" : "bg-slate-400"}`}
                 style={{ width: `${Math.max(8, (100 * (g.rate_pct ?? 0)) / max)}%` }}>{pct(g.rate_pct)}</div>
             </div>
-            <span className="w-28 shrink-0 text-right text-xs tabular-nums text-slate-500">{g.converted}/{g.members} came back</span>
+            <span className="w-28 shrink-0 text-right text-xs tabular-nums text-muted">{g.converted}/{g.members} came back</span>
           </div>
         ))}
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 text-sm">
+      <div className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-line bg-line text-sm">
         <Stat k="Difference" v={`${r.lift_points > 0 ? "+" : ""}${num(r.lift_points)} points`} />
         <Stat k="Extra sales" v={r.incremental_value_paise != null ? paise(r.incremental_value_paise) : "–"} />
         <Stat k="Chance it's luck (p)" v={r.p_value != null ? String(r.p_value) : "–"} />
       </div>
       {r.caution && <p className="mt-2 text-xs text-amber-700">{r.caution}</p>}
-      <p className="mt-2 text-xs text-slate-400">Window {r.window?.[0]} → {r.window?.[1]}. {r.formula}</p>
+      <p className="mt-2 text-xs text-muted/80">Window {r.window?.[0]} → {r.window?.[1]}. {r.formula}</p>
     </Card>
   );
 }
 
 function Stat({ k, v }: { k: string; v: string }) {
-  return <div className="bg-white p-3"><div className="text-[11px] text-slate-500">{k}</div><div className="font-semibold tabular-nums">{v}</div></div>;
+  return <div className="bg-surface p-3"><div className="text-[11px] text-muted">{k}</div><div className="font-semibold tabular-nums">{v}</div></div>;
 }

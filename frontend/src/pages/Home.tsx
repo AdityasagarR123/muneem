@@ -65,7 +65,7 @@ export default function Home({ onChatsChanged }: { onChatsChanged: () => void })
       <div className="mx-auto w-full max-w-3xl px-4 pb-4 md:px-6">
         <Composer onSend={send} busy={chat.busy} mode={mode} setMode={setMode}
           placeholder={lang === "en" ? "Ask about sales, stock, customers…" : "Poochhiye - bikri, stock, customers…"} />
-        <p className="mt-2 text-center text-[11px] text-slate-400">
+        <p className="mt-2 text-center text-[11px] text-muted/80">
           Numbers are calculated from your records and checked before you see them. Shift + Enter for a new line.
         </p>
       </div>
@@ -77,24 +77,24 @@ function Welcome({ d, lang, onAsk }: { d: HomeData; lang: string; onAsk: (q: str
   return (
     <div className="space-y-8">
       <div className="pt-4 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-[34px]">
+        <h1 className="text-3xl font-semibold tracking-tight text-ink md:text-[34px]">
           Namaste! {GREETING[lang as keyof typeof GREETING]}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">{d.shop_name} · records up to {d.as_of}</p>
+        <p className="mt-2 text-sm text-muted">{d.shop_name} · records up to {d.as_of}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-5">
         {d.health.map((h) => <HealthTile key={h.key} h={h} />)}
       </div>
 
       <section>
         <div className="mb-1 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">{lang === "en" ? "Today's briefing" : "Aaj ki report"}</h2>
-          <Link to="/insights" className="text-xs text-slate-500 hover:text-slate-900">
+          <h2 className="text-sm font-semibold text-ink">{lang === "en" ? "Today's briefing" : "Aaj ki report"}</h2>
+          <Link to="/insights" className="text-xs text-muted hover:text-ink">
             All {d.findings_total} insights →
           </Link>
         </div>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-line/60">
           {d.briefing.slice(0, 4).map((f) => <FindingRow key={f.id} f={f} compact />)}
         </div>
       </section>
@@ -102,8 +102,8 @@ function Welcome({ d, lang, onAsk }: { d: HomeData; lang: string; onAsk: (q: str
       <div className="grid gap-3 sm:grid-cols-2">
         {d.suggestions.map((s) => (
           <button key={s} onClick={() => onAsk(s)}
-            className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-[15px] text-slate-700 hover:border-slate-300 hover:bg-slate-50">
-            {s} <Icon name="arrowUp" size={16} className="shrink-0 text-slate-400" />
+            className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-left text-[15px] text-ink hover:border-muted/40 hover:bg-surface-2">
+            {s} <Icon name="arrowUp" size={16} className="shrink-0 text-muted/80" />
           </button>
         ))}
       </div>
@@ -116,13 +116,13 @@ function HealthTile({ h }: { h: any }) {
   const ch = h.change_pct;
   const sub = h.sub_paise != null ? `${inr(h.sub_rs)} ${h.sub_label}` : h.sub;
   return (
-    <div className="bg-white p-3">
-      <div className="text-[11px] text-slate-500">{h.label}</div>
+    <div className="bg-surface p-3">
+      <div className="text-[11px] text-muted">{h.label}</div>
       <div className="mt-0.5 flex items-end justify-between gap-2">
-        <div className="text-lg font-semibold tabular-nums text-slate-900">{value}</div>
+        <div className="text-lg font-semibold tabular-nums text-ink">{value}</div>
         {h.spark && <Spark data={h.spark} />}
       </div>
-      <div className="text-[11px] text-slate-500">
+      <div className="text-[11px] text-muted">
         {ch != null && <span className={ch >= 0 ? "text-green-700" : "text-red-600"}>{pct(ch, true)} </span>}
         {sub}
       </div>
@@ -134,5 +134,5 @@ function Spark({ data }: { data: number[] }) {
   if (data.length < 2) return null;
   const min = Math.min(...data), max = Math.max(...data), w = 56, h = 20;
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / (max - min || 1)) * h}`).join(" ");
-  return <svg width={w} height={h} className="text-slate-400"><polyline points={pts} fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>;
+  return <svg width={w} height={h} className="text-muted/80"><polyline points={pts} fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>;
 }

@@ -53,6 +53,14 @@ class DataManager:
         self._research = None
 
     @property
+    def sheets(self):
+        """Linked Google Sheets, re-read in the background."""
+        if getattr(self, "_sheets", None) is None:
+            from app.ingest.sheets import SheetSync
+            self._sheets = SheetSync(self)
+        return self._sheets
+
+    @property
     def research(self):
         """Web research client (Tavily / TinyFish), created on first use."""
         if self._research is None:

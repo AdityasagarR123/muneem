@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from app import __version__
 from app.agent.core import Agent
 from app.agent.llm import build_backend
-from app.api import campaigns, chat, crm, data, findings, ingest, insights, restock
+from app.api import campaigns, chat, crm, data, findings, ingest, insights, restock, sheets
 from app.config import get_settings
 from app.store.manager import DataManager, NoDataset
 
@@ -30,7 +30,9 @@ async def lifespan(app: FastAPI):
     m.startup()
     app.state.manager = m
     app.state.agent = Agent(m, build_backend(settings))
+    m.sheets.start(settings.sheets_poll_minutes)
     yield
+    m.sheets.stop()
 
 
 def create_app() -> FastAPI:
@@ -41,7 +43,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[o.strip() for o in settings.cors_origins.split(",") if o.strip()],
-        allow_methods=["GET", "POST", "PATCH"], allow_headers=["*"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["*"],
     )
 
     @app.exception_handler(NoDataset)
@@ -56,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(findings.router)
     app.include_router(campaigns.router)
     app.include_router(ingest.router)
+    app.include_router(sheets.router)
     return app
 
 

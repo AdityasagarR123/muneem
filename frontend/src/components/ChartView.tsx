@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import { inr, num, shortDate } from "../lib/format";
 
-export const COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#7c3aed", "#0891b2", "#db2777", "#65a30d"];
+export const COLORS = ["#2f6f4f", "#4f7cac", "#c99a3b", "#c2553f", "#8b7bb8", "#3f8f8a", "#b5677d", "#7a8f3c"];
 
 export type ChartSpec = {
   kind: "line" | "area" | "bar" | "stacked_bar" | "pie" | "funnel" | "waterfall" | "cohort_heatmap" | "scatter";
@@ -25,7 +25,7 @@ export type ChartSpec = {
 const isDate = (v: any) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v);
 
 export default function ChartView({ spec, height = 260 }: { spec: ChartSpec; height?: number }) {
-  if (!spec?.data?.length) return <p className="text-sm text-slate-500">No data to chart.</p>;
+  if (!spec?.data?.length) return <p className="text-sm text-muted">No data to chart.</p>;
   const money = spec.unit === "₹";
   const fmtVal = (v: any, key?: string) =>
     typeof v !== "number" ? v : key?.endsWith("_pct") || spec.unit === "%" ? `${num(v)}%` : money ? inr(v) : num(v);
@@ -191,8 +191,8 @@ function Heatmap({ spec }: { spec: ChartSpec }) {
     <div className="overflow-x-auto">
       <table className="text-xs">
         <thead>
-          <tr><th className="px-2 py-1 text-left font-medium text-slate-500">First month</th>
-            {cols.map((c) => <th key={c} className="px-2 py-1 font-medium text-slate-500">M{c}</th>)}</tr>
+          <tr><th className="px-2 py-1 text-left font-medium text-muted">First month</th>
+            {cols.map((c) => <th key={c} className="px-2 py-1 font-medium text-muted">M{c}</th>)}</tr>
         </thead>
         <tbody>
           {rows.map((r) => (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import OrderPipeline from "../components/OrderPipeline";
 import { Badge, Card, ErrorBox, Spinner, TierBadge, useAsync } from "../components/ui";
 import { api, PurchaseOrder, RestockDraft } from "../lib/api";
 import { inr, num, paise } from "../lib/format";
@@ -13,6 +14,7 @@ export default function Restock() {
   const [notice, setNotice] = useState<string | null>(null);
   const orders = useAsync(() => api.get<PurchaseOrder[]>("/restock/orders", tab === "all" ? {} : { status: tab }), [tab]);
   const suppliers = useAsync(() => api.get("/graph/supplier-dependency"), []);
+  const allOrders = useAsync(() => api.get<PurchaseOrder[]>("/restock/orders"), [orders.data]);
 
   useEffect(() => {
     if (location.state?.draftId) setNotice("New draft created from your request - review the quantities, then send.");
@@ -26,8 +28,8 @@ export default function Restock() {
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-xl font-bold text-slate-900">Restock</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-xl font-bold text-ink">Restock</h1>
+        <p className="text-sm text-muted">
           Muneem drafts the orders and messages. <b>You</b> check them and send them yourself.
         </p>
       </header>
@@ -39,22 +41,28 @@ export default function Restock() {
           (d.deferred.length ? ` · ${d.deferred.length} item(s) did not fit the budget` : "") : "Nothing needs ordering right now.");
       }} />
 
-      {notice && <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">{notice}</div>}
+      {allOrders.data && allOrders.data.length > 0 && (
+        <OrderPipeline orders={[...allOrders.data].sort((a, b) =>
+          (["draft", "sent", "received", "cancelled"].indexOf(a.status) - ["draft", "sent", "received", "cancelled"].indexOf(b.status))
+          || b.created_at.localeCompare(a.created_at))} />
+      )}
 
-      <div className="flex flex-wrap gap-1 border-b border-slate-200">
+      {notice && <div className="rounded-md border border-accent/30 bg-accent-soft p-3 text-sm text-accent">{notice}</div>}
+
+      <div className="flex flex-wrap gap-1 border-b border-line">
         {TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium capitalize ${tab === t ? "border-blue-600 text-blue-700" : "border-transparent text-slate-500 hover:text-slate-700"}`}>
+            className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium capitalize ${tab === t ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
             {t}
           </button>
         ))}
-        <a className="ml-auto self-center text-sm text-blue-700 hover:underline" href="/api/restock/export.csv">
+        <a className="ml-auto self-center text-sm text-accent hover:underline" href="/api/restock/export.csv">
           Download fresh order list (CSV)
         </a>
       </div>
 
       {orders.loading ? <Spinner /> : orders.error ? <ErrorBox error={orders.error} onRetry={orders.reload} /> :
-        orders.data!.length === 0 ? <p className="text-sm text-slate-500">No {tab === "all" ? "" : tab} orders.</p> :
+        orders.data!.length === 0 ? <p className="text-sm text-muted">No {tab === "all" ? "" : tab} orders.</p> :
           <div className="space-y-4">{orders.data!.map((po) => <OrderCard key={po.po_id} po={po} onChanged={onChanged} />)}</div>}
     </div>
   );
@@ -128,21 +136,21 @@ function OrderCard({ po, onChanged }: { po: PurchaseOrder; onChanged: (po: Purch
     <Card title={
       <span className="flex flex-wrap items-center gap-2">
         {po.supplier} <Badge tone={STATUS_TONE[po.status]}>{po.status}</Badge>
-        <span className="text-xs font-normal text-slate-400">{po.po_id} · delivery by {po.expected_delivery}</span>
+        <span className="text-xs font-normal text-muted/80">{po.po_id} · delivery by {po.expected_delivery}</span>
       </span>}
-      right={<span className="text-sm font-semibold">{paise(po.total_incl_gst_paise)} <span className="font-normal text-slate-500">incl. GST</span></span>}>
+      right={<span className="text-sm font-semibold">{paise(po.total_incl_gst_paise)} <span className="font-normal text-muted">incl. GST</span></span>}>
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="overflow-x-auto lg:col-span-3">
           <table className="w-full text-sm">
-            <thead><tr className="border-b text-left text-xs uppercase text-slate-500">
+            <thead><tr className="border-b text-left text-xs uppercase text-muted">
               <th className="py-1.5 pr-2">Item</th><th className="pr-2">Status</th><th className="pr-2">Days left</th>
               <th className="pr-2">Qty</th><th className="pr-2 text-right">₹ incl. GST</th>
             </tr></thead>
             <tbody>
               {po.lines.map((l) => (
-                <tr key={l.item_id} className="border-b border-slate-100" title={l.why}>
+                <tr key={l.item_id} className="border-b border-line/60" title={l.why}>
                   <td className="py-1.5 pr-2">{l.name}
-                    {l.edited && <span className="ml-1 text-[11px] text-slate-400">(suggested {l.suggested_qty})</span>}</td>
+                    {l.edited && <span className="ml-1 text-[11px] text-muted/80">(suggested {l.suggested_qty})</span>}</td>
                   <td className="pr-2"><TierBadge tier={l.tier} /></td>
                   <td className="pr-2">{num(l.days_left)}</td>
                   <td className="pr-2">
@@ -150,7 +158,7 @@ function OrderCard({ po, onChanged }: { po: PurchaseOrder; onChanged: (po: Purch
                       <input type="number" min={0} step={l.pack_size} className="input w-20 py-0.5"
                         value={qty[l.item_id] ?? 0} onChange={(e) => setQty({ ...qty, [l.item_id]: Math.max(0, Number(e.target.value)) })} />
                     ) : l.qty}
-                    {l.pack_size > 1 && <span className="ml-1 text-[11px] text-slate-400">pack {l.pack_size}</span>}
+                    {l.pack_size > 1 && <span className="ml-1 text-[11px] text-muted/80">pack {l.pack_size}</span>}
                   </td>
                   <td className="pr-2 text-right">{inr(l.value_incl_gst_paise / 100)}</td>
                 </tr>
@@ -165,7 +173,7 @@ function OrderCard({ po, onChanged }: { po: PurchaseOrder; onChanged: (po: Purch
           )}
         </div>
         <div className="lg:col-span-2">
-          <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+          <div className="mb-1 flex items-center justify-between text-xs text-muted">
             <span>WhatsApp message</span>
             {isDraft && (
               <select className="input py-0 text-xs" value={po.language} onChange={(e) => setLang(e.target.value)} disabled={busy}>
@@ -173,7 +181,7 @@ function OrderCard({ po, onChanged }: { po: PurchaseOrder; onChanged: (po: Purch
               </select>
             )}
           </div>
-          <pre className="whitespace-pre-wrap rounded-md border border-green-200 bg-green-50 p-3 font-sans text-sm text-slate-800">{po.message}</pre>
+          <pre className="whitespace-pre-wrap rounded-md border border-green-200 bg-green-50 p-3 font-sans text-sm text-ink">{po.message}</pre>
           <div className="mt-2 flex flex-wrap gap-2">
             <a className="btn btn-green" href={po.whatsapp_url} target="_blank" rel="noreferrer">Open in WhatsApp</a>
             <button className="btn" onClick={() => { navigator.clipboard.writeText(po.message); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
@@ -183,7 +191,7 @@ function OrderCard({ po, onChanged }: { po: PurchaseOrder; onChanged: (po: Purch
           </div>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+      <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line/60 pt-3">
         {po.status === "draft" && <button className="btn btn-primary" disabled={busy || dirty}
           onClick={() => status("sent", `${po.supplier}: marked as sent.`)}>I have sent it ✓</button>}
         {po.status === "sent" && <button className="btn btn-green" disabled={busy}
@@ -191,7 +199,7 @@ function OrderCard({ po, onChanged }: { po: PurchaseOrder; onChanged: (po: Purch
             status("received", `${po.supplier}: received - stock updated, alerts recalculated.`)}>Goods received</button>}
         {(po.status === "draft" || po.status === "sent") && <button className="btn" disabled={busy}
           onClick={() => confirm("Cancel this order?") && status("cancelled", "Order cancelled.")}>Cancel order</button>}
-        <span className="ml-auto text-xs text-slate-400">
+        <span className="ml-auto text-xs text-muted/80">
           {po.history.map((h) => `${h.status} ${new Date(h.at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}`).join(" → ")}
         </span>
       </div>

@@ -4,10 +4,10 @@ export function Card({ title, right, children, className = "" }: {
   title?: ReactNode; right?: ReactNode; children: ReactNode; className?: string;
 }) {
   return (
-    <section className={`rounded-lg border border-slate-200 bg-white p-4 shadow-sm ${className}`}>
+    <section className={`rounded-lg border border-line bg-surface p-4 shadow-sm ${className}`}>
       {(title || right) && (
         <div className="mb-3 flex items-center justify-between gap-2">
-          {title && <h2 className="text-sm font-semibold text-slate-700">{title}</h2>}
+          {title && <h2 className="text-sm font-semibold text-ink">{title}</h2>}
           {right}
         </div>
       )}
@@ -21,7 +21,7 @@ const TONES: Record<string, string> = {
   amber: "bg-amber-50 text-amber-800 ring-amber-200",
   green: "bg-green-50 text-green-700 ring-green-200",
   blue: "bg-blue-50 text-blue-700 ring-blue-200",
-  gray: "bg-slate-100 text-slate-600 ring-slate-200",
+  gray: "bg-surface-2 text-ink/80 ring-line",
   violet: "bg-violet-50 text-violet-700 ring-violet-200",
 };
 
@@ -41,8 +41,8 @@ export function TierBadge({ tier }: { tier: string }) {
 
 export function Spinner({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-slate-500">
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
+    <div className="flex items-center gap-2 text-sm text-muted">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-blue-600" />
       {label}
     </div>
   );
@@ -77,8 +77,8 @@ export function PageHeader({ title, sub, right }: { title: string; sub?: ReactNo
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {sub && <p className="mt-1 text-sm text-slate-500">{sub}</p>}
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
+        {sub && <p className="mt-1 text-sm text-muted">{sub}</p>}
       </div>
       {right}
     </div>
@@ -87,10 +87,10 @@ export function PageHeader({ title, sub, right }: { title: string; sub?: ReactNo
 
 export function Stat({ label, value, sub, tone }: { label: string; value: ReactNode; sub?: ReactNode; tone?: "up" | "down" }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-xl font-semibold text-slate-900">{value}</div>
-      {sub && <div className={`mt-0.5 text-xs ${tone === "up" ? "text-green-700" : tone === "down" ? "text-red-600" : "text-slate-500"}`}>{sub}</div>}
+    <div className="rounded-lg border border-line bg-surface p-3 shadow-sm">
+      <div className="text-xs font-medium uppercase tracking-wide text-muted">{label}</div>
+      <div className="mt-1 text-xl font-semibold text-ink">{value}</div>
+      {sub && <div className={`mt-0.5 text-xs ${tone === "up" ? "text-green-700" : tone === "down" ? "text-red-600" : "text-muted"}`}>{sub}</div>}
     </div>
   );
 }

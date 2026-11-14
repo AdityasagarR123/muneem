@@ -71,7 +71,7 @@ export function Thread({ msgs, onAsk }: { msgs: Msg[]; onAsk: (q: string) => voi
   return (
     <div className="space-y-6">
       {msgs.map((m, i) => m.role === "user"
-        ? <div key={i} className="flex justify-end"><div className="max-w-[80%] rounded-2xl bg-slate-100 px-4 py-2.5 text-[15px] text-slate-900">{m.text}</div></div>
+        ? <div key={i} className="flex justify-end"><div className="max-w-[80%] rounded-2xl bg-surface-2 px-4 py-2.5 text-[15px] text-ink">{m.text}</div></div>
         : <AssistantMsg key={i} m={m} onAsk={onAsk} />)}
     </div>
   );
@@ -86,14 +86,14 @@ function AssistantMsg({ m, onAsk }: { m: Msg; onAsk: (q: string) => void }) {
     <div className="max-w-full">
       {m.steps && m.steps.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
-          {m.steps.map((s, i) => <span key={i} className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500">{s}</span>)}
+          {m.steps.map((s, i) => <span key={i} className="rounded-md bg-surface-2 px-2 py-0.5 text-[11px] text-muted">{s}</span>)}
         </div>
       )}
       {m.error ? (
         <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">Something went wrong: {m.error}</div>
       ) : (
-        <div className="prose-chat text-[15px] leading-relaxed text-slate-800">
-          {m.text ? <ReactMarkdown>{m.text}</ReactMarkdown> : m.streaming && <span className="text-slate-400">Working…</span>}
+        <div className="prose-chat text-[15px] leading-relaxed text-ink">
+          {m.text ? <ReactMarkdown>{m.text}</ReactMarkdown> : m.streaming && <span className="text-muted/80">Working…</span>}
         </div>
       )}
       {env && (
@@ -105,7 +105,7 @@ function AssistantMsg({ m, onAsk }: { m: Msg; onAsk: (q: string) => void }) {
               : <Badge tone="amber" title={env.grounding.ungrounded.join(", ")}>⚠ {env.grounding.ungrounded.length} unverified number(s)</Badge>)}
             {(env.grounding.from_web ?? 0) > 0 && <Badge tone="amber" title="These figures come from the cited web sources, not your shop's data">{env.grounding.from_web} from the web</Badge>}
             {env.confidence === "insufficient_data" && <Badge tone="amber">not enough history</Badge>}
-            <span className="text-[11px] text-slate-400">{env.mode === "llm" ? env.model : "built-in rules"} · {(env.latency_ms / 1000).toFixed(1)}s</span>
+            <span className="text-[11px] text-muted/80">{env.mode === "llm" ? env.model : "built-in rules"} · {(env.latency_ms / 1000).toFixed(1)}s</span>
           </div>
           {env.warnings.map((w, i) => <p key={i} className="mt-1 text-xs text-amber-700">{w}</p>)}
           {env.visuals.length > 0 && (
@@ -133,7 +133,7 @@ function AssistantMsg({ m, onAsk }: { m: Msg; onAsk: (q: string) => void }) {
           {env.suggestions.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {env.suggestions.map((s) => (
-                <button key={s} className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50" onClick={() => onAsk(s)}>{s}</button>
+                <button key={s} className="rounded-full border border-line px-3 py-1 text-xs text-ink/80 hover:bg-surface-2" onClick={() => onAsk(s)}>{s}</button>
               ))}
             </div>
           )}
@@ -158,7 +158,7 @@ function WebSources({ sources }: { sources: Source[] }) {
     <div className="mt-3 rounded-xl border border-sky-100 bg-sky-50/50 p-3">
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="rounded-md bg-sky-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-800">From the web</span>
-        <span className="text-[11px] text-slate-500">
+        <span className="text-[11px] text-muted">
           Outside information, not your shop's data · not verified by Muneem
           {retrieved && <> · retrieved {new Date(retrieved).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</>}
           {providers && <> via {providers}</>}
@@ -167,11 +167,11 @@ function WebSources({ sources }: { sources: Source[] }) {
       <ol className="space-y-2">
         {shown.map((s, i) => (
           <li key={s.url} className="flex gap-2 text-sm">
-            <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-white text-center text-[11px] leading-5 text-slate-500 ring-1 ring-slate-200">{i + 1}</span>
+            <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-surface text-center text-[11px] leading-5 text-muted ring-1 ring-line">{i + 1}</span>
             <div className="min-w-0">
-              <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-slate-800 hover:underline">{s.title}</a>
-              <div className="text-[11px] text-slate-500">{s.domain} · published {shortDate(s.published_date)}</div>
-              {s.snippet && <p className="mt-0.5 line-clamp-2 text-xs text-slate-600">{s.snippet}</p>}
+              <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-ink hover:underline">{s.title}</a>
+              <div className="text-[11px] text-muted">{s.domain} · published {shortDate(s.published_date)}</div>
+              {s.snippet && <p className="mt-0.5 line-clamp-2 text-xs text-ink/80">{s.snippet}</p>}
             </div>
           </li>
         ))}
@@ -195,21 +195,21 @@ export function Composer({ onSend, busy, mode, setMode, placeholder }: {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); }
   };
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-slate-200 bg-white px-4 pb-3 pt-3 shadow-sm focus-within:border-slate-300">
+    <form onSubmit={submit} className="rounded-2xl border border-line bg-surface px-4 pb-3 pt-3 shadow-sm focus-within:border-line">
       <textarea value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey} rows={2} maxLength={500}
         placeholder={placeholder ?? "Message Muneem…"} disabled={busy}
-        className="w-full resize-none bg-transparent text-[15px] text-slate-900 placeholder:text-slate-400 focus:outline-none" />
+        className="w-full resize-none bg-transparent text-[15px] text-ink placeholder:text-muted/80 focus:outline-none" />
       <div className="flex items-center justify-between gap-2">
-        <label className="flex items-center gap-1.5 text-xs text-slate-500">
+        <label className="flex items-center gap-1.5 text-xs text-muted">
           <select value={mode} onChange={(e) => setMode(e.target.value as any)}
-            className="rounded-md border-0 bg-transparent py-0.5 text-xs text-slate-500 focus:ring-0">
+            className="rounded-md border-0 bg-transparent py-0.5 text-xs text-muted focus:ring-0">
             <option value="auto">AI (Gemini)</option>
             <option value="rules">Built-in rules (offline)</option>
           </select>
           <span className="hidden sm:inline">· answers come from your records</span>
         </label>
         <button type="submit" disabled={busy || !text.trim()} aria-label="Send"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white disabled:bg-slate-300">
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-white disabled:bg-slate-300">
           <Icon name="arrowUp" />
         </button>
       </div>

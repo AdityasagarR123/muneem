@@ -37,15 +37,15 @@ export default function FindingRow({ f, compact = false, onStatus }: {
     question: lang === "en" ? `Explain: ${f.what}` : `Samjhaiye: ${f.what_hi}` } });
 
   return (
-    <div className={`group flex gap-3 ${compact ? "py-3" : "rounded-xl border border-slate-200 bg-white p-4"}`}>
+    <div className={`group flex gap-3 ${compact ? "py-3" : "rounded-xl border border-line bg-surface p-4"}`}>
       <span className={`mt-2 h-2 w-2 shrink-0 rounded-full ${DOT[f.severity]}`} title={`${f.severity} priority`} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2">
-          <span className="font-medium text-slate-900">{pick(lang, f.what, f.what_hi)}</span>
+          <span className="font-medium text-ink">{pick(lang, f.what, f.what_hi)}</span>
           {f.urgent && <span className="text-[11px] font-semibold uppercase tracking-wide text-red-600">today</span>}
-          {!compact && <span className="text-[11px] uppercase tracking-wide text-slate-400">{CAT[f.category]}</span>}
+          {!compact && <span className="text-[11px] uppercase tracking-wide text-muted/80">{CAT[f.category]}</span>}
         </div>
-        <p className={`mt-0.5 text-sm text-slate-600 ${compact ? "line-clamp-2" : ""}`}>{pick(lang, f.why, f.why_hi)}</p>
+        <p className={`mt-0.5 text-sm text-ink/80 ${compact ? "line-clamp-2" : ""}`}>{pick(lang, f.why, f.why_hi)}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {f.action?.label && (
             <button className="btn btn-dark" disabled={busy} onClick={act}>
@@ -63,8 +63,8 @@ export default function FindingRow({ f, compact = false, onStatus }: {
       </div>
       {f.impact_paise != null && (
         <div className="shrink-0 text-right">
-          <div className="font-semibold tabular-nums text-slate-900">{paise(f.impact_paise)}</div>
-          <div className="text-[11px] text-slate-500">{f.impact_label}</div>
+          <div className="font-semibold tabular-nums text-ink">{paise(f.impact_paise)}</div>
+          <div className="text-[11px] text-muted">{f.impact_label}</div>
         </div>
       )}
     </div>

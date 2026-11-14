@@ -163,6 +163,16 @@ class SqlStore:
             rows = conn.execute(select(campaigns_t.c.data).order_by(campaigns_t.c.created_at)).all()
         return [json.loads(r[0]) for r in rows]
 
+    def get_meta(self, key: str):
+        with self.engine.connect() as conn:
+            row = conn.execute(select(meta_t.c.value).where(meta_t.c.key == key)).first()
+        return json.loads(row[0]) if row else None
+
+    def set_meta(self, key: str, value) -> None:
+        with self.engine.begin() as conn:
+            conn.execute(delete(meta_t).where(meta_t.c.key == key))
+            conn.execute(insert(meta_t), [{"key": key, "value": json.dumps(value, default=str)}])
+
     def save_source_profile(self, p: dict) -> None:
         with self.engine.begin() as conn:
             conn.execute(delete(source_profiles_t).where(source_profiles_t.c.signature == p["signature"]))
