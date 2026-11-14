@@ -28,6 +28,10 @@ INTENTS: list[tuple[str, list[str]]] = [
     ("draft", [r"\bmessage\b", r"\bmsg\b", r"whatsapp", r"\bdraft\b", r"\blikh", r"\bbhej",
                r"sandesh", r"purchase order"]),
     ("brief", [r"\bbrief\b", r"\bsubah\b", r"morning", r"aaj ka haal", r"today.?s summary"]),
+    ("web", [r"\bmarket (price|rate|bhav|trend)", r"\bmandi\b", r"\bbhav\b", r"\bnews\b",
+             r"\bkhabar", r"competitor", r"online (price|rate)", r"\binternet\b", r"\bon the web\b",
+             r"search (online|the web|google)", r"gst (rate|rule|change|notification|council)",
+             r"wholesale (price|rate)", r"\bprice trend", r"sarkari|government (rule|scheme)"]),
     ("customer_profile", [r"."]),  # only when a customer's full name is mentioned
     ("campaign_result", [r"campaign.*(result|kaam|work|asar|kaisa)", r"(result|asar).*campaign",
                          r"did .*(campaign|message).* work"]),
@@ -81,7 +85,7 @@ INTENTS: list[tuple[str, list[str]]] = [
 ]
 
 INTENT_TOOL = {
-    "draft": "restock_draft", "brief": "morning_brief", "customer_profile": "customer_profile",
+    "web": "web_search", "draft": "restock_draft", "brief": "morning_brief", "customer_profile": "customer_profile",
     "explain": "explain_change", "focus": "top_insights", "campaign_result": "campaign_results",
     "reminder": "draft_campaign", "campaign": "draft_campaign",
     "at_risk": "at_risk_customers", "udhaar": "udhaar_report", "top_customers": "query_metric",
@@ -139,7 +143,14 @@ def route(m: DataManager, text: str) -> Route | None:
         args: dict = {}
         from app.agent.language import detect_language
 
-        if intent == "customer_profile":
+        if intent == "web":
+            if not m.research.search_ready:
+                continue
+            news = re.search(r"news|khabar|latest|aaj|today|this week", low)
+            args = {"query": text.strip()[:300], "topic": "news" if news else "general"}
+            if news:
+                args["time_range"] = "week"
+        elif intent == "customer_profile":
             if not e["customer"]:
                 continue
             args = {"customer": e["customer"]}
@@ -246,6 +257,16 @@ def _names(rows, key="name", k=3):
 def answer(intent: str, out: ToolOutput, lang: str) -> str:
     hi = lang in ("hinglish", "hi")
     ins, h, rows = out.insight, out.insight.headline, out.insight.rows
+    if intent == "web":
+        if not rows:
+            return ("Web par iske baare mein kuch pakka nahi mila." if hi else
+                    "I found nothing reliable on the web for that.")
+        lines = [f"- {r['title']} ({r.get('domain') or ''}, "
+                 f"{(r.get('published_date') or 'date unknown')[:16]})" for r in rows[:3]]
+        head = ("Web se mili jaankari (Muneem ne verify nahi ki, aapki dukaan ka data nahi):" if hi
+                else "From the web (outside information, not verified by Muneem and not your shop's "
+                     "data):")
+        return head + "\n" + "\n".join(lines)
     if intent == "draft":
         if not rows:
             return ("Abhi kisi supplier ko order bhejne ki zaroorat nahi." if hi else

@@ -22,6 +22,7 @@ export default function EvidencePanel({ evidence }: { evidence: Evidence[] }) {
                 <code className="rounded bg-white px-1.5 py-0.5 font-semibold">{e.tool}</code>
                 {Object.keys(e.args).length > 0 && <code className="text-slate-500">{JSON.stringify(e.args)}</code>}
                 {e.engine && e.engine !== "pandas" && <Badge tone="violet">{e.engine}</Badge>}
+                {e.external && <Badge tone="amber">web · not shop data</Badge>}
                 {e.confidence !== "ok" && <Badge tone="amber">{e.confidence}</Badge>}
               </div>
               {e.error && <p className="text-red-600">{e.error}</p>}

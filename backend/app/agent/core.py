@@ -21,7 +21,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from app.agent import charts, grounding, rules
-from app.agent.envelope import Action, Envelope, Evidence, Visual
+from app.agent.envelope import Action, Envelope, Evidence, Source, Visual
 from app.agent.language import detect_language
 from app.agent.llm import LLMBackend, LLMUnavailable
 from app.agent.tools import TOOLS, ToolError, ToolOutput, json_schema, llm_view, run_tool
@@ -58,7 +58,16 @@ different chart answers the question better (for example a pie for "share of", a
 a waterfall for "what changed"), using the dataset_id and column names from a result. You never \
 supply chart numbers yourself.
 12. For "why did sales go up/down" use explain_change; for "what should I focus on" use \
-top_insights."""
+top_insights.
+13. Web: use web_search (and rarely web_extract) only for outside context - market or wholesale \
+prices, commodity trends, news, GST/government rules, competitors. Never for this shop's own \
+numbers, and never put customer names, phone numbers or the shop's figures in a query. Keep web \
+facts apart from the shop's numbers: put them in their own sentence starting "From the web:", \
+name the source site and its date, and say they are not verified by Muneem. If no source has a \
+date, say the date is unknown. When web_search returns results, summarise what the most relevant \
+2-3 sources actually say (direction, figures quoted, reasons) - do not claim nothing was found. If \
+the snippets truly lack the asked figure, say what they do cover and that the sources are listed \
+below. Market and price questions are in scope (rule 10 does not apply)."""
 
 LANG_HINT = {"en": "English", "hinglish": "Hinglish (Hindi in Roman letters)",
              "hi": "Hindi written in Devanagari script"}
@@ -79,8 +88,13 @@ class Agent:
         self.history: dict[str, list[tuple[str, str]]] = {}
         self.transcripts: dict[str, dict] = {}  # full envelopes, so old chats reopen with charts
         self._lock = threading.Lock()
+        r = manager.research
+        hidden = {"web_search"} if not r.search_ready else set()
+        if not r.extract_ready:
+            hidden.add("web_extract")
         self.tool_decls = [{"name": t.name, "description": t.description,
-                            "parameters": json_schema(t.args)} for t in TOOLS.values()]
+                            "parameters": json_schema(t.args)} for t in TOOLS.values()
+                           if t.name not in hidden]
         self.tool_decls.append({
             "name": "make_chart",
             "description": "Draw a different chart from a dataset_id returned earlier in this turn "
@@ -192,6 +206,9 @@ class Agent:
             return {"error": f"The {name} tool failed internally."}
         state.add_output(name, out)
         view = llm_view(out)
+        if out.insight.meta.get("external"):
+            view["external"] = True
+            view["note"] = "Outside web information, not this shop's data. Cite the source and date."
         did = state.register(out)
         view["dataset_id"] = did
         view["columns"] = charts.columns(out.insight.rows)
@@ -278,6 +295,7 @@ class _Turn:
         self.grounding = grounding.Grounding()
         self.datasets: dict[str, dict] = {}
         self.custom_charts: list[Visual] = []
+        self.sources: list[Source] = []
 
     def register(self, out: ToolOutput) -> str:
         """Expose a tool result as a chartable dataset (d1, d2 ... plus d1.bridge etc.)."""
@@ -296,7 +314,21 @@ class _Turn:
         self.evidence.append(Evidence(
             tool=name, args=ins.meta.get("args", {}), title=ins.title, formula=ins.formula,
             headline=ins.headline, rows=ins.rows[:20], confidence=ins.confidence,
-            engine=ins.engine, assumptions=ins.assumptions, resolved=out.resolved))
+            engine=ins.engine, assumptions=ins.assumptions, resolved=out.resolved,
+            external=bool(ins.meta.get("external"))))
+        if ins.meta.get("external"):
+            seen = {s.url for s in self.sources}
+            for r in ins.rows:
+                if r.get("url") and r["url"] not in seen:
+                    seen.add(r["url"])
+                    snippet = r.get("snippet") or (f"{r['label']}: {r.get('value', '')}"
+                                                   if r.get("label") else "")
+                    self.sources.append(Source(
+                        title=str(r.get("title") or r.get("domain") or r["url"]),
+                        url=r["url"], domain=r.get("domain") or "", snippet=str(snippet)[:300],
+                        published_date=r.get("published_date"),
+                        retrieved_at=ins.meta.get("retrieved_at"),
+                        provider=ins.meta.get("provider", ""), tool=name))
 
     def envelope(self, latency_ms: int) -> Envelope:
         visuals: list[Visual] = []
@@ -332,4 +364,5 @@ class _Turn:
             language=self.lang, mode=self.mode, model=self.model if self.mode == "llm" else None,
             confidence=confidence, evidence=self.evidence, visuals=visuals[:6], actions=actions[:4],
             suggestions=suggestions[:3], grounding=self.grounding, warnings=self.warnings,
+            sources=self.sources[:10],
             latency_ms=latency_ms)

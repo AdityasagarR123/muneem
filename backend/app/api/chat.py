@@ -86,3 +86,9 @@ def agent_status(a: Agent = Depends(agent)):
 def agent_tools():
     return [{"name": t.name, "description": t.description, "parameters": json_schema(t.args)}
             for t in TOOLS.values()]
+
+
+@router.get("/research/status")
+def research_status(a: Agent = Depends(agent)):
+    """Whether web search (Tavily) / page reading (TinyFish) are configured, and today's usage."""
+    return a.m.research.status()

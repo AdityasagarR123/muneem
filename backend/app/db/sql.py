@@ -67,6 +67,10 @@ campaigns_t = Table(
     "campaigns", md, Column("campaign_id", String(40), primary_key=True),
     Column("status", String(16), index=True), Column("created_at", String(40), index=True),
     Column("data", Text))
+source_profiles_t = Table(
+    "source_profiles", md, Column("signature", String(32), primary_key=True),
+    Column("name", String(120)), Column("entity", String(32)), Column("created_at", String(40)),
+    Column("data", Text))
 insight_status_t = Table(
     "insight_status", md, Column("insight_id", String(120), primary_key=True),
     Column("status", String(16)), Column("updated_at", String(40)))
@@ -158,6 +162,17 @@ class SqlStore:
         with self.engine.connect() as conn:
             rows = conn.execute(select(campaigns_t.c.data).order_by(campaigns_t.c.created_at)).all()
         return [json.loads(r[0]) for r in rows]
+
+    def save_source_profile(self, p: dict) -> None:
+        with self.engine.begin() as conn:
+            conn.execute(delete(source_profiles_t).where(source_profiles_t.c.signature == p["signature"]))
+            conn.execute(insert(source_profiles_t), [{
+                "signature": p["signature"], "name": p["name"], "entity": p["entity"],
+                "created_at": datetime.now(timezone.utc).isoformat(), "data": json.dumps(p)}])
+
+    def source_profiles(self) -> list[dict]:
+        with self.engine.connect() as conn:
+            return [json.loads(r[0]) for r in conn.execute(select(source_profiles_t.c.data)).all()]
 
     def set_insight_status(self, insight_id: str, status: str) -> None:
         with self.engine.begin() as conn:

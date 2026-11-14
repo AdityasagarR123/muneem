@@ -28,6 +28,7 @@ export type Evidence = {
   assumptions: string[];
   resolved: Record<string, any>;
   error: string | null;
+  external?: boolean;
 };
 
 export type Envelope = {
@@ -42,9 +43,21 @@ export type Envelope = {
   visuals: Visual[];
   actions: Action[];
   suggestions: string[];
-  grounding: { checked: number; ungrounded: string[] };
+  grounding: { checked: number; from_web?: number; verified?: number; ungrounded: string[] };
   warnings: string[];
+  sources?: Source[];
   latency_ms: number;
+};
+
+export type Source = {
+  title: string;
+  url: string;
+  domain: string;
+  snippet: string;
+  published_date: string | null;
+  retrieved_at: string | null;
+  provider: string;
+  tool: string;
 };
 
 export type POLine = {

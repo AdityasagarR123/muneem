@@ -27,9 +27,18 @@ class Settings(BaseSettings):
     # PostgreSQL system of record (optional - app works without it)
     database_url: str | None = None
 
+    # inbound webhook (optional) - HMAC-SHA256 secret; empty = webhook disabled
+    webhook_secret: str = ""
+    allow_sqlite_connector: bool = False  # tests only: never read server-local SQLite files
+
     # web research (optional)
     tavily_api_key: str = ""
     tinyfish_api_key: str = ""
+    research_timeout_s: int = 20
+    tavily_daily_limit: int = 200
+    tinyfish_daily_limit: int = 20  # TinyFish bills per agent step - keep it tight
+    tinyfish_max_steps: int = 15
+    web_cache_hours: int = 24
 
     # ArangoDB (optional - app works without it)
     arango_url: str | None = None

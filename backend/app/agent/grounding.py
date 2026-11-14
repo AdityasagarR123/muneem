@@ -53,7 +53,9 @@ def _matches(text_num: str, value: float, known: set[float]) -> bool:
 
 def check(answer: str, evidence: list, question: str = "") -> Grounding:
     known: set[float] = set()
-    _numbers_in(evidence, known)
+    _numbers_in([v for v in evidence if not (isinstance(v, dict) and v.get("external"))], known)
+    web: set[float] = set()
+    _numbers_in([v for v in evidence if isinstance(v, dict) and v.get("external")], web)
     asked: set[float] = set()
     _numbers_in(question, asked)
     g = Grounding()
@@ -67,8 +69,15 @@ def check(answer: str, evidence: list, question: str = "") -> Grounding:
         if value in asked or (value.is_integer() and value <= 10 and not mult):
             continue
         text_num = raw if not mult else None
-        ok = _matches(text_num, value, known) if text_num else any(
-            abs(v - value) <= 0.006 * abs(v) for v in known if v)
-        if not ok:
-            g.ungrounded.append(m.group(0).strip())
+
+        def found(pool):
+            return _matches(text_num, value, pool) if text_num else any(
+                abs(v - value) <= 0.006 * abs(v) for v in pool if v)
+        if found(known):
+            g.verified += 1
+            continue
+        if web and found(web):
+            g.from_web += 1  # cited outside figure, not the shop's data
+            continue
+        g.ungrounded.append(m.group(0).strip())
     return g

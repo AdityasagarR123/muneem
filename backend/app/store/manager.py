@@ -50,6 +50,15 @@ class DataManager:
         self.sql_version: str | None = None
         self._lock = threading.RLock()
         self._cache: dict = {}
+        self._research = None
+
+    @property
+    def research(self):
+        """Web research client (Tavily / TinyFish), created on first use."""
+        if self._research is None:
+            from app.research.web import WebResearch
+            self._research = WebResearch(self.settings)
+        return self._research
 
     # ---------------------------------------------------------------- lifecycle
     def startup(self) -> None:
@@ -270,6 +279,15 @@ class DataManager:
 
             self._restock = RestockStore(self)
         return self._restock
+
+    @property
+    def ingest(self):
+        """Smart-import review sessions + remembered source mappings."""
+        if getattr(self, "_ingest", None) is None:
+            from app.ingest.connectors import IngestSessions, SourceProfiles
+
+            self._ingest = (IngestSessions(), SourceProfiles(self))
+        return self._ingest
 
     @property
     def campaigns(self):

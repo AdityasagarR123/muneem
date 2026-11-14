@@ -572,3 +572,4 @@ def llm_view(out: ToolOutput, max_rows: int = 12) -> dict:
 # CRM + metrics tools register themselves into TOOLS (kept in their own module)
 from app.agent import crm_tools as _crm_tools  # noqa: E402,F401
 from app.agent import campaign_tools as _campaign_tools  # noqa: E402,F401
+from app.agent import web_tools as _web_tools  # noqa: E402,F401

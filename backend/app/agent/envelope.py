@@ -19,6 +19,7 @@ class Evidence(BaseModel):
     assumptions: list[str] = Field(default_factory=list)
     resolved: dict[str, Any] = Field(default_factory=dict)  # 'aata' -> I001 etc.
     error: str | None = None
+    external: bool = False  # web result, not the shop's own data
 
 
 class Visual(BaseModel):
@@ -33,8 +34,22 @@ class Action(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
 
 
+class Source(BaseModel):
+    """A cited outside (web) source, shown apart from the shop's own numbers."""
+    title: str
+    url: str
+    domain: str = ""
+    snippet: str = ""
+    published_date: str | None = None
+    retrieved_at: str | None = None
+    provider: str = ""  # Tavily | TinyFish
+    tool: str = ""
+
+
 class Grounding(BaseModel):
     checked: int = 0
+    from_web: int = 0  # numbers that come from cited web sources (not verified shop data)
+    verified: int = 0  # numbers found in this shop's computed data (excludes trivial ones)
     ungrounded: list[str] = Field(default_factory=list)
 
     @property
@@ -56,4 +71,5 @@ class Envelope(BaseModel):
     suggestions: list[str] = Field(default_factory=list)
     grounding: Grounding = Field(default_factory=Grounding)
     warnings: list[str] = Field(default_factory=list)
+    sources: list[Source] = Field(default_factory=list)
     latency_ms: int = 0

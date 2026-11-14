@@ -1,6 +1,6 @@
 import { FormEvent, KeyboardEvent, useCallback, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { api, Envelope, streamChat } from "../lib/api";
+import { api, Envelope, Source, streamChat } from "../lib/api";
 import { RUNNABLE, useActionRunner } from "../lib/actions";
 import EvidencePanel from "./EvidencePanel";
 import Icon from "./Icon";
@@ -100,8 +100,10 @@ function AssistantMsg({ m, onAsk }: { m: Msg; onAsk: (q: string) => void }) {
         <>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             {env.grounding.checked > 0 && (env.grounding.ungrounded.length === 0
-              ? <Badge tone="green" title="Every number in the answer was found in the computed data">✓ {env.grounding.checked} numbers verified</Badge>
+              ? ((env.grounding.verified ?? env.grounding.checked - (env.grounding.from_web ?? 0)) > 0 &&
+                <Badge tone="green" title="Every shop number in the answer was found in the computed data">✓ {(env.grounding.verified ?? env.grounding.checked - (env.grounding.from_web ?? 0))} numbers verified</Badge>)
               : <Badge tone="amber" title={env.grounding.ungrounded.join(", ")}>⚠ {env.grounding.ungrounded.length} unverified number(s)</Badge>)}
+            {(env.grounding.from_web ?? 0) > 0 && <Badge tone="amber" title="These figures come from the cited web sources, not your shop's data">{env.grounding.from_web} from the web</Badge>}
             {env.confidence === "insufficient_data" && <Badge tone="amber">not enough history</Badge>}
             <span className="text-[11px] text-slate-400">{env.mode === "llm" ? env.model : "built-in rules"} · {(env.latency_ms / 1000).toFixed(1)}s</span>
           </div>
@@ -126,6 +128,7 @@ function AssistantMsg({ m, onAsk }: { m: Msg; onAsk: (q: string) => void }) {
               ))}
             </div>
           )}
+          {env.sources && env.sources.length > 0 && <WebSources sources={env.sources} />}
           <EvidencePanel evidence={env.evidence} />
           {env.suggestions.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -135,6 +138,48 @@ function AssistantMsg({ m, onAsk }: { m: Msg; onAsk: (q: string) => void }) {
             </div>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+function shortDate(d: string | null) {
+  if (!d) return "date unknown";
+  const t = new Date(d);
+  return isNaN(t.getTime()) ? d.slice(0, 16) : t.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function WebSources({ sources }: { sources: Source[] }) {
+  const [open, setOpen] = useState(false);
+  const shown = open ? sources : sources.slice(0, 3);
+  const providers = Array.from(new Set(sources.map((s) => s.provider).filter(Boolean))).join(" + ");
+  const retrieved = sources.find((s) => s.retrieved_at)?.retrieved_at;
+  return (
+    <div className="mt-3 rounded-xl border border-sky-100 bg-sky-50/50 p-3">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="rounded-md bg-sky-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-800">From the web</span>
+        <span className="text-[11px] text-slate-500">
+          Outside information, not your shop's data · not verified by Muneem
+          {retrieved && <> · retrieved {new Date(retrieved).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</>}
+          {providers && <> via {providers}</>}
+        </span>
+      </div>
+      <ol className="space-y-2">
+        {shown.map((s, i) => (
+          <li key={s.url} className="flex gap-2 text-sm">
+            <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-white text-center text-[11px] leading-5 text-slate-500 ring-1 ring-slate-200">{i + 1}</span>
+            <div className="min-w-0">
+              <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-slate-800 hover:underline">{s.title}</a>
+              <div className="text-[11px] text-slate-500">{s.domain} · published {shortDate(s.published_date)}</div>
+              {s.snippet && <p className="mt-0.5 line-clamp-2 text-xs text-slate-600">{s.snippet}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+      {sources.length > 3 && (
+        <button className="mt-2 text-xs text-sky-700 hover:underline" onClick={() => setOpen(!open)}>
+          {open ? "Show fewer" : `Show all ${sources.length} sources`}
+        </button>
       )}
     </div>
   );

@@ -88,6 +88,47 @@ balances, total udhaar ₹49,475.50 to the paisa.
 - Live: Postgres (Supabase) and ArangoDB cloud connected - dataset round-trips; AQL graph results
   identical to the in-memory engine. 169 tests pass.
 
+**Phase 6 done (14 Nov 2026):**
+- Profiler: each column typed from its values (identifier, integer, decimal, money, percent,
+  date, phone, email, GSTIN, UPI, boolean, category, text) with null / distinct %, examples,
+  outliers.
+- Classifier: which business table a file is (products, bills, stock, expenses, suppliers,
+  customers, repayments) from header words + value types + how much of the file each type
+  explains (+ file-name hint).
+- Mapper: every field gets a column and a confidence (header words incl. Indian billing terms,
+  value-type fit, value checks such as GST slabs and payment words, MRP > cost); "sure" ≥ 75%,
+  "please check" otherwise; weak guesses only for required fields. Optional AI proposals for
+  still-unclear columns, validated and always confirmed.
+- Links: expected references checked by coverage (bills → products 100% …) and unknown links
+  discovered by value inclusion. Confirmed layouts are remembered by header signature
+  (Postgres), so the next export maps itself.
+- Connectors: analyze → confirm → commit API; read-only SQL import (PostgreSQL/MySQL; reflected
+  tables, read-only session, server-local SQLite refused); HMAC-signed webhook that appends
+  bills/expenses/repayments or upserts products/stock/customers, re-validating everything
+  (a bad batch changes nothing).
+- Data page: upload or connect, review with highlighted fields, links, "remember this layout".
+- Unseen billing export (generic file names, "Bill No.", "Bill Dt" dd-mm-yyyy, "Rate (incl.
+  GST)", "Tax %", Paytm/Udhaar, customer phones, junk columns): all tables and fields mapped,
+  nothing to confirm, same revenue after import. 184 tests pass.
+
+**Phase 7 done (14 Nov 2026):**
+- `app/research/web.py`: Tavily search (basic depth = 1 credit, India, optional day/week/month
+  window, published dates) and TinyFish page reading (structured output: found/not_found,
+  label/value facts, summary). One-day cache, daily caps per provider, friendly errors.
+- Privacy guard: before any query leaves the server, phones, emails, UPI ids, GSTINs, rupee
+  amounts / long numbers, internal ids, customer full names and the shop name are removed; the
+  evidence says what was removed. Page reading accepts only public `https` addresses.
+- Agent tools `web_search` / `web_extract` (hidden from the model when the key is missing);
+  prompt rule 13: outside context only, never the shop's numbers, web facts in their own
+  "From the web:" sentence with site and date. Rules mode answers market/news/GST-rule questions
+  with a dated source list.
+- Separation: answers carry a `sources` list (title, link, site, published date, retrieved
+  time, provider) shown as a "From the web" block under the answer; web evidence is tagged; web
+  figures count as "from the web", never as "verified" shop numbers.
+- Live: "latest news on sugar market price" → 5 sources dated 12–13 Nov 2026; TinyFish read a
+  page in 4 steps. This TinyFish account has no custom step limit (beta), so the client falls
+  back to the provider default and relies on the daily run cap. 208 tests pass.
+
 ## 1. Verdict in one paragraph
 
 The current Muneem already has the hardest part of the vision right: **a deterministic engine
