@@ -15,7 +15,10 @@
 > English / Hinglish / Hindi, lifecycle draft → sent → received (receiving adds stock and every
 > alert recomputes; partial deliveries supported), CSV export, morning brief, chat tools for
 > both. Orders are saved in ArangoDB `purchase_orders` when connected. 101 tests passing.
-> Next: Phase 10 hardening (response cache for demo questions, security pass), then frontend.
+>
+> **Frontend done:** React + Vite + Tailwind + Recharts + Mermaid - Dashboard, Ask Muneem chat,
+> Restock, Data upload. Next: Phase 10 hardening (response cache for demo questions, security
+> pass) and connecting the ArangoDB cloud instance.
 
 Step-by-step build plan for the project described in `VyaparPulse — Kirana Inventory & Purchase Intelligence Copilot.md`.
 Each phase ends with a **Done when** check. Do not start the next phase until the current one passes.
@@ -24,18 +27,19 @@ Each phase ends with a **Done when** check. Do not start the next phase until th
 
 ## 0. Key decisions (read first)
 
-| Decision | Choice |
-| --- | --- |
-| Database | **ArangoDB** (documents + graph) is the saved source of truth |
-| How ArangoDB runs | **No Docker.** Either a native install on the laptop, or a managed ArangoDB cloud instance. The app only needs `ARANGO_URL` + credentials in `.env`, so switching between them needs no code change (see Phase 0) |
-| Calculations | **Python only** (pandas + `Decimal`/paise). ArangoDB stores and connects data; it never does GST/margin/reorder math |
-| How analytics read data | On startup / after upload, load collections from ArangoDB into pandas DataFrames (in-memory cache). Analytics run on DataFrames |
-| Graph questions | Fixed, parameterised **AQL** queries written by us (supplier risk, bought-together, supply path, substitutes) |
-| LLM | Any provider behind one wrapper `llm.chat(messages, tools)`; chosen via `.env` |
-| LLM safety | LLM only picks a tool + arguments. **It never writes AQL, SQL, or Python** |
-| Fallback | If ArangoDB is down, load the same CSVs straight into pandas (`CsvStore`). Graph tools return "graph unavailable" |
-| Frontend | React (Vite) + Tailwind + Recharts + Streamdown (Mermaid) |
-| Backend | FastAPI + Pydantic + pandas + `python-arango` |
+
+| Decision                | Choice                                                                                                                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Database                | **ArangoDB** (documents + graph) is the saved source of truth                                                                                                                                                     |
+| How ArangoDB runs       | **No Docker.** Either a native install on the laptop, or a managed ArangoDB cloud instance. The app only needs `ARANGO_URL` + credentials in `.env`, so switching between them needs no code change (see Phase 0) |
+| Calculations            | **Python only** (pandas + `Decimal`/paise). ArangoDB stores and connects data; it never does GST/margin/reorder math                                                                                              |
+| How analytics read data | On startup / after upload, load collections from ArangoDB into pandas DataFrames (in-memory cache). Analytics run on DataFrames                                                                                   |
+| Graph questions         | Fixed, parameterised **AQL** queries written by us (supplier risk, bought-together, supply path, substitutes)                                                                                                     |
+| LLM                     | Any provider behind one wrapper `llm.chat(messages, tools)`; chosen via `.env`                                                                                                                                    |
+| LLM safety              | LLM only picks a tool + arguments. **It never writes AQL, SQL, or Python**                                                                                                                                        |
+| Fallback                | If ArangoDB is down, load the same CSVs straight into pandas (`CsvStore`). Graph tools return "graph unavailable"                                                                                                 |
+| Frontend                | React (Vite) + Tailwind + Recharts + Streamdown (Mermaid)                                                                                                                                                         |
+| Backend                 | FastAPI + Pydantic + pandas + `python-arango`                                                                                                                                                                     |
 
 ### Overall architecture
 
@@ -117,6 +121,7 @@ muneem/
 **Goal:** everyone can run an empty app connected to ArangoDB, without Docker.
 
 Steps:
+
 1. Create the folder structure above. Add `.gitignore` (`.env`, `node_modules`, `__pycache__`, `.venv`).
 2. Get an ArangoDB server running (pick **one**, the whole team uses the same choice):
    - **Option A — Managed cloud (easiest on Windows):** create a free/trial instance on ArangoDB's managed cloud service. Copy its URL, username and password into `.env`. Nothing to install. Downside: needs internet during the demo (the `CsvStore` fallback covers Wi-Fi failure).
@@ -137,6 +142,7 @@ Steps:
 **Goal:** realistic Indian kirana data with planted stories, so the demo always has something to find.
 
 Steps:
+
 1. Write `ingest/generator.py` with a fixed random seed.
 2. Generate:
    - `suppliers.csv` — 6–8 suppliers (e.g. "Sharma Traders", "Amul Distributor"), `whatsapp_number_placeholder`.
@@ -164,20 +170,21 @@ Steps:
 
 ### Collections
 
-| Name | Type | `_key` | Main fields |
-| --- | --- | --- | --- |
-| `items` | document | `item_id` | name, category, hsn, mrp_incl_gst_paise, cost_ex_gst_paise, gst_rate, pack_size, lead_time_days |
-| `suppliers` | document | `supplier_id` | name, whatsapp_number_placeholder |
-| `categories` | document | category slug | name |
-| `invoices` | document | `invoice_id` | date, payment_mode, total_paise |
-| `sales` | document | auto | invoice_id, date, item_id, qty, unit_price_incl_gst_paise, payment_mode |
-| `inventory` | document | `item_id` | stock_qty, as_of_date |
-| `expenses` | document | auto | date, category, amount_paise, payment_mode |
-| `uploads` | document | auto | filename, time, validation report |
-| `chat_history` | document | auto | question, envelope, time |
-| `supplies` | **edge** | auto | `suppliers/* → items/*` (lead_time_days) |
-| `belongs_to` | **edge** | auto | `items/* → categories/*` |
-| `contains` | **edge** | auto | `invoices/* → items/*` (qty, unit_price_incl_gst_paise) |
+
+| Name           | Type     | `_key`        | Main fields                                                                                     |
+| ---------------- | ---------- | --------------- | ------------------------------------------------------------------------------------------------- |
+| `items`        | document | `item_id`     | name, category, hsn, mrp_incl_gst_paise, cost_ex_gst_paise, gst_rate, pack_size, lead_time_days |
+| `suppliers`    | document | `supplier_id` | name, whatsapp_number_placeholder                                                               |
+| `categories`   | document | category slug | name                                                                                            |
+| `invoices`     | document | `invoice_id`  | date, payment_mode, total_paise                                                                 |
+| `sales`        | document | auto          | invoice_id, date, item_id, qty, unit_price_incl_gst_paise, payment_mode                         |
+| `inventory`    | document | `item_id`     | stock_qty, as_of_date                                                                           |
+| `expenses`     | document | auto          | date, category, amount_paise, payment_mode                                                      |
+| `uploads`      | document | auto          | filename, time, validation report                                                               |
+| `chat_history` | document | auto          | question, envelope, time                                                                        |
+| `supplies`     | **edge** | auto          | `suppliers/* → items/*` (lead_time_days)                                                       |
+| `belongs_to`   | **edge** | auto          | `items/* → categories/*`                                                                       |
+| `contains`     | **edge** | auto          | `invoices/* → items/*` (qty, unit_price_incl_gst_paise)                                        |
 
 **Named graph:** `kirana_graph` with edge definitions `supplies`, `belongs_to`, `contains`.
 
@@ -186,6 +193,7 @@ Steps:
 > Money is stored as **integer paise** everywhere in the DB.
 
 Steps:
+
 1. `db/arango.py`: connect; create database, collections, edges, named graph and indexes if missing (idempotent — safe to run many times).
 2. `db/loader.py`: take validated DataFrames → bulk insert documents (`import_bulk`) → create edges. Clear old data first (one shop at a time for the hackathon).
 3. `db/store.py`: a `DataStore` interface with `get_frames() -> dict[str, DataFrame]`.
@@ -203,6 +211,7 @@ Steps:
 **Goal:** the owner can upload their own CSV/XLSX and get a clear, row-level report.
 
 Steps:
+
 1. `POST /api/upload` accepts files per table (`items`, `sales`, `inventory`, `expenses`, optional `suppliers`).
 2. Limits: max file size (e.g. 5 MB), max rows (e.g. 200k), extension + MIME check.
 3. `ingest/validate.py` checks:
@@ -225,6 +234,7 @@ Steps:
 **Goal:** every number in the product comes from these tested functions.
 
 Steps (each is a pure function: DataFrames in → result + `formula` string + evidence rows out):
+
 1. `money.py`
    - `taxable = price_incl / (1 + rate)`, `gst = price_incl − taxable` (Decimal, round only for display)
 2. `margin.py`
@@ -260,14 +270,17 @@ Steps (each is a pure function: DataFrames in → result + `formula` string + ev
 ### Queries
 
 **1. Items of a supplier (for supplier risk)**
+
 ```aql
 FOR item IN 1..1 OUTBOUND CONCAT('suppliers/', @supplier_id) supplies
   LET inv = DOCUMENT('inventory', item._key)
   RETURN { item_id: item._key, name: item.name, stock: inv.stock_qty, lead_time: item.lead_time_days }
 ```
+
 Python then joins with `stock.py` results → "if this supplier is late, these N items go critical".
 
 **2. Bought together (basket analysis)**
+
 ```aql
 FOR inv IN 1..1 INBOUND CONCAT('items/', @item_id) contains
   FOR other IN 1..1 OUTBOUND inv contains
@@ -279,6 +292,7 @@ FOR inv IN 1..1 INBOUND CONCAT('items/', @item_id) contains
 ```
 
 **3. Supply path of an item (for Mermaid diagram)**
+
 ```aql
 LET item = DOCUMENT('items', @item_id)
 LET supplier = FIRST(FOR s IN 1..1 INBOUND item supplies RETURN s)
@@ -287,6 +301,7 @@ RETURN { item: item, supplier: supplier, category: category, stock: DOCUMENT('in
 ```
 
 **4. Substitutes (same category, similar price)**
+
 ```aql
 LET item = DOCUMENT('items', @item_id)
 FOR cat IN 1..1 OUTBOUND item belongs_to
@@ -300,6 +315,7 @@ FOR cat IN 1..1 OUTBOUND item belongs_to
 **5. Supplier call priority** — Python: run `stock.py` tiers → group Critical/Soon items by supplier (via query 1 or the `supplies` edges) → sort by ₹ of items at risk.
 
 Steps:
+
 1. Write the queries in `db/aql.py`.
 2. `graph/insights.py`: `supplier_risk`, `bought_together`, `supply_path`, `substitutes`, `supplier_priority` — each returns result + formula/explanation + evidence rows.
 3. If Arango is down → return `{ confidence: "graph_unavailable" }` (no crash).
@@ -314,6 +330,7 @@ Steps:
 **Goal:** one screen with all key numbers in ₹.
 
 Steps:
+
 1. `GET /api/kpis?period=30d` → revenue, margin after GST, GST collected, UPI vs cash, stock value.
 2. `GET /api/alerts` → stock tiers (Critical/Soon), dead stock (₹ locked), low-margin flags, supplier priority.
 3. UI `Dashboard.tsx`:
@@ -334,23 +351,25 @@ Steps:
 
 ### Tools (Pydantic-validated arguments)
 
-| Tool | Source |
-| --- | --- |
-| `get_kpis(period)` | analytics |
-| `top_items(by, n, period)` | analytics |
-| `sales_trend(item?, category?, grain, period)` | analytics |
-| `stock_status(item?)` | analytics |
-| `reorder_plan(horizon_days, budget?)` | analytics |
-| `dead_stock(days)` | analytics |
-| `margin_report(group_by)` | analytics |
-| `payment_mix(period)` | analytics |
-| `supplier_risk(supplier)` | **graph** |
-| `supplier_priority()` | **graph** + analytics |
-| `bought_together(item, n)` | **graph** |
-| `substitutes(item, n)` | **graph** |
-| `explain_flow(topic, item?)` | **graph** → Mermaid template |
+
+| Tool                                           | Source                        |
+| ------------------------------------------------ | ------------------------------- |
+| `get_kpis(period)`                             | analytics                     |
+| `top_items(by, n, period)`                     | analytics                     |
+| `sales_trend(item?, category?, grain, period)` | analytics                     |
+| `stock_status(item?)`                          | analytics                     |
+| `reorder_plan(horizon_days, budget?)`          | analytics                     |
+| `dead_stock(days)`                             | analytics                     |
+| `margin_report(group_by)`                      | analytics                     |
+| `payment_mix(period)`                          | analytics                     |
+| `supplier_risk(supplier)`                      | **graph**                     |
+| `supplier_priority()`                          | **graph** + analytics         |
+| `bought_together(item, n)`                     | **graph**                     |
+| `substitutes(item, n)`                         | **graph**                     |
+| `explain_flow(topic, item?)`                   | **graph** → Mermaid template |
 
 Steps:
+
 1. `agent/llm.py`: one wrapper, provider/model from `.env`, timeout + retry.
 2. `agent/tools.py`: registry `{name: (ArgsModel, function, description)}`. Item/supplier names from the user are matched to IDs with a fuzzy lookup in Python (not by the LLM).
 3. `agent/loop.py`:
@@ -376,6 +395,7 @@ Steps:
      I --> C[Staples]
      I --> K[Stock: 12 · 2 days left · Critical]
    ```
+
    filled from `supply_path` results.
 
 **Done when:** "Kal kya order karna chahiye?", "Which items haven't sold in 30 days?", "Sharma Traders late ho gaya to kya hoga?", "Atta ke saath kya bikta hai?" each pick the right tool and give correct numbers. With the LLM key removed, rules mode still answers them.
@@ -387,6 +407,7 @@ Steps:
 **Goal:** answers look good and prove themselves.
 
 Steps:
+
 1. `Chat.tsx`: message list, input box, SSE streaming.
 2. Render `answer_md` with Streamdown (handles half-finished markdown while streaming).
 3. `EvidencePanel`: collapsible "Show calculation" → tool name, args, formula, evidence table.
@@ -405,11 +426,13 @@ Steps:
 **Goal:** the money-saving action the owner comes back for.
 
 Steps:
+
 1. `actions/restock.py`:
    - order list from `reorder_plan` grouped **by supplier** (uses `supplies` edges)
    - optional budget limit (Critical first, then Soon)
    - Hindi/English WhatsApp-style draft per supplier, e.g.
      > Namaste Sharma ji, kal ke liye order: Atta 10kg × 18, Toor Dal 1kg × 12. Total approx ₹X. Dhanyavaad.
+     >
 2. `POST /api/restock/draft` → `{ suppliers: [{ name, items, total_paise, message }] }`.
 3. `GET /api/restock/export.csv` → downloadable order list.
 4. UI `RestockPanel`: table + "Copy message" + "Open in WhatsApp" (`https://wa.me/?text=...` with the message only, **no real phone numbers**) + "Download CSV".
@@ -423,6 +446,7 @@ Steps:
 ## Phase 10 — Hardening, safety, evaluation
 
 Steps:
+
 1. `eval_questions.yaml`: 15 questions (English, Hindi, Hinglish) with expected tool + expected number. Include at least 3 graph questions. Script `python -m app.eval` prints pass/fail.
 2. Cache LLM responses for the scripted demo questions (local file); use when the API is slow.
 3. Security checklist:
@@ -445,6 +469,7 @@ Steps:
 ## Phase 11 — Demo prep
 
 Steps:
+
 1. Sample data pre-loaded on start.
 2. Rehearse the 4-minute story (Section 6 of the PS doc), adding a graph moment:
    - "Kal kya order karna chahiye?" → list → show calculation
@@ -467,12 +492,13 @@ Steps:
 
 ## Suggested team split (4 people)
 
-| Person | Phases |
-| --- | --- |
-| A — Data/DB | 1, 2, 3, 5 (generator, ArangoDB schema, loader, AQL) |
-| B — Analytics | 4, 9 backend (formulas, tests, restock) |
-| C — Agent | 7, 10 (LLM loop, tools, rules mode, eval) |
-| D — Frontend | 0 frontend, 6, 8, 9 UI |
+
+| Person         | Phases                                               |
+| ---------------- | ------------------------------------------------------ |
+| A — Data/DB   | 1, 2, 3, 5 (generator, ArangoDB schema, loader, AQL) |
+| B — Analytics | 4, 9 backend (formulas, tests, restock)              |
+| C — Agent     | 7, 10 (LLM loop, tools, rules mode, eval)            |
+| D — Frontend  | 0 frontend, 6, 8, 9 UI                               |
 
 Agree on the **envelope format** and **tool list** on day one so people can work in parallel.
 

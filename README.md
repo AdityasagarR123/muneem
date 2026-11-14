@@ -1,6 +1,12 @@
+<img src="icon.png" alt="Muneem" width="96" />
+
 # Muneem — Kirana Inventory & Purchase Intelligence
 
 *Aapka digital muneem: hisaab bhi, salaah bhi.*
+
+Built for Infra Shift Hackathon 2026, Problem Statement 2 — see
+[PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md). Plans: [MUNEEM_PLAN.md](MUNEEM_PLAN.md),
+[IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
 Muneem turns a kirana store's sales, stock and expense exports into decisions: what will run
 out, what to order (and from whom first), what money is stuck in dead stock, and which items
