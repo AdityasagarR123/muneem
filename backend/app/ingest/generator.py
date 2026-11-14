@@ -152,6 +152,7 @@ DEAD = {"I019": 18, "I046": 24, "I051": 8}  # stock units; no sales in last 45 d
 NEW_ITEM = "I039"                        # first sale 8 days before END -> 9 days history
 FESTIVE_STOCK_COVER = (10, 16)
 PAIRS = [("I001", "I015", 0.6), ("I029", "I031", 0.5)]  # (a, b, prob) bought together
+CAMPAIGN_SENT = date(2026, 10, 20)  # planted win-back campaign with a hold-out group
 
 
 def _cost(sku: Sku) -> float:
@@ -176,6 +177,7 @@ def generate(out_dir: Path, seed: int = SEED) -> dict:
 
     # customers use their own random stream, so every earlier planted story stays identical
     sim = CustomerSim(np.random.default_rng(seed + 1), dates, diwali)
+    campaign = sim.plan_campaign(np.random.default_rng(seed + 2), CAMPAIGN_SENT)
     sales_rows: list[list] = []
     daily_qty: dict[str, list[int]] = {s.item_id: [] for s in ITEMS}
     daily_cogs: list[float] = []
@@ -316,6 +318,15 @@ def generate(out_dir: Path, seed: int = SEED) -> dict:
         "bought_together": ["I001", "I015"],
         "crm": sim.expected(),
     }
+    (out_dir / "campaigns.json").write_text(json.dumps([{
+        "campaign_id": "CMP-SAMPLE-WINBACK", "name": "Diwali win-back (sample, already sent)",
+        "goal": "win_back", "language": "hinglish", "holdout_pct": 25, "measure_after_days": 14,
+        "segment": {"type": "customer_ids", "label": "Occasional customers"},
+        "sent_at": campaign["sent"].isoformat(), "members": campaign["members"],
+    }], indent=1), encoding="utf-8")
+    expected["campaign"] = {"campaign_id": "CMP-SAMPLE-WINBACK", "sent_at": campaign["sent"].isoformat(),
+                            "members": len(campaign["members"]),
+                            "holdout": sum(m["group"] == "holdout" for m in campaign["members"])}
     (out_dir / "expected.json").write_text(json.dumps(expected, indent=2), encoding="utf-8")
     return expected
 

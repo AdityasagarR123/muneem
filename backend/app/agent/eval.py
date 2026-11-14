@@ -56,6 +56,10 @@ def grade(case: dict, env: Envelope) -> tuple[bool, str]:
             return False, f"rows missing {sorted(missing)}"
     if "confidence" in case and match.confidence != case["confidence"]:
         return False, f"confidence {match.confidence} != {case['confidence']}"
+    if "visual" in case:
+        kinds = {v.spec.get("kind") for v in env.visuals if v.type == "chart"}
+        if not kinds & set(case["visual"]):
+            return False, f"chart kinds {sorted(k for k in kinds if k)} lack {case['visual']}"
     if not env.answer_md.strip():
         return False, "empty answer"
     if env.grounding.ungrounded:

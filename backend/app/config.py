@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     llm_provider: str = "gemini"
     llm_api_key: str = ""
     llm_model: str = "gemini-3.5-flash-lite,gemini-3.1-flash-lite"
-    llm_timeout_s: int = 15
+    llm_timeout_s: int = 25
     llm_max_tool_rounds: int = 4
     llm_cooldown_s: int = 60
     chat_history_turns: int = 6

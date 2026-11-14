@@ -29,6 +29,17 @@ INTENTS: list[tuple[str, list[str]]] = [
                r"sandesh", r"purchase order"]),
     ("brief", [r"\bbrief\b", r"\bsubah\b", r"morning", r"aaj ka haal", r"today.?s summary"]),
     ("customer_profile", [r"."]),  # only when a customer's full name is mentioned
+    ("campaign_result", [r"campaign.*(result|kaam|work|asar|kaisa)", r"(result|asar).*campaign",
+                         r"did .*(campaign|message).* work"]),
+    ("reminder", [r"reminder", r"yaad dila", r"\bremind", r"udhaa?r.*(message|msg|bhej|likh)",
+                  r"(message|msg|bhej|likh).*udhaa?r"]),
+    ("campaign", [r"campaign", r"win.?back", r"wapas bula",
+                  r"(customers?|grahak).*(message|msg|bhej|likh|whatsapp)",
+                  r"(message|msg|bhej|likh|whatsapp).*(customers?|grahak)"]),
+    ("explain", [r"(why|kyu|kyo|wajah|reason).*(sale|bikri|revenue|dhand|kamai|income|business)",
+                 r"(sale|sales|bikri|revenue|dhanda).*(why|kyu|kyo|drop|gir|kam kyu|badh.*kyu)"]),
+    ("focus", [r"focus", r"priorit", r"\bkya karu", r"aaj kya kar", r"what should i (do|focus)",
+               r"most important", r"sabse zaroori", r"\binsights?\b", r"any problems?", r"koi problem"]),
     ("at_risk", [r"churn", r"stopped (buying|coming)", r"not (coming|buying)", r"aana band",
                  r"aane band", r"nahi? aa rah", r"nahin aa rah", r"lost customer", r"at.?risk",
                  r"chhod", r"wapas nahi", r"likely to stop"]),
@@ -71,6 +82,8 @@ INTENTS: list[tuple[str, list[str]]] = [
 
 INTENT_TOOL = {
     "draft": "restock_draft", "brief": "morning_brief", "customer_profile": "customer_profile",
+    "explain": "explain_change", "focus": "top_insights", "campaign_result": "campaign_results",
+    "reminder": "draft_campaign", "campaign": "draft_campaign",
     "at_risk": "at_risk_customers", "udhaar": "udhaar_report", "top_customers": "query_metric",
     "segments": "customer_segments", "cohort": "cohort_retention", "funnel": "lifecycle_funnel",
     "compare": "query_metric", "supplier_risk": "supplier_risk", "supplier_priority": "supplier_priority",
@@ -130,6 +143,25 @@ def route(m: DataManager, text: str) -> Route | None:
             if not e["customer"]:
                 continue
             args = {"customer": e["customer"]}
+        elif intent == "reminder":
+            args = {"goal": "udhaar_reminder", "language": detect_language(text)}
+        elif intent == "campaign":
+            goal = ("reward_champions" if re.search(r"champion|best|loyal|acch?e|bade", low) else
+                    "welcome_new" if re.search(r"\bnew\b|naye|welcome", low) else "win_back")
+            args = {"goal": goal, "language": detect_language(text)}
+        elif intent == "campaign_result":
+            args = {}
+        elif intent == "explain":
+            if re.search(r"this week|is hafte|is week", low):
+                args = {"period": "this_week", "compare": "previous_period"}
+            elif re.search(r"this month|is mahine", low):
+                args = {"period": "this_month", "compare": "same_period_last_month"}
+            elif re.search(r"\btoday\b|\baaj\b", low):
+                args = {"period": "last_1_days", "compare": "previous_period"}
+            else:
+                args = {"period": "last_7_days", "compare": "previous_period"}
+        elif intent == "focus":
+            args = {"limit": 5, "language": detect_language(text)}
         elif intent == "top_customers":
             args = {"metric": "revenue", "group_by": "customer", "period": "last_90_days",
                     "compare": "none", "limit": 10}
@@ -141,6 +173,9 @@ def route(m: DataManager, text: str) -> Route | None:
             args = {"metric": metric, "period": "this_month", "compare": "same_period_last_month"}
         elif intent == "brief":
             args = {"language": detect_language(text)}
+        elif intent == "draft" and re.search(r"customer|grahak|udhaa?r|remind|champion|best|loyal|"
+                                             r"aana band|win.?back", low):
+            continue  # a message to customers, not a supplier order
         elif intent == "draft":
             args = {"language": detect_language(text)}
             if e["supplier"]:
@@ -224,6 +259,68 @@ def answer(intent: str, out: ToolOutput, lang: str) -> str:
         return f"{head}\n\n{first['message']}"
     if intent == "brief":
         return h["text"]
+    if intent == "explain":
+        if ins.confidence != "ok":
+            return "Is period ki tulna ke liye pehle ka data nahi hai." if hi else \
+                "There isn't enough earlier data to compare this period."
+        main = [r for r in rows if r["driver"] in h["main_reasons"]]
+        rest = next(r for r in rows if r["kind"] == "remainder")
+        word = ("kam" if h["direction"] == "down" else "zyada") if hi else h["direction"]
+        reasons = "; ".join(f"{r['driver']} {rs(r['effect_rs'])}" for r in main) or \
+            ("koi ek saaf wajah nahi" if hi else "no single clear cause")
+        bridge = {b["part"]: b for b in ins.meta.get("bridge", [])}
+        bills, avg = bridge.get("Number of bills", {}), bridge.get("Average bill", {})
+        if hi:
+            s = (f"Bikri {h['period_label']} {num(abs(h['change_pct']))}% {word} hai ({rs(h['now_rs'])}, "
+                 f"pehle {rs(h['before_rs'])}). Mukhya wajah: {reasons}. Baaki {rs(rest['effect_rs'])} "
+                 f"aam utaar-chadhaav.")
+            if bills:
+                s += f" Bills {num(bills['change_pct'])}%, average bill {num(avg.get('change_pct'))}%."
+        else:
+            s = (f"Sales {h['period_label']} are {word} {num(abs(h['change_pct']))}% ({rs(h['now_rs'])} vs "
+                 f"{rs(h['before_rs'])}). Main reasons: {reasons}. The remaining {rs(rest['effect_rs'])} "
+                 f"is normal variation.")
+            if bills:
+                s += f" Bills {num(bills['change_pct'])}%, average bill {num(avg.get('change_pct'))}%."
+        return s
+    if intent in ("campaign", "reminder"):
+        if not h.get("members"):
+            return "Is group mein abhi koi customer nahi hai." if hi else "No customers match this group right now."
+        ex = rows[0]["message"] if rows else ""
+        if h.get("udhaar_total_rs"):
+            s = (f"{h['targets']} customers ko yaad dilane ke message taiyaar hain (kul "
+                 f"{rs(h['udhaar_total_rs'])} baaki). Check karke WhatsApp se bhejiye." if hi else
+                 f"Reminders drafted for {h['targets']} customers ({rs(h['udhaar_total_rs'])} pending). "
+                 f"Review and send from WhatsApp.")
+        else:
+            s = (f"{h['targets']} customers ke liye message taiyaar hain; {h['holdout']} ko jaan-boojh kar "
+                 f"nahi bhejenge taaki pata chale message ka asar hua ya nahi." if hi else
+                 f"Messages drafted for {h['targets']} customers; {h['holdout']} are kept as a hold-out "
+                 f"(no message) so we can tell whether it worked.")
+        return f"{s}\n\n{ex}"
+    if intent == "campaign_result":
+        if h.get("status") in ("not_sent", "waiting"):
+            return h.get("message", "")
+        g = {r["group"]: r for r in rows}
+        t, ho = g.get("Messaged", {}), g.get("Hold-out (no message)", {})
+        s = (f"'{h.get('name')}': message paane wale {num(t.get('rate_pct'))}% customers wapas aaye, bina "
+             f"message wale {num(ho.get('rate_pct'))}% ({num(h.get('lift_points'))} points ka farq)." if hi else
+             f"'{h.get('name')}': {num(t.get('rate_pct'))}% of messaged customers came back vs "
+             f"{num(ho.get('rate_pct'))}% of the hold-out ({num(h.get('lift_points'))} points).")
+        if h.get("incremental_value_rs") is not None:
+            s += (f" Lagbhag {rs(h['incremental_value_rs'])} ki extra bikri." if hi else
+                  f" About {rs(h['incremental_value_rs'])} of extra sales.")
+        verdict = h.get("verdict")
+        if verdict == "worked":
+            s += " Iska asar saaf hai." if hi else f" The effect is clear (p = {h.get('p_value')})."
+        elif verdict == "no clear effect":
+            s += " Abhi pakka nahi kaha ja sakta." if hi else f" Not conclusive yet (p = {h.get('p_value')})."
+        return s
+    if intent == "focus":
+        if not rows:
+            return "Abhi koi zaroori baat nahi." if hi else "Nothing needs your attention right now."
+        lst = " ".join(f"{i}) {r['what']}." for i, r in enumerate(rows[:3], 1))
+        return (f"Aaj in par dhyan dijiye: {lst}" if hi else f"Focus on these today: {lst}")
     if intent == "at_risk":
         if not rows:
             return ("Koi regular customer aana band nahi hua." if hi else

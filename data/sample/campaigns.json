@@ -1,0 +1,657 @@
+[
+ {
+  "campaign_id": "CMP-SAMPLE-WINBACK",
+  "name": "Diwali win-back (sample, already sent)",
+  "goal": "win_back",
+  "language": "hinglish",
+  "holdout_pct": 25,
+  "measure_after_days": 14,
+  "segment": {
+   "type": "customer_ids",
+   "label": "Occasional customers"
+  },
+  "sent_at": "2026-10-20",
+  "members": [
+   {
+    "customer_id": "C0201",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0202",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0203",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0204",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0205",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0206",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0207",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0208",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0209",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0210",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0211",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0212",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0213",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0214",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0215",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0216",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0217",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0218",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0219",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0220",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0221",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0222",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0223",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0224",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0225",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0226",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0227",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0228",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0229",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0230",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0231",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0232",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0233",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0234",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0235",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0236",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0237",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0238",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0239",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0240",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0241",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0242",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0243",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0244",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0245",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0246",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0247",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0248",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0249",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0250",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0251",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0252",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0253",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0254",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0255",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0256",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0257",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0258",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0259",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0260",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0261",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0262",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0263",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0264",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0265",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0266",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0267",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0268",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0269",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0270",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0271",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0272",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0273",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0274",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0275",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0276",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0277",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0278",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0279",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0280",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0281",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0282",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0283",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0284",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0285",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0286",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0287",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0288",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0289",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0290",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0291",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0292",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0293",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0294",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0295",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0296",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0297",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0298",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0299",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0300",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0301",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0302",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0303",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0304",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0305",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0306",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0307",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0308",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0309",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0310",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0311",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0312",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0313",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0314",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0315",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0316",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0317",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0318",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0319",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0320",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0321",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0322",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0323",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0324",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0325",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0326",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0327",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0328",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0329",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0330",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0331",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0332",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0333",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0334",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0335",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0336",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0337",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0338",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0339",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0340",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0341",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0342",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0343",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0344",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0345",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0346",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0347",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0348",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0349",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0350",
+    "group": "holdout"
+   },
+   {
+    "customer_id": "C0351",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0352",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0353",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0354",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0355",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0356",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0357",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0358",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0359",
+    "group": "target"
+   },
+   {
+    "customer_id": "C0360",
+    "group": "target"
+   }
+  ]
+ }
+]

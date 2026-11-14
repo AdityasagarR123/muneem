@@ -7,7 +7,15 @@ import TableView from "./TableView";
 export default function VisualView({ v }: { v: Visual }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white p-3">
-      {v.title && <div className="mb-2 text-xs font-semibold text-slate-600">{v.title}</div>}
+      {(v.title || v.spec?.png_url) && (
+        <div className="mb-2 flex items-center justify-between gap-2 text-xs">
+          <span className="font-semibold text-slate-600">{v.title}</span>
+          {v.spec?.png_url && (
+            <a className="text-slate-400 hover:text-blue-700" href={v.spec.png_url} target="_blank" rel="noreferrer"
+              title="Image for WhatsApp or reports">PNG ↓</a>
+          )}
+        </div>
+      )}
       {v.type === "chart" && <ChartView spec={v.spec} />}
       {v.type === "table" && <TableView columns={v.spec.columns} rows={v.spec.rows} total={v.spec.total_rows} />}
       {v.type === "mermaid" && <MermaidView code={v.spec.code} />}

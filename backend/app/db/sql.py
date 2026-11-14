@@ -63,6 +63,13 @@ activity_t = Table(
     "activity_log", md, Column("id", Integer, primary_key=True, autoincrement=True),
     Column("kind", String(32), index=True), Column("created_at", String(40), index=True),
     Column("data", Text))
+campaigns_t = Table(
+    "campaigns", md, Column("campaign_id", String(40), primary_key=True),
+    Column("status", String(16), index=True), Column("created_at", String(40), index=True),
+    Column("data", Text))
+insight_status_t = Table(
+    "insight_status", md, Column("insight_id", String(120), primary_key=True),
+    Column("status", String(16)), Column("updated_at", String(40)))
 Index("ix_sales_customer_date", sales_t.c.customer_id, sales_t.c.date)
 
 # replaced on every dataset load, in an order that respects foreign keys
@@ -139,6 +146,30 @@ class SqlStore:
             rows = conn.execute(select(purchase_orders_t.c.data)
                                 .order_by(purchase_orders_t.c.created_at)).all()
         return [json.loads(r[0]) for r in rows]
+
+    def upsert_campaign(self, c: dict) -> None:
+        with self.engine.begin() as conn:
+            conn.execute(delete(campaigns_t).where(campaigns_t.c.campaign_id == c["campaign_id"]))
+            conn.execute(insert(campaigns_t), [{"campaign_id": c["campaign_id"], "status": c["status"],
+                                                "created_at": c["created_at"],
+                                                "data": json.dumps(c, default=str, ensure_ascii=False)}])
+
+    def campaigns(self) -> list[dict]:
+        with self.engine.connect() as conn:
+            rows = conn.execute(select(campaigns_t.c.data).order_by(campaigns_t.c.created_at)).all()
+        return [json.loads(r[0]) for r in rows]
+
+    def set_insight_status(self, insight_id: str, status: str) -> None:
+        with self.engine.begin() as conn:
+            conn.execute(delete(insight_status_t).where(insight_status_t.c.insight_id == insight_id))
+            conn.execute(insert(insight_status_t), [{
+                "insight_id": insight_id, "status": status,
+                "updated_at": datetime.now(timezone.utc).isoformat()}])
+
+    def insight_statuses(self) -> dict[str, str]:
+        with self.engine.connect() as conn:
+            return {r[0]: r[1] for r in conn.execute(
+                select(insight_status_t.c.insight_id, insight_status_t.c.status)).all()}
 
     def record(self, kind: str, doc: dict) -> None:
         try:

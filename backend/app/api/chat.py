@@ -55,6 +55,22 @@ def history(conversation_id: str, a: Agent = Depends(agent)):
     return {"conversation_id": conversation_id, "messages": h}
 
 
+@router.get("/charts/{chart_id}.png")
+def chart_png(chart_id: str):
+    """Matplotlib rendering of a chart shown in chat (for WhatsApp / reports)."""
+    from fastapi.responses import Response
+
+    from app.agent.charts import STORE, render_png
+
+    c = STORE.get(chart_id)
+    if c is None:
+        raise HTTPException(404, "Chart expired - ask the question again")
+    if "png" not in c:
+        c["png"] = render_png(c["title"], c["spec"])
+    return Response(c["png"], media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=3600"})
+
+
 @router.get("/agent/status")
 def agent_status(a: Agent = Depends(agent)):
     return a.status()

@@ -20,6 +20,7 @@ def _numbers_in(obj, out: set[float]) -> None:
         return
     if isinstance(obj, (int, float)):
         out.add(float(obj))
+        out.add(abs(float(obj)))  # answers write "down 20%" / "-₹17,440" for -20.1 / -17439.58
     elif isinstance(obj, str):
         for m in _NUM.finditer(obj):
             try:

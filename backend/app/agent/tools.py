@@ -515,6 +515,8 @@ def json_schema(model: type[BaseModel]) -> dict:
             ann = next(a for a in get_args(ann) if a is not type(None))
         if get_origin(ann) is Literal:
             p = {"type": "string", "enum": list(get_args(ann))}
+        elif get_origin(ann) is list:
+            p = {"type": "array", "items": {"type": "string"}}
         elif ann is int:
             p = {"type": "integer"}
         elif ann is float:
@@ -561,10 +563,12 @@ def llm_view(out: ToolOutput, max_rows: int = 12) -> dict:
         view["resolved_names"] = out.resolved
     if ins.assumptions:
         view["notes"] = ins.assumptions
-    if "by_supplier" in ins.meta:
-        view["by_supplier"] = clean(ins.meta["by_supplier"])
+    for key in ("by_supplier", "bridge", "category_movers", "item_movers"):
+        if key in ins.meta:
+            view[key] = clean(ins.meta[key])
     return view
 
 
 # CRM + metrics tools register themselves into TOOLS (kept in their own module)
 from app.agent import crm_tools as _crm_tools  # noqa: E402,F401
+from app.agent import campaign_tools as _campaign_tools  # noqa: E402,F401

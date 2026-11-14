@@ -70,6 +70,22 @@ class CustomerSim:
         self.balance = {c["id"]: 0 for c in self.customers}
         self.repayments: list[list] = []
         self._today: set[str] = set()
+        self.campaign: dict | None = None
+
+    def plan_campaign(self, rng: np.random.Generator, sent: date, holdout_share: float = 0.25,
+                      boost: float = 3.0, effect_days: int = 21) -> dict:
+        """A past win-back message to occasional customers with a hold-out group that got
+        nothing. Messaged customers come back more often for a few weeks (the planted effect),
+        so the measurement has a real difference to find."""
+        pool = [c for c in self.customers if c["persona"] == "occasional" and c["churn"] is None
+                and c["join"] < sent and not c["khata"]]
+        ids = [c["id"] for c in pool]
+        hold = set(rng.choice(ids, int(round(len(ids) * holdout_share)), replace=False))
+        for c in pool:
+            c["campaign"] = "holdout" if c["id"] in hold else "target"
+        self.campaign = {"sent": sent, "boost": boost, "effect_days": effect_days,
+                         "members": [{"customer_id": c["id"], "group": c["campaign"]} for c in pool]}
+        return self.campaign
 
     # -- per day ---------------------------------------------------------------
     def start_day(self) -> None:
@@ -84,11 +100,18 @@ class CustomerSim:
         if not cands:
             return ""
         w = np.array([c["rate"] * (1.0 if c["last"] is None else
-                                   min(3.0, max(0.2, (d - c["last"]).days * c["rate"]))) for c in cands])
+                                   min(3.0, max(0.2, (d - c["last"]).days * c["rate"])))
+                      * self._boost(c, d) for c in cands])
         c = cands[int(self.rng.choice(len(cands), p=w / w.sum()))]
         c["last"] = d
         self._today.add(c["id"])
         return c["id"]
+
+    def _boost(self, c: dict, d: date) -> float:
+        k = self.campaign
+        if k and c.get("campaign") == "target" and k["sent"] < d <= k["sent"] + timedelta(days=k["effect_days"]):
+            return k["boost"]
+        return 1.0
 
     def add_debit(self, cid: str, amount_paise: int) -> None:
         self.balance[cid] += amount_paise

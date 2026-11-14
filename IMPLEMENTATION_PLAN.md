@@ -1,4 +1,4 @@
-# VyaparPulse — Implementation Plan (with ArangoDB)
+# Muneem — Implementation Plan (with ArangoDB)
 
 > **Progress (14 Nov 2026):** Phases 0–5 backend done (72 tests passing). Frontend for Phase 0
 > deferred until the backend is complete. Design change: when ArangoDB is unreachable, graph

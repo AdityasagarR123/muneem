@@ -36,6 +36,45 @@ the same schema so they stay fast and offline. ArangoDB keeps the graph projecti
 Planted CRM stories found: 14/14 churned regulars, all 5 overdue khata accounts with exact
 balances, total udhaar ₹49,475.50 to the paisa.
 
+**Phase 2 done (14 Nov 2026):**
+- `explain_change`: bills × average-bill bridge plus estimated causes (weekday mix, festival,
+  regulars who stopped coming, probable stock-outs, price changes) and a remainder; every
+  breakdown adds up to the paisa. "Why did sales drop this week?" → −20.1%, 94% explained by
+  fewer weekend days + the Diwali rush being in the earlier period.
+- Insight engine: 11 detectors → findings with what / why (English + Hinglish), ₹ impact,
+  severity, urgency, one action and a re-runnable evidence tool; statuses (seen / acted /
+  dismissed) saved in Postgres.
+- `/api/findings`, `/api/explain`; chat tools `top_insights`, `explain_change`; rules intents
+  for "why" and "what should I focus on". 134 tests pass; live Gemini eval 30/30.
+
+**Phase 3 done (14 Nov 2026):**
+- Every tool result in a chat turn is a dataset (`d1`, `d1.bridge` ...) with typed columns;
+  `make_chart(dataset_id, kind, x, y)` lets the model choose the chart, validated in code
+  (columns exist, numeric, no mixed units, funnel must decrease, pie > 8 parts grouped as
+  "Other"). The model never supplies chart numbers; errors go back to it to fix.
+- Kinds: line, area, bar, stacked bar, pie, funnel, waterfall, cohort heatmap, scatter - drawn
+  interactively in the app and as Matplotlib PNG (`/api/charts/{id}.png`) for WhatsApp/reports.
+- Better defaults: waterfall for "why did sales change", funnel, cohort heatmap, customer
+  scatter (days since last bill × monthly spend, coloured by segment).
+- 154 tests pass. Live Gemini: 30/33 in a full run - the 3 misses were quota/timeout
+  fallbacks to rules mode; re-run individually they pass (pie chart via make_chart, 6/6
+  numbers verified). Gemini latency was 20-40 s during testing (service slow); timeout
+  raised to 25 s.
+
+**Phase 4 done (14 Nov 2026):**
+- Campaigns: win back, reward champions, welcome new, cross-sell (buyers of A who never bought
+  B), udhaar reminders (with each customer's exact balance). Messages in English / Hinglish /
+  Hindi; offers only when the owner writes one. Draft → sent (owner sends via WhatsApp links /
+  CSV) → measured; Postgres-backed.
+- Hold-out: an exact share chosen by a stable hash (≥1 customer for groups of 5+), so effects
+  are measured against customers who got no message: return rate, extra sales, two-proportion
+  p-value, verdict ("worked" / "no clear effect" / "too few to tell").
+- Sample data has a past Diwali win-back with a 25% hold-out: 84.2% vs 55.0% came back,
+  +₹29,208 extra sales, p = 0.0002 - recomputable from the sales table.
+- Insight actions now open real campaigns (win-back, reminders, welcome, cross-sell).
+- Chat tools `draft_campaign`, `campaign_results`; `/api/campaigns/*`. 168 tests pass; live
+  Gemini campaign questions 4/4 grounded.
+
 ## 1. Verdict in one paragraph
 
 The current Muneem already has the hardest part of the vision right: **a deterministic engine

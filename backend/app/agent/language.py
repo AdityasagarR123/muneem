@@ -15,6 +15,8 @@ HINGLISH = {
     "kam", "paisa", "paise", "kamai", "munafa", "kharcha", "maal", "dukaan", "dukan", "ji",
     "hoga", "hogi", "agar", "toh", "aur", "ko", "ka", "ki", "ke", "mein", "se", "par", "liye",
     "konsa", "konsi", "khatam", "jagah", "badle", "mangwa", "mangana", "lena", "dena",
+    "bhejo", "bhejna", "karo", "karna", "unko", "inko", "diye", "diya", "aana", "wale", "jo", "hua",
+    "hui", "raha", "batao", "dikhao", "chahiye", "kitna", "humein", "hamein", "apne",
 }
 STRONG = HINGLISH - {"ko", "ka", "ki", "ke", "se", "par", "aur", "toh", "ji", "kam"}
 

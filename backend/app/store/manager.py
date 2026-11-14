@@ -216,6 +216,40 @@ class DataManager:
 
         return self._cached("segment_map", lambda ds: segment_map(self.customer_stats()))
 
+    # ---------------------------------------------------------------- insights
+    def findings(self) -> list:
+        """All current findings (cached per dataset version) with their saved status."""
+        from app.analytics.findings import run_detectors
+
+        def build(ds):
+            st = self.customer_stats()
+            risk = set(st.loc[st["at_risk"], "customer_id"]) if len(st) else set()
+            return run_detectors({"ds": ds, "cal": self.calendar, "stock": self.stock(), "stats": st,
+                                  "risk_ids": risk, "graph": self.graph(),
+                                  "dead_days": self.settings.dead_stock_days})
+
+        found = self._cached("findings", build)
+        statuses = self._insight_statuses()
+        return [f.model_copy(update={"status": statuses.get(f.id, "new")}) for f in found]
+
+    def _insight_statuses(self) -> dict[str, str]:
+        if not hasattr(self, "_statuses"):
+            self._statuses: dict[str, str] = {}
+            if self.sql is not None:
+                try:
+                    self._statuses = self.sql.insight_statuses()
+                except Exception as exc:  # pragma: no cover
+                    log.warning("could not load insight statuses: %s", exc)
+        return self._statuses
+
+    def set_insight_status(self, insight_id: str, status: str) -> None:
+        self._insight_statuses()[insight_id] = status
+        if self.sql is not None:
+            try:
+                self.sql.set_insight_status(insight_id, status)
+            except Exception as exc:  # pragma: no cover
+                log.warning("could not save insight status: %s", exc)
+
     def graph(self) -> FallbackGraph:
         ds = self.require()
         with self._lock:
@@ -236,6 +270,15 @@ class DataManager:
 
             self._restock = RestockStore(self)
         return self._restock
+
+    @property
+    def campaigns(self):
+        """Campaign store (created on first use)."""
+        if getattr(self, "_campaigns", None) is None:
+            from app.actions.campaigns import CampaignStore
+
+            self._campaigns = CampaignStore(self)
+        return self._campaigns
 
     def receive_stock(self, additions: dict[str, int]) -> Dataset:
         """Goods arrived: add quantities to stock. Creates a new dataset version so every

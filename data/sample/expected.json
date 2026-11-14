@@ -58,27 +58,27 @@
     "overdue_customers": [
       {
         "customer_id": "C0009",
-        "outstanding_paise": 333050
+        "outstanding_paise": 366550
       },
       {
         "customer_id": "C0013",
-        "outstanding_paise": 436800
+        "outstanding_paise": 375600
       },
       {
         "customer_id": "C0053",
-        "outstanding_paise": 637450
+        "outstanding_paise": 444000
       },
       {
         "customer_id": "C0056",
-        "outstanding_paise": 669300
+        "outstanding_paise": 623600
       },
       {
         "customer_id": "C0063",
-        "outstanding_paise": 528300
+        "outstanding_paise": 587200
       }
     ],
     "khata_customers": 45,
-    "udhaar_outstanding_paise": 4947550,
+    "udhaar_outstanding_paise": 4642000,
     "diwali_new_customers": [
       "C0361",
       "C0362",
@@ -141,5 +141,11 @@
       "C0419",
       "C0420"
     ]
+  },
+  "campaign": {
+    "campaign_id": "CMP-SAMPLE-WINBACK",
+    "sent_at": "2026-10-20",
+    "members": 160,
+    "holdout": 40
   }
 }

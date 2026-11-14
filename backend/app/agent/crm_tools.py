@@ -124,9 +124,16 @@ def t_query_metric(m, a: MetricArgs) -> ToolOutput:
 
 def t_segments(m, a: NoArgs) -> ToolOutput:
     ins = cust_mod.segments_insight(m.require(), m.customer_stats())
+    st = m.customer_stats()
+    pts = [{"recency_days": int(r.recency_days), "monthly_value_rs": round(r.monthly_value_paise / 100, 2),
+            "segment": r.segment, "name": r.name or r.customer_id} for r in st.head(400).itertuples()]
+    scatter = V.Visual(type="chart", title="Customers: days since last bill vs monthly spend", spec={
+        "kind": "scatter", "x": "recency_days", "unit": "₹", "color": "segment",
+        "series": [{"key": "monthly_value_rs", "label": "Spend per month ₹"}], "data": pts})
     return ToolOutput(ins, [
         V.chart("Sales by customer segment (90 days)", "bar", "segment",
                 [("revenue_90d_rs", "Sales ₹")], [r for r in ins.rows if r["customers"]], "₹"),
+        scatter,
         V.table(ins.title, [("segment", "Segment"), ("customers", "Customers"),
                             ("revenue_share_pct", "Share of sales %"), ("description", "Meaning"),
                             ("suggested_action", "What to do")], ins.rows)],
@@ -153,18 +160,16 @@ def t_udhaar(m, a: NoArgs) -> ToolOutput:
 
 def t_cohorts(m, a: NoArgs) -> ToolOutput:
     ins = cust_mod.cohorts_insight(m.require())
-    pivot: dict[str, dict] = {}
-    for r in ins.rows:
-        row = pivot.setdefault(r["cohort"], {"cohort": r["cohort"], "size": r["cohort_size"]})
-        row[f"m{r['month_offset']}"] = r["retention_pct"]
-    offsets = sorted({r["month_offset"] for r in ins.rows})
-    cols = [("cohort", "First month"), ("size", "Customers")] + [(f"m{o}", f"Month {o} %") for o in offsets]
-    return ToolOutput(ins, [V.table(ins.title, cols, list(pivot.values()))])
+    heat = V.Visual(type="chart", title=ins.title, spec={
+        "kind": "cohort_heatmap", "row": "cohort", "col": "month_offset", "value": "retention_pct",
+        "unit": "%", "data": [{k: r[k] for k in ("cohort", "month_offset", "retention_pct")}
+                              for r in ins.rows]})
+    return ToolOutput(ins, [heat])
 
 
 def t_funnel(m, a: NoArgs) -> ToolOutput:
     ins = cust_mod.lifecycle_insight(m.require(), m.customer_stats())
-    return ToolOutput(ins, [V.chart(ins.title, "bar", "stage", [("customers", "Customers")], ins.rows)])
+    return ToolOutput(ins, [V.chart(ins.title, "funnel", "stage", [("customers", "Customers")], ins.rows)])
 
 
 def t_profile(m, a: CustomerArgs) -> ToolOutput:
@@ -198,5 +203,82 @@ for spec in [
              "regular and active.", NoArgs, t_funnel),
     ToolSpec("customer_profile", "Everything about one customer: spend, habits, segment, risk, "
              "favourite items, udhaar.", CustomerArgs, t_profile),
+]:
+    TOOLS[spec.name] = spec
+
+
+# ------------------------------------------------------------------ insight engine tools
+class FocusArgs(BaseModel):
+    limit: int = Field(5, ge=1, le=10)
+    category: Optional[Literal["risk", "opportunity", "info"]] = None
+    language: Literal["en", "hinglish", "hi"] = Field("en", description="Match the owner's language")
+
+
+class ExplainArgs(BaseModel):
+    period: str = Field("last_7_days", description="this_week, last_7_days, this_month, last_30_days, "
+                        "last_N_days ...")
+    compare: Literal["previous_period", "same_period_last_month"] = Field(
+        "previous_period", description="use same_period_last_month with period=this_month")
+
+
+def t_top_insights(m, a: FocusArgs) -> ToolOutput:
+    fs = [f for f in m.findings() if f.status != "dismissed"]
+    if a.category:
+        fs = [f for f in fs if f.category == a.category]
+    fs = fs[:a.limit]
+    hi = a.language != "en"
+    rows = [{"id": f.id, "kind": f.kind, "category": f.category, "severity": f.severity,
+             "urgent": f.urgent, "what": f.what_hi if hi else f.what, "why": f.why_hi if hi else f.why,
+             "impact_paise": f.impact_paise, "impact_label": f.impact_label,
+             "action": f.action.get("label", "")} for f in fs]
+    ins = insight(kind="top_insights", title="What needs your attention", as_of=m.require().as_of.isoformat(),
+                  headline={"findings": len(rows), "high": sum(f.severity == "high" for f in fs),
+                            "urgent": sum(f.urgent for f in fs)},
+                  rows=rows,
+                  formula="each finding comes from a rule-based detector on your data; ranked by "
+                          "urgency, severity and ₹ impact",
+                  confidence="ok" if rows else "no_data")
+    from app.agent.envelope import Action
+
+    actions = [Action(type=f.action["type"], label=f.action["label"], payload=f.action.get("payload", {}))
+               for f in fs if f.action][:4]
+    return ToolOutput(ins, [V.table(ins.title, [("what", "What"), ("impact_rs", "₹ impact"),
+                                                ("impact_label", ""), ("action", "Next step")], ins.rows)],
+                      actions)
+
+
+def t_explain(m, a: ExplainArgs) -> ToolOutput:
+    from app.analytics.explain import explain_change
+
+    st = m.customer_stats()
+    risk = set(st.loc[st["at_risk"], "customer_id"]) if len(st) else set()
+    try:
+        ins = explain_change(m.require(), m.calendar, a.period, a.compare, risk)
+    except ValueError as exc:
+        raise ToolError(str(exc)) from exc
+    h = ins.headline
+    wf = V.chart("What moved sales", "waterfall", "driver", [("effect_rs", "₹ effect")], ins.rows, "₹")
+    if ins.confidence == "ok":
+        wf.spec["start"] = {"label": h["compare_label"].capitalize(), "value": h["before_rs"]}
+        wf.spec["end"] = {"label": h["period_label"].capitalize(), "value": h["now_rs"]}
+    vis = [wf]
+    if ins.meta.get("bridge"):
+        vis.append(V.table("Bills × average bill", [("part", ""), ("change_pct", "Change %"),
+                                                    ("effect_rs", "₹ effect")], ins.meta["bridge"]))
+    if ins.meta.get("category_movers"):
+        vis.append(V.table("Biggest category moves", [("name", "Category"), ("now_rs", "Now ₹"),
+                                                      ("before_rs", "Before ₹"), ("change_pct", "Change %")],
+                           ins.meta["category_movers"]))
+    return ToolOutput(ins, vis, suggestions=["What should I focus on today?"])
+
+
+for spec in [
+    ToolSpec("top_insights", "The most important things to act on now (risks, opportunities), each with "
+             "what happened, why it matters, ₹ impact and the next step. Use for 'what should I focus "
+             "on', 'any problems?', 'kya karun aaj'.", FocusArgs, t_top_insights),
+    ToolSpec("explain_change", "Why sales went up or down between two periods: splits the change into "
+             "calendar (weekdays), festival, customers who stopped coming, stock-outs, price changes "
+             "and the rest; also bills × average bill and the categories that moved most.",
+             ExplainArgs, t_explain),
 ]:
     TOOLS[spec.name] = spec
