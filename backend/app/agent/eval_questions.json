@@ -25,6 +25,16 @@
   {"q": "Sharma Traders ko order ka message bana do", "tool": "restock_draft",
    "entities": {"supplier": "S01"}},
   {"q": "Give me today's morning brief", "tool": "morning_brief"},
+  {"q": "Kaun se customers ne aana band kar diya?", "tool": "at_risk_customers"},
+  {"q": "Udhaar kitna baaki hai?", "tool": "udhaar_report"},
+  {"q": "Who are my most valuable customers?", "tool": ["query_metric", "customer_segments"],
+   "args": {"group_by": "customer"}},
+  {"q": "Compare this month with last month", "tool": "query_metric",
+   "args": {"period": "this_month", "compare": "same_period_last_month"}},
+  {"q": "Customer segments dikhao", "tool": "customer_segments"},
+  {"q": "Customer funnel dikhao", "tool": "lifecycle_funnel"},
+  {"q": "Average bill by payment mode last 30 days", "tool": "query_metric",
+   "args": {"metric": "aov", "group_by": "payment_mode"}, "llm_only": true},
   {"q": "मेरी दुकान का पिछले महीने का हिसाब बताओ", "tool": "get_kpis", "llm_only": true},
   {"q": "Which items sell a lot but earn very little?", "tool": "margin_report", "llm_only": true}
 ]

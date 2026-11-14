@@ -28,6 +28,19 @@ INTENTS: list[tuple[str, list[str]]] = [
     ("draft", [r"\bmessage\b", r"\bmsg\b", r"whatsapp", r"\bdraft\b", r"\blikh", r"\bbhej",
                r"sandesh", r"purchase order"]),
     ("brief", [r"\bbrief\b", r"\bsubah\b", r"morning", r"aaj ka haal", r"today.?s summary"]),
+    ("customer_profile", [r"."]),  # only when a customer's full name is mentioned
+    ("at_risk", [r"churn", r"stopped (buying|coming)", r"not (coming|buying)", r"aana band",
+                 r"aane band", r"nahi? aa rah", r"nahin aa rah", r"lost customer", r"at.?risk",
+                 r"chhod", r"wapas nahi", r"likely to stop"]),
+    ("udhaar", [r"udhaa?r", r"khata", r"\bowe", r"baaki", r"\bdues?\b", r"paisa lena",
+                r"outstanding", r"receivable"]),
+    ("top_customers", [r"(valuable|best|top|loyal|important|biggest|bade|acch?e) (customers?|grahak)",
+                       r"most valuable", r"customers? .*spend.* most"]),
+    ("segments", [r"segment", r"customer (group|type)", r"\brfm\b", r"champion"]),
+    ("cohort", [r"cohort", r"retention", r"wapas aa"]),
+    ("funnel", [r"funnel", r"journey"]),
+    ("compare", [r"compare", r"last month", r"pichh?le mahine", r"tulna",
+                 r"(this|is) (month|mahine).*\b(vs|versus)\b"]),
     ("supplier_risk", [r"\blate\b", r"\bdelay", r"\bder (se|ho)", r"nahi aay", r"nahin aay",
                        r"not (come|arrive)", r"\bdeliver"]),
     ("supplier_priority", [r"call first", r"pehle call", r"kis(ko| supplier)", r"which supplier",
@@ -44,8 +57,7 @@ INTENTS: list[tuple[str, list[str]]] = [
     ("slow", [r"\bslow", r"dheere", r"dhire"]),
     ("expenses", [r"expense", r"kharch", r"bijli", r"electric", r"\brent\b", r"salary",
                   r"kiraya", r"\bbill (badh|jump|increase)"]),
-    ("payments", [r"\bupi\b", r"\bcash\b", r"payment", r"udhaar", r"udhar", r"\bcredit\b",
-                  r"\bcard\b"]),
+    ("payments", [r"\bupi\b", r"\bcash\b", r"payment", r"\bcredit\b", r"\bcard\b"]),
     ("dependency", [r"depend", r"concentrat"]),
     ("top", [r"\btop\b", r"\bbest\b", r"sabse (zyada|jyada|acha|accha)", r"best.?sell"]),
     ("margin", [r"margin", r"profit", r"munafa", r"kamai", r"\bearn", r"sell a lot"]),
@@ -58,7 +70,10 @@ INTENTS: list[tuple[str, list[str]]] = [
 ]
 
 INTENT_TOOL = {
-    "draft": "restock_draft", "brief": "morning_brief", "supplier_risk": "supplier_risk", "supplier_priority": "supplier_priority",
+    "draft": "restock_draft", "brief": "morning_brief", "customer_profile": "customer_profile",
+    "at_risk": "at_risk_customers", "udhaar": "udhaar_report", "top_customers": "query_metric",
+    "segments": "customer_segments", "cohort": "cohort_retention", "funnel": "lifecycle_funnel",
+    "compare": "query_metric", "supplier_risk": "supplier_risk", "supplier_priority": "supplier_priority",
     "bought_together": "bought_together", "substitutes": "substitutes",
     "money_flow": "money_flow", "supply_flow": "supply_flow", "reorder": "reorder_plan",
     "dead_stock": "dead_stock", "slow": "slow_movers", "expenses": "expense_report",
@@ -90,7 +105,13 @@ def entities(m: DataManager, text: str) -> dict:
     cats = sorted(ds.items["category"].unique())
     catm = find_mentions(text, [(c, c) for c in cats], min_score=0.5)
     days = _DAYS.search(text)
+    custs = find_mentions(text, list(zip(ds.customers["customer_id"], ds.customers["name"])),
+                          min_score=0.99, limit=5)
+    customer = None
+    if custs:  # same name twice -> pass the name, the tool asks which one
+        customer = custs[0]["id"] if len({c["name"] for c in custs}) == len(custs) else custs[0]["name"]
     return {"item": items[0] if items else None, "supplier": sups[0] if sups else None,
+            "customer": customer,
             "category": catm[0]["id"] if catm else None,
             "days": int(days.group(1)) if days else None, "budget_rs": _budget(text)}
 
@@ -105,7 +126,20 @@ def route(m: DataManager, text: str) -> Route | None:
         args: dict = {}
         from app.agent.language import detect_language
 
-        if intent == "brief":
+        if intent == "customer_profile":
+            if not e["customer"]:
+                continue
+            args = {"customer": e["customer"]}
+        elif intent == "top_customers":
+            args = {"metric": "revenue", "group_by": "customer", "period": "last_90_days",
+                    "compare": "none", "limit": 10}
+        elif intent == "compare":
+            metric = ("gross_margin" if re.search(r"margin|profit|munafa", low) else
+                      "aov" if re.search(r"average bill|avg bill|aov", low) else
+                      "customers" if re.search(r"customer|grahak", low) else
+                      "orders" if re.search(r"\bbills?\b|orders?", low) else "revenue")
+            args = {"metric": metric, "period": "this_month", "compare": "same_period_last_month"}
+        elif intent == "brief":
             args = {"language": detect_language(text)}
         elif intent == "draft":
             args = {"language": detect_language(text)}
@@ -190,6 +224,68 @@ def answer(intent: str, out: ToolOutput, lang: str) -> str:
         return f"{head}\n\n{first['message']}"
     if intent == "brief":
         return h["text"]
+    if intent == "at_risk":
+        if not rows:
+            return ("Koi regular customer aana band nahi hua." if hi else
+                    "No regular customer seems to have stopped buying.")
+        top = ", ".join(f"{r['name'] or r['customer_id']} ({r['recency_days']} din)" if hi else
+                        f"{r['name'] or r['customer_id']} ({r['recency_days']} days)" for r in rows[:3])
+        return (f"{h['customers']} regular customers ne aana band kar diya lagta hai - har mahine "
+                f"lagbhag {rs(h['monthly_value_at_risk_rs'])} ki kharidari khatre mein. Sabse pehle: {top}."
+                if hi else
+                f"{h['customers']} regular customers seem to have stopped buying - about "
+                f"{rs(h['monthly_value_at_risk_rs'])} of monthly spend at risk. Start with: {top}.")
+    if intent == "udhaar":
+        over = [r for r in rows if r.get("overdue")]
+        names = ", ".join(f"{r['name'] or r['customer_id']} {rs(r['outstanding_rs'])}" for r in over[:3])
+        s = (f"Kul udhaar baaki: {rs(h['outstanding_rs'])} ({h['customers_with_balance']} customers). "
+             f"{h['overdue_customers']} ka {rs(h['overdue_rs'])} 30 din se purana hai" if hi else
+             f"Customers owe you {rs(h['outstanding_rs'])} in total ({h['customers_with_balance']} "
+             f"customers). {h['overdue_customers']} are overdue for {rs(h['overdue_rs'])}")
+        return s + (f": {names}." if names else ".")
+    if intent == "top_customers":
+        lst = "; ".join(f"{i}) {r['group']} {rs(r['value_rs'])}" for i, r in enumerate(rows[:3], 1))
+        return (f"Pichhle 90 din ke sabse bade customers: {lst}." if hi else
+                f"Top customers by spend in the last 90 days: {lst}.")
+    if intent == "segments":
+        seg = {r["segment"]: r for r in rows}
+        ch, ar = seg.get("Champions", {}), seg.get("At risk", {})
+        return (f"{ch.get('customers', 0)} Champions customers aapki {num(ch.get('revenue_share_pct'))}% "
+                f"bikri laate hain. {ar.get('customers', 0)} customers 'At risk' hain - unhe abhi "
+                f"message karna chahiye." if hi else
+                f"{ch.get('customers', 0)} Champions bring {num(ch.get('revenue_share_pct'))}% of sales. "
+                f"{ar.get('customers', 0)} customers are 'At risk' and worth a message now.")
+    if intent == "cohort":
+        return ("Har mahine ke naye customers mein se kitne wapas aaye - table dekhiye." if hi else
+                "Here is how many customers from each starting month came back later.")
+    if intent == "funnel":
+        once, back = rows[0], rows[1] if len(rows) > 1 else None
+        return (f"{once['customers']} customers mein se {back['customers']} ({num(back['of_all_pct'])}%) "
+                f"wapas aaye." if hi and back else
+                f"Of {once['customers']} customers, {back['customers']} ({num(back['of_all_pct'])}%) "
+                f"came back." if back else "Not enough customer data.")
+    if intent == "compare":
+        unit = "rs" if "value_rs" in h else ""
+        v = rs(h.get("value_rs")) if unit else num(h.get("value"), 0)
+        pv = rs(h.get("compare_value_rs")) if unit else num(h.get("compare_value"), 0)
+        ch = h.get("change_pct")
+        if ch is None:
+            return f"{h['label']} - {h['period_label']}: {v}."
+        return (f"{h['label']} {h['period_label']}: {v}, pichhle mahine ke inhi dino mein {pv} "
+                f"({'+' if ch >= 0 else ''}{num(ch)}%)." if hi else
+                f"{h['label']} {h['period_label']}: {v} vs {pv} {h['compare_label']} "
+                f"({'+' if ch >= 0 else ''}{num(ch)}%).")
+    if intent == "customer_profile":
+        name = h.get("name") or h.get("customer_id")
+        s = (f"{name}: {h.get('bills', 0)} bills, kul {rs(h.get('revenue_rs'))}, segment "
+             f"{h.get('segment', '-')}, aakhri bill {h.get('recency_days', '-')} din pehle." if hi else
+             f"{name}: {h.get('bills', 0)} bills, {rs(h.get('revenue_rs'))} in total, segment "
+             f"{h.get('segment', '-')}, last bill {h.get('recency_days', '-')} days ago.")
+        u = h.get("udhaar") or {}
+        if u.get("outstanding_rs"):
+            s += (f" Udhaar baaki {rs(u['outstanding_rs'])}." if hi else
+                  f" Owes {rs(u['outstanding_rs'])} on khata.")
+        return s
     if intent == "reorder":
         if not rows:
             return ("Abhi kuch order karne ki zaroorat nahi - sab items mein kaafi stock hai."

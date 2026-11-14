@@ -42,14 +42,34 @@ class DataManager:
         self.arango_error: str | None = None
         self.sync_status = "n/a"  # n/a | syncing | synced | failed
         self.persisted_version: str | None = None
+        # PostgreSQL (system of record)
+        self.sql = None
+        self.sql_status = "disabled"  # disabled | connected | down
+        self.sql_error: str | None = None
+        self.sql_sync = "n/a"
+        self.sql_version: str | None = None
         self._lock = threading.RLock()
         self._cache: dict = {}
 
     # ---------------------------------------------------------------- lifecycle
     def startup(self) -> None:
+        if self.settings.database_url:
+            self.connect_sql()
+            if self.sql is not None:
+                try:
+                    ds = self.sql.load_dataset()
+                    if ds is not None:
+                        self._set(ds, persisted=False)
+                        self.sql_version, self.sql_sync = ds.version, "synced"
+                        log.info("Loaded dataset %s from PostgreSQL", ds.version)
+                except Exception as exc:
+                    self._sql_failed(exc)
         if self.settings.arango_enabled:
             self.connect_arango()
-            if self.db is not None:
+            if self.db is not None and self.ds is not None:
+                self.sync_status = "syncing"  # SQL is the source of truth: refresh the graph
+                threading.Thread(target=self._sync, args=(self.ds,), daemon=True).start()
+            elif self.db is not None:
                 try:
                     from app.db.arango import load_dataset
 
@@ -76,6 +96,36 @@ class DataManager:
             self._arango_failed(exc)
             return False
 
+    def connect_sql(self) -> bool:
+        from app.db.sql import SqlStore
+
+        try:
+            self.sql = SqlStore(self.settings.database_url)
+            self.sql.ping()
+            self.sql_status, self.sql_error = "connected", None
+            log.info("Connected to %s", self.sql.dialect)
+            return True
+        except Exception as exc:
+            self._sql_failed(exc)
+            return False
+
+    def _sql_failed(self, exc: Exception) -> None:
+        self.sql = None
+        self.sql_status = "down"
+        self.sql_error = f"{type(exc).__name__}: {str(exc)[:250]}"
+        log.warning("PostgreSQL unavailable - running from memory: %s", self.sql_error)
+
+    def _sync_sql(self, ds: Dataset) -> None:
+        try:
+            self.sql.save_dataset(ds)
+            with self._lock:
+                if self.ds is not None and self.ds.version == ds.version:
+                    self.sql_version, self.sql_sync = ds.version, "synced"
+            log.info("Dataset %s saved to PostgreSQL", ds.version)
+        except Exception as exc:
+            self.sql_sync = "failed"
+            self._sql_failed(exc)
+
     def _arango_failed(self, exc: Exception) -> None:
         self.db = None
         self.arango_status = "down"
@@ -97,6 +147,9 @@ class DataManager:
 
     def replace(self, ds: Dataset) -> None:
         self._set(ds, persisted=False)
+        if self.sql is not None:
+            self.sql_sync = "syncing"
+            threading.Thread(target=self._sync_sql, args=(ds,), daemon=True).start()
         if self.db is not None:
             self.sync_status = "syncing"
             threading.Thread(target=self._sync, args=(ds,), daemon=True).start()
@@ -126,6 +179,9 @@ class DataManager:
 
     def sync_now(self) -> None:
         """Synchronous sync (used by tests / admin)."""
+        if self.sql is not None and self.ds is not None:
+            self.sql_sync = "syncing"
+            self._sync_sql(self.ds)
         if self.db is not None and self.ds is not None:
             self.sync_status = "syncing"
             self._sync(self.ds)
@@ -149,6 +205,16 @@ class DataManager:
 
     def stock(self) -> pd.DataFrame:
         return self._cached("stock", lambda ds: compute_stock(ds, self.params, self.calendar))
+
+    def customer_stats(self) -> pd.DataFrame:
+        from app.analytics.customers import customer_stats
+
+        return self._cached("customer_stats", customer_stats)
+
+    def segments(self) -> dict[str, str]:
+        from app.analytics.customers import segment_map
+
+        return self._cached("segment_map", lambda ds: segment_map(self.customer_stats()))
 
     def graph(self) -> FallbackGraph:
         ds = self.require()
@@ -187,12 +253,15 @@ class DataManager:
                             ignore_index=True)
         inv["stock_qty"] = inv["stock_qty"].clip(lower=0) + inv["item_id"].map(additions).fillna(0)
         new = Dataset(items=ds.items, sales=ds.sales, inventory=inv, expenses=ds.expenses,
-                      suppliers=ds.suppliers, as_of=ds.as_of, source=ds.source)
+                      suppliers=ds.suppliers, as_of=ds.as_of, source=ds.source,
+                      customers=ds.customers, repayments=ds.repayments)
         self.replace(new)
         return new
 
     def record(self, collection: str, doc: dict) -> None:
-        if self.db is not None:
+        if self.sql is not None:
+            self.sql.record(collection, doc)
+        elif self.db is not None:
             from app.db.arango import record
 
             record(self.db, collection, doc)
@@ -200,6 +269,14 @@ class DataManager:
     def status(self) -> dict:
         return {
             "dataset": self.ds.summary() if self.ds is not None else None,
+            "postgres": {
+                "configured": bool(self.settings.database_url),
+                "status": self.sql_status,
+                "dialect": self.sql.dialect if self.sql is not None else None,
+                "sync": self.sql_sync,
+                "persisted": self.ds is not None and self.sql_version == self.ds.version,
+                "error": self.sql_error,
+            },
             "arango": {
                 "configured": self.settings.arango_enabled,
                 "status": self.arango_status,

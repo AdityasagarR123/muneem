@@ -10,6 +10,8 @@ from __future__ import annotations
 from collections import Counter
 from datetime import date
 
+import re
+
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
@@ -18,7 +20,7 @@ from app.core.money import taxable_from_inclusive
 from app.core.text import sanitize_text
 from app.ingest.schema import (
     DEFAULT_LEAD_TIME, LEGACY_GST, OPTIONAL_TABLES, PAYMENT_MAP, REQUIRED_TABLES, TABLES,
-    VALID_GST, Col,
+    TRUE_WORDS, VALID_GST, Col,
 )
 from app.store.dataset import Dataset
 
@@ -229,6 +231,8 @@ def _process(table: str, df: pd.DataFrame, col: _Collector, max_text: int):
                           rows=df.index[invalid], column=c.name, values=raw[invalid])
             bad |= invalid
             out[c.name] = val
+        elif c.kind == "bool":
+            out[c.name] = raw.str.strip().str.lower().isin(TRUE_WORDS)
         elif c.kind == "payment":
             val, unknown = parse_payment(raw, c.default or "cash")
             if unknown.any():
@@ -375,6 +379,9 @@ def validate_tables(raw: dict[str, pd.DataFrame], *, allow_partial: bool = False
         col.warn("inventory", "no stock list uploaded - stock assumed 0, reorder advice is limited")
         inv = pd.DataFrame(columns=["item_id", "stock_qty", "as_of_date"])
 
+    # ---- customers & identity resolution --------------------------------
+    customers, repayments = _resolve_customers(clean, bad, col)
+
     # ---- decide --------------------------------------------------------
     n_err = sum(col.esum.values())
     if n_err and not allow_partial:
@@ -428,6 +435,7 @@ def validate_tables(raw: dict[str, pd.DataFrame], *, allow_partial: bool = False
             "item_id": sales_ok["item_id"], "qty": sales_ok["qty"],
             "unit_price_paise": sales_ok["unit_price_incl_gst"].astype("int64"),
             "payment_mode": sales_ok["payment_mode"],
+            "customer_id": sales_ok["customer_id"],
         }),
         inventory=pd.DataFrame({
             "item_id": inv["item_id"], "stock_qty": inv["stock_qty"].astype(float),
@@ -445,6 +453,9 @@ def validate_tables(raw: dict[str, pd.DataFrame], *, allow_partial: bool = False
         }),
         as_of=as_of_ts.date(),
         source=source,
+        customers=customers,
+        repayments=repayments[repayments["customer_id"].isin(set(customers["customer_id"]))]
+        if len(repayments) else repayments,
     )
     report.ok = True
     report.as_of = ds.as_of.isoformat()
@@ -454,3 +465,115 @@ def validate_tables(raw: dict[str, pd.DataFrame], *, allow_partial: bool = False
     }
     col.finish()
     return report, ds
+
+
+# ---------------------------------------------------------------- identity resolution
+def phone_key(p) -> str:
+    """Normalise a phone for matching: last 10 digits ('+91 98765-43210' == '9876543210').
+    Masked placeholders ('+91-XXXXX-10023') are kept as-is so they still act as identities."""
+    s = str(p or "").strip()
+    if not s:
+        return ""
+    if "x" in s.lower():
+        return re.sub(r"\s", "", s.upper())
+    d = re.sub(r"\D", "", s)
+    return d[-10:] if len(d) >= 10 else d
+
+
+def _id_from_phone(key: str) -> str:
+    return "C-" + re.sub(r"[^0-9A-Za-z]", "", key)[-10:]
+
+
+def _resolve_customers(clean: dict, bad: dict, col: _Collector):
+    """Customer list + sales + repayments -> one consistent set of customer ids.
+
+    * customer rows without an id get one from their phone
+    * two customer rows with the same phone are merged (first one kept)
+    * bills / repayments may reference a customer by id or only by phone
+    * ids or phones seen on bills but missing from the list become new customers
+    """
+    cols = ["customer_id", "name", "phone", "area", "khata"]
+    if "customers" in clean:
+        cust = clean["customers"][~bad["customers"]].copy()
+    else:
+        cust = pd.DataFrame(columns=cols)
+    cust["phone_key"] = cust["phone"].map(phone_key) if len(cust) else pd.Series(dtype=str)
+    noid = cust["customer_id"].eq("") if len(cust) else pd.Series(dtype=bool)
+    if len(cust):
+        fill = noid & cust["phone_key"].ne("")
+        cust.loc[fill, "customer_id"] = cust.loc[fill, "phone_key"].map(_id_from_phone)
+        nothing = cust["customer_id"].eq("")
+        if nothing.any():
+            col.warn("customers", "customer row has neither id nor phone - ignored",
+                     rows=cust.index[nothing])
+            cust = cust[~nothing]
+        dupid = cust["customer_id"].duplicated(keep="first")
+        if dupid.any():
+            col.warn("customers", "duplicate customer_id - first row kept", rows=cust.index[dupid],
+                     column="customer_id", values=cust.loc[dupid, "customer_id"])
+            cust = cust[~dupid]
+    remap: dict[str, str] = {}
+    if len(cust):
+        has = cust["phone_key"].ne("")
+        first = cust[has].drop_duplicates("phone_key").set_index("phone_key")["customer_id"]
+        dup = has & cust["phone_key"].duplicated(keep="first")
+        if dup.any():
+            for r in cust[dup].itertuples():
+                remap[r.customer_id] = first[r.phone_key]
+            col.warn("customers", f"{int(dup.sum())} duplicate customer(s) merged - same phone number")
+            cust = cust[~dup]
+        phone_to_id = first.to_dict()
+    else:
+        phone_to_id = {}
+    known = set(cust["customer_id"])
+    created: dict[str, dict] = {}
+
+    def resolve(cid: str, phone: str) -> str:
+        cid = remap.get(cid, cid)
+        if cid:
+            if cid not in known and cid not in created:
+                created[cid] = {"customer_id": cid, "name": "", "phone": phone, "area": "", "khata": False}
+            return cid
+        key = phone_key(phone)
+        if not key:
+            return ""
+        if key in phone_to_id:
+            return phone_to_id[key]
+        new = _id_from_phone(key)
+        phone_to_id[key] = new
+        if new not in known:
+            created.setdefault(new, {"customer_id": new, "name": "", "phone": phone, "area": "",
+                                     "khata": False})
+        return new
+
+    sales = clean["sales"]
+    sales["customer_id"] = [resolve(str(c or ""), str(p or "")) for c, p in
+                            zip(sales["customer_id"], sales["customer_phone"])]
+    if created and "customers" in clean:
+        col.warn("customers", f"{len(created)} customer(s) on bills were not in the customer list - added")
+    credit_anon = (sales["payment_mode"].eq("credit") & sales["customer_id"].eq("") & ~bad["sales"])
+    if credit_anon.any():
+        n = sales.loc[credit_anon, "invoice_id"].nunique()
+        col.warn("sales", f"{n} credit (udhaar) bill(s) have no customer - they cannot be tracked in the khata")
+    credit_cust = set(sales.loc[sales["payment_mode"].eq("credit"), "customer_id"]) - {""}
+
+    rep = pd.DataFrame(columns=["date", "customer_id", "amount_paise", "mode"])
+    if "repayments" in clean:
+        r = clean["repayments"][~bad["repayments"]].copy()
+        before = set(created)
+        r["customer_id"] = [resolve(str(c or ""), str(p or "")) for c, p in
+                            zip(r["customer_id"], r["customer_phone"])]
+        for cid in set(created) - before:  # repayment-only ids are suspicious: drop, don't invent
+            created.pop(cid, None)
+        unknown = r["customer_id"].eq("") | ~r["customer_id"].isin(known | set(created))
+        if unknown.any():
+            col.warn("repayments", "repayment for an unknown customer - ignored",
+                     rows=r.index[unknown], column="customer_id")
+        r = r[~unknown]
+        rep = pd.DataFrame({"date": r["date"], "customer_id": r["customer_id"],
+                            "amount_paise": r["amount"].astype("int64"), "mode": r["mode"]})
+
+    out = pd.concat([cust[cols], pd.DataFrame(list(created.values()), columns=cols)],
+                    ignore_index=True)
+    out["khata"] = out["khata"].astype(bool) | out["customer_id"].isin(credit_cust)
+    return out, rep

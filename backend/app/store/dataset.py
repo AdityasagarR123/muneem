@@ -24,10 +24,13 @@ from app.core.money import taxable_from_inclusive
 
 ITEM_COLS = ["item_id", "name", "category", "hsn", "mrp_paise", "cost_paise", "gst_rate",
              "pack_size", "supplier_id", "lead_time_days"]
-SALES_COLS = ["invoice_id", "date", "item_id", "qty", "unit_price_paise", "payment_mode"]
+SALES_COLS = ["invoice_id", "date", "item_id", "qty", "unit_price_paise", "payment_mode",
+              "customer_id"]
 INVENTORY_COLS = ["item_id", "stock_qty", "as_of_date"]
 EXPENSE_COLS = ["date", "category", "amount_paise", "payment_mode"]
 SUPPLIER_COLS = ["supplier_id", "name", "whatsapp_placeholder", "lead_time_days"]
+CUSTOMER_COLS = ["customer_id", "name", "phone", "area", "khata"]
+REPAYMENT_COLS = ["date", "customer_id", "amount_paise", "mode"]
 
 
 def _dt(s: pd.Series) -> pd.Series:
@@ -45,8 +48,29 @@ class Dataset:
     source: str = "sample"
     version: str = field(default_factory=lambda: uuid4().hex[:12])
     loaded_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    customers: pd.DataFrame | None = None
+    repayments: pd.DataFrame | None = None
 
     def __post_init__(self) -> None:
+        if "customer_id" not in self.sales:
+            self.sales = self.sales.assign(customer_id="")
+        self.sales["customer_id"] = self.sales["customer_id"].fillna("").astype(str)
+        cust = self.customers if self.customers is not None else pd.DataFrame(columns=CUSTOMER_COLS)
+        for c in CUSTOMER_COLS:
+            if c not in cust:
+                cust = cust.assign(**{c: False if c == "khata" else ""})
+        self.customers = cust[CUSTOMER_COLS].reset_index(drop=True)
+        self.customers["customer_id"] = self.customers["customer_id"].astype(str)
+        self.customers["khata"] = self.customers["khata"].fillna(False).astype(bool)
+        for c in ("name", "phone", "area"):
+            self.customers[c] = self.customers[c].fillna("").astype(str)
+        rep = self.repayments if self.repayments is not None else pd.DataFrame(columns=REPAYMENT_COLS)
+        self.repayments = rep[REPAYMENT_COLS].reset_index(drop=True)
+        if len(self.repayments):
+            self.repayments["date"] = _dt(self.repayments["date"])
+        self.repayments["amount_paise"] = self.repayments["amount_paise"].astype("int64")
+        self.repayments["customer_id"] = self.repayments["customer_id"].astype(str)
+
         self.items = self.items[ITEM_COLS].reset_index(drop=True)
         self.items["item_id"] = self.items["item_id"].astype(str)
         for c in ("mrp_paise", "cost_paise", "gst_rate", "pack_size", "lead_time_days"):
@@ -56,7 +80,7 @@ class Dataset:
         self.sales["date"] = _dt(self.sales["date"])
         self.sales["qty"] = self.sales["qty"].astype(float)
         self.sales["unit_price_paise"] = self.sales["unit_price_paise"].astype("int64")
-        for c in ("invoice_id", "item_id", "payment_mode"):
+        for c in ("invoice_id", "item_id", "payment_mode", "customer_id"):
             self.sales[c] = self.sales[c].astype(str)
 
         self.inventory = self.inventory[INVENTORY_COLS].reset_index(drop=True)
@@ -116,6 +140,11 @@ class Dataset:
     def last_sale(self) -> pd.Series:
         return self.sales.groupby("item_id")["date"].max()
 
+    @cached_property
+    def customer_first_purchase(self) -> pd.Series:
+        s = self.sales[self.sales["customer_id"] != ""]
+        return s.groupby("customer_id")["date"].min()
+
     def sales_window(self, days: int, end: pd.Timestamp | None = None) -> pd.DataFrame:
         """Enriched sales in the `days` days ending at `end` (inclusive, default as_of)."""
         end = end if end is not None else self.as_of_ts
@@ -137,7 +166,11 @@ class Dataset:
                 "inventory": int(len(self.inventory)),
                 "expenses": int(len(self.expenses)),
                 "suppliers": int(len(self.suppliers)),
+                "customers": int(len(self.customers)),
+                "repayments": int(len(self.repayments)),
             },
+            "customer_linked_bills_pct": round(
+                100 * s.loc[s["customer_id"] != "", "invoice_id"].nunique() / max(s["invoice_id"].nunique(), 1), 1),
             "sales_from": s["date"].min().date().isoformat() if len(s) else None,
             "sales_to": s["date"].max().date().isoformat() if len(s) else None,
             "categories": sorted(self.items["category"].unique().tolist()),

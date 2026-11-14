@@ -8,7 +8,7 @@ import pandas as pd
 
 from app.core.text import normalize_header
 
-TABLE_NAMES = ("items", "sales", "inventory", "expenses", "suppliers")
+TABLE_NAMES = ("items", "sales", "inventory", "expenses", "suppliers", "customers", "repayments")
 
 
 class ReadError(ValueError):
@@ -67,6 +67,8 @@ def match_sheet(sheet_name: str) -> str | None:
         "inventory": ("inventory", "stock", "closing_stock", "stock_summary"),
         "expenses": ("expenses", "expense", "kharcha"),
         "suppliers": ("suppliers", "supplier", "vendors", "vendor", "distributors"),
+        "customers": ("customers", "customer", "khata_customers", "members", "parties"),
+        "repayments": ("repayments", "repayment", "udhaar_payments", "collections", "payments_received"),
     }
     for table, names in synonyms.items():
         if n in names or any(n.startswith(x) for x in names):

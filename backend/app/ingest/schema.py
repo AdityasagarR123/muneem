@@ -54,6 +54,10 @@ TABLES: dict[str, list[Col]] = {
         Col("unit_price_incl_gst", "money", False, ("price", "rate", "unit_price", "selling_price", "mrp")),
         Col("payment_mode", "payment", False, ("payment", "mode", "pay_mode", "payment_method",
                                                "tender"), "cash"),
+        Col("customer_id", "text", False, ("customer", "customer_code", "cust_id", "member_id",
+                                           "khata_id"), ""),
+        Col("customer_phone", "text", False, ("phone", "mobile", "mob", "mob_no", "mobile_no",
+                                              "customer_mobile", "contact"), ""),
     ],
     "inventory": [
         Col("item_id", "id", aliases=ID_ALIASES),
@@ -67,6 +71,20 @@ TABLES: dict[str, list[Col]] = {
         Col("amount", "money", aliases=("amt", "value", "total")),
         Col("payment_mode", "payment", False, ("payment", "mode", "pay_mode", "payment_method"), "cash"),
     ],
+    "customers": [
+        Col("customer_id", "text", False, ("id", "customer", "customer_code", "cust_id", "member_id"), ""),
+        Col("name", "text", False, ("customer_name", "full_name"), ""),
+        Col("phone", "text", False, ("mobile", "mob", "mob_no", "mobile_no", "contact", "whatsapp"), ""),
+        Col("area", "text", False, ("locality", "address", "city"), ""),
+        Col("khata", "bool", False, ("udhaar", "credit_allowed", "credit_account"), False),
+    ],
+    "repayments": [
+        Col("date", "date", aliases=("payment_date", "paid_on", "txn_date")),
+        Col("customer_id", "text", False, ("customer", "customer_code", "cust_id"), ""),
+        Col("customer_phone", "text", False, ("phone", "mobile", "mob", "mob_no"), ""),
+        Col("amount", "money", aliases=("amt", "paid", "amount_paid", "value")),
+        Col("mode", "payment", False, ("payment_mode", "payment", "pay_mode"), "cash"),
+    ],
     "suppliers": [
         Col("supplier_id", "id", aliases=("id", "vendor_id", "code")),
         Col("name", "text", aliases=("supplier_name", "vendor_name", "supplier")),
@@ -76,5 +94,6 @@ TABLES: dict[str, list[Col]] = {
 }
 
 REQUIRED_TABLES = ("items", "sales")
-OPTIONAL_TABLES = ("inventory", "expenses", "suppliers")
+OPTIONAL_TABLES = ("inventory", "expenses", "suppliers", "customers", "repayments")
+TRUE_WORDS = {"yes", "y", "true", "1", "haan", "ha", "khata", "udhaar"}
 DEFAULT_LEAD_TIME = 2

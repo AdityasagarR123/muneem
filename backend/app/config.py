@@ -24,6 +24,13 @@ class Settings(BaseSettings):
     data_dir: Path = ROOT_DIR / "data" / "sample"
     festivals_file: Path = RESOURCES_DIR / "festivals.json"
 
+    # PostgreSQL system of record (optional - app works without it)
+    database_url: str | None = None
+
+    # web research (optional)
+    tavily_api_key: str = ""
+    tinyfish_api_key: str = ""
+
     # ArangoDB (optional - app works without it)
     arango_url: str | None = None
     arango_db: str = "muneem"

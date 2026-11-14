@@ -4,6 +4,9 @@ import os
 # Unit tests never touch a real ArangoDB or a real LLM (live tests opt in explicitly).
 os.environ["ARANGO_URL"] = ""
 os.environ["LLM_API_KEY"] = ""
+os.environ["DATABASE_URL"] = ""
+os.environ["TAVILY_API_KEY"] = ""
+os.environ["TINYFISH_API_KEY"] = ""
 
 import pytest  # noqa: E402
 

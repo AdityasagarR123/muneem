@@ -34,6 +34,7 @@ import numpy as np
 from app.analytics.festivals import FestivalCalendar
 from app.config import get_settings
 from app.core.money import taxable_from_inclusive, to_paise
+from app.ingest.customer_sim import CustomerSim
 
 SEED = 20261114
 END = date(2026, 11, 13)
@@ -173,6 +174,8 @@ def generate(out_dir: Path, seed: int = SEED) -> dict:
     cost = {s.item_id: _cost(s) for s in ITEMS}
     diwali = next(f for f in cal.festivals if f.name == "Diwali")
 
+    # customers use their own random stream, so every earlier planted story stays identical
+    sim = CustomerSim(np.random.default_rng(seed + 1), dates, diwali)
     sales_rows: list[list] = []
     daily_qty: dict[str, list[int]] = {s.item_id: [] for s in ITEMS}
     daily_cogs: list[float] = []
@@ -213,13 +216,21 @@ def generate(out_dir: Path, seed: int = SEED) -> dict:
             agg[(int(assign[k]), iid)] += q
         modes, shares = _payment_shares(di / (DAYS - 1))
         bill_mode = {b: modes[int(rng.choice(len(modes), p=shares))] for b in range(n_bills)}
+        sim.start_day()
+        bill_cust = {b: sim.assign(bill_mode[b], d) for b in sorted({b for b, _ in agg})}
+        bill_total: dict[int, int] = defaultdict(int)
         for (b, iid), q in sorted(agg.items()):
             sku = by_id[iid]
             price = sku.mrp
             if rng.random() < 0.06:  # occasional small discount
                 price = round(sku.mrp * 0.97 * 2) / 2
             sales_rows.append([f"B{d:%y%m%d}-{b + 1:03d}", d.isoformat(), iid, q,
-                               f"{price:.2f}", bill_mode[b]])
+                               f"{price:.2f}", bill_mode[b], bill_cust[b]])
+            bill_total[b] += q * to_paise(f"{price:.2f}")
+        for b, cid in bill_cust.items():
+            if cid and bill_mode[b] == "credit":
+                sim.add_debit(cid, bill_total[b])
+        sim.end_day(d)
 
     # ---- inventory (planted) -------------------------------------------
     inventory_rows = []
@@ -283,7 +294,9 @@ def generate(out_dir: Path, seed: int = SEED) -> dict:
           [[s.item_id, s.name, s.category, s.hsn, f"{s.mrp:.2f}", f"{cost[s.item_id]:.2f}",
             s.gst, s.pack, s.supplier, LEAD[s.supplier]] for s in ITEMS])
     write("sales.csv", ["invoice_id", "date", "item_id", "qty", "unit_price_incl_gst",
-                        "payment_mode"], sales_rows)
+                        "payment_mode", "customer_id"], sales_rows)
+    write("customers.csv", ["customer_id", "name", "phone", "area", "khata"], sim.customer_rows())
+    write("repayments.csv", ["date", "customer_id", "amount", "mode"], sim.repayments)
     write("inventory.csv", ["item_id", "stock_qty", "as_of_date"], inventory_rows)
     write("expenses.csv", ["date", "category", "amount", "payment_mode"], expense_rows)
 
@@ -301,6 +314,7 @@ def generate(out_dir: Path, seed: int = SEED) -> dict:
         "festive_adjusted_item": "I058",
         "insufficient_data_item": NEW_ITEM,
         "bought_together": ["I001", "I015"],
+        "crm": sim.expected(),
     }
     (out_dir / "expected.json").write_text(json.dumps(expected, indent=2), encoding="utf-8")
     return expected

@@ -481,8 +481,10 @@ TOOLS: dict[str, ToolSpec] = {t.name: t for t in [
     ToolSpec("restock_draft", "Prepare purchase-order drafts per supplier with a ready-to-send "
              "WhatsApp message (owner sends it). Use when the owner asks to make/write/send an "
              "order or message to a supplier.", DraftArgs, t_restock_draft),
-    ToolSpec("morning_brief", "Today's 5-line summary: what to order and whom to call, yesterday's "
-             "sales, dead stock, expense spikes, festival adjustments.", BriefArgs, t_brief),
+    ToolSpec("morning_brief", "Only when the owner asks for the daily brief / morning report / "
+             "today's summary: 5 lines covering orders, yesterday's sales, dead stock, expense "
+             "spikes, festival adjustments. For 'what should I order' use reorder_plan instead.",
+             BriefArgs, t_brief),
     ToolSpec("find_item", "Look up which items, categories or suppliers match some words (use when "
              "a name is unclear).", FindArgs, t_find),
 ]}
@@ -562,3 +564,7 @@ def llm_view(out: ToolOutput, max_rows: int = 12) -> dict:
     if "by_supplier" in ins.meta:
         view["by_supplier"] = clean(ins.meta["by_supplier"])
     return view
+
+
+# CRM + metrics tools register themselves into TOOLS (kept in their own module)
+from app.agent import crm_tools as _crm_tools  # noqa: E402,F401

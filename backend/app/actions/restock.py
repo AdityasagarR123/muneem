@@ -157,6 +157,12 @@ class RestockStore:
         return si["whatsapp_placeholder"].get(supplier_id) if supplier_id in si.index else None
 
     def _persist(self, po: PurchaseOrder) -> None:
+        if self.m.sql is not None:
+            try:
+                self.m.sql.upsert_purchase_order(po.model_dump())
+            except Exception as exc:  # pragma: no cover - best effort
+                log.warning("could not save purchase order %s: %s", po.po_id, exc)
+            return
         if self.m.db is None:
             return
         try:
@@ -169,6 +175,14 @@ class RestockStore:
         if self._loaded:
             return
         self._loaded = True
+        if self.m.sql is not None:
+            try:
+                for d in self.m.sql.purchase_orders():
+                    po = PurchaseOrder(**d)
+                    self.orders[po.po_id] = po
+            except Exception as exc:  # pragma: no cover
+                log.warning("could not load purchase orders: %s", exc)
+            return
         if self.m.db is None:
             return
         try:

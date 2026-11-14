@@ -172,6 +172,26 @@ def save_dataset(db, ds: Dataset) -> dict:
         exp["date"] = _iso(exp["date"])
         _import(db, "expenses", _records(exp))
 
+    ck2 = _Keys()
+    if len(ds.customers):
+        cust = ds.customers.copy()
+        cust["_key"] = cust["customer_id"].map(ck2)
+        _import(db, "customers", _records(cust))
+        linked = sx[sx["customer_id"] != ""]
+        bought = (linked.groupby(["customer_id", "item_id"])
+                        .agg(bills=("invoice_id", "nunique"), qty=("qty", "sum"),
+                             amount_paise=("line_total_paise", "sum"))
+                        .reset_index())
+        _import(db, "purchased", [
+            {"_from": f"customers/{ck2(r.customer_id)}", "_to": f"items/{ik(r.item_id)}",
+             "bills": int(r.bills), "qty": float(r.qty), "amount_paise": int(r.amount_paise)}
+            for r in bought.itertuples() if r.customer_id in ck2.map
+        ])
+    if len(ds.repayments):
+        rp = ds.repayments.copy()
+        rp["date"] = _iso(rp["date"])
+        _import(db, "repayments", _records(rp))
+
     info = {
         "_key": "dataset", "status": "ready", "version": ds.version, "source": ds.source,
         "as_of": ds.as_of.isoformat(), "loaded_at": ds.loaded_at.isoformat(),
@@ -191,7 +211,7 @@ def load_dataset(db) -> Dataset | None:
     if not meta or meta.get("status") != "ready":
         return None
     frames = {c: pd.DataFrame(_fetch(db, c)) for c in
-              ("items", "sales", "inventory", "expenses", "suppliers")}
+              ("items", "sales", "inventory", "expenses", "suppliers", "customers", "repayments")}
     if frames["items"].empty or frames["sales"].empty:
         return None
     if frames["inventory"].empty:
@@ -205,6 +225,8 @@ def load_dataset(db) -> Dataset | None:
     return Dataset(
         items=frames["items"], sales=frames["sales"], inventory=frames["inventory"],
         expenses=frames["expenses"], suppliers=frames["suppliers"],
+        customers=frames["customers"] if len(frames["customers"]) else None,
+        repayments=frames["repayments"] if len(frames["repayments"]) else None,
         as_of=date.fromisoformat(meta["as_of"]), source="arangodb",
         version=meta.get("version", "arango"),
     )

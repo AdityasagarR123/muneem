@@ -28,7 +28,12 @@ def _entity(ev, key: str):
 
 def grade(case: dict, env: Envelope) -> tuple[bool, str]:
     evs = [e for e in env.evidence if not e.error]
-    match = next((e for e in evs if e.tool == case["tool"]), None)
+    wanted = case["tool"] if isinstance(case["tool"], list) else [case["tool"]]
+    match = next((e for e in evs if e.tool in wanted), None)
+    if match is not None and match.tool != wanted[0]:  # an accepted alternative: skip arg checks
+        return (bool(env.answer_md.strip()) and not env.grounding.ungrounded,
+                "ok (alternative tool)" if not env.grounding.ungrounded else
+                f"ungrounded numbers {env.grounding.ungrounded}")
     if match is None:
         return False, f"tool {[e.tool for e in env.evidence] or 'none'} != {case['tool']}"
     row_ids = {r.get("item_id") for r in match.rows}
