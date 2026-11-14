@@ -1,0 +1,19 @@
+{
+  "note": "Indicative dates. Verify each festival's dates for the year before relying on them. 'uplift' is the demand multiplier at the peak day for that category.",
+  "festivals": [
+    {
+      "name": "Diwali",
+      "start": "2026-10-26",
+      "end": "2026-11-10",
+      "peak": "2026-11-08",
+      "uplift": {"Festive & Sweets": 3.5, "Dry Fruits": 3.0, "Household": 1.4}
+    },
+    {
+      "name": "Christmas & New Year",
+      "start": "2026-12-20",
+      "end": "2027-01-01",
+      "peak": "2026-12-31",
+      "uplift": {"Festive & Sweets": 1.5, "Beverages": 1.3, "Snacks & Biscuits": 1.2}
+    }
+  ]
+}

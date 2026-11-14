@@ -1,0 +1,65 @@
+item_id,name,category,hsn,mrp_incl_gst,cost_ex_gst,gst_rate,pack_size,supplier_id,lead_time_days
+I001,Chakki Atta 5kg,Staples,1101,265.00,229.67,5,5,S01,2
+I002,Chakki Atta 10kg,Staples,1101,510.00,446.85,5,2,S01,2
+I003,Basmati Rice 1kg,Staples,1006,140.00,114.66,5,10,S01,2
+I004,Sona Masoori Rice 5kg,Staples,1006,380.00,325.71,5,4,S01,2
+I005,Toor Dal 1kg,Staples,0713,175.00,148.34,5,10,S01,2
+I006,Moong Dal 1kg,Staples,0713,150.00,125.72,5,10,S01,2
+I007,Chana Dal 1kg,Staples,0713,110.00,92.19,5,10,S01,2
+I008,Masoor Dal 1kg,Staples,0713,120.00,100.58,5,10,S01,2
+I009,Sugar 1kg,Staples,1701,48.00,42.97,5,25,S01,2
+I010,Iodised Salt 1kg,Staples,2501,28.00,23.80,0,25,S01,2
+I011,Besan 500g,Staples,1106,65.00,53.23,5,10,S01,2
+I012,Maida 1kg,Staples,1101,55.00,46.09,5,10,S01,2
+I013,Poha 500g,Staples,1904,45.00,36.00,5,10,S01,2
+I014,Sooji 500g,Staples,1103,40.00,32.38,5,10,S01,2
+I015,Refined Sunflower Oil 1L,Edible Oil & Ghee,1512,165.00,152.43,5,12,S02,3
+I016,Kachi Ghani Mustard Oil 1L,Edible Oil & Ghee,1514,185.00,160.33,5,12,S02,3
+I017,Desi Ghee 1L,Edible Oil & Ghee,0405,650.00,557.14,5,6,S02,3
+I018,Groundnut Oil 1L,Edible Oil & Ghee,1508,210.00,182.00,5,12,S02,3
+I019,Extra Virgin Olive Oil 500ml,Edible Oil & Ghee,1509,799.00,623.98,5,6,S02,3
+I020,Turmeric Powder 200g,Spices,0910,60.00,44.57,5,10,S02,3
+I021,Red Chilli Powder 200g,Spices,0904,80.00,59.43,5,10,S02,3
+I022,Garam Masala 100g,Spices,0910,85.00,60.71,5,10,S02,3
+I023,Jeera 200g,Spices,0909,120.00,91.43,5,10,S02,3
+I024,Toned Milk 500ml,Dairy & Bakery,0401,30.00,27.60,0,20,S03,1
+I025,Full Cream Milk 500ml,Dairy & Bakery,0401,36.00,33.12,0,20,S03,1
+I026,Dahi 400g,Dairy & Bakery,0403,45.00,37.72,5,12,S03,1
+I027,Paneer 200g,Dairy & Bakery,0406,95.00,83.60,0,10,S03,1
+I028,Salted Butter 100g,Dairy & Bakery,0405,62.00,53.14,5,20,S03,1
+I029,White Bread 400g,Dairy & Bakery,1905,45.00,39.60,0,10,S03,1
+I030,Brown Bread 400g,Dairy & Bakery,1905,55.00,47.85,0,10,S03,1
+I031,Eggs (Tray of 6),Dairy & Bakery,0407,48.00,42.24,0,5,S03,1
+I032,Glucose Biscuits 200g,Snacks & Biscuits,1905,25.00,20.95,5,24,S04,2
+I033,Cream Biscuits 150g,Snacks & Biscuits,1905,35.00,28.66,5,24,S04,2
+I034,Aloo Bhujia 400g,Snacks & Biscuits,2106,110.00,85.90,5,12,S04,2
+I035,Salted Chips 52g,Snacks & Biscuits,2005,20.00,15.81,5,30,S04,2
+I036,Instant Noodles 70g,Snacks & Biscuits,1902,15.00,12.58,5,48,S04,2
+I037,Chocolate Bar 40g,Snacks & Biscuits,1806,40.00,32.38,5,24,S04,2
+I038,Rusk 300g,Snacks & Biscuits,1905,50.00,40.48,5,12,S04,2
+I039,Millet Muesli 500g,Snacks & Biscuits,1904,299.00,227.81,5,6,S04,2
+I040,Cola 750ml,Beverages,2202,45.00,27.32,40,24,S05,3
+I041,Lemon Soda 750ml,Beverages,2202,40.00,24.28,40,24,S05,3
+I042,Mango Drink 600ml,Beverages,2202,40.00,32.00,5,24,S05,3
+I043,Packaged Water 1L,Beverages,2201,20.00,15.24,5,12,S05,3
+I044,Tea Leaves 500g,Beverages,0902,260.00,217.91,5,12,S05,3
+I045,Instant Coffee 50g,Beverages,2101,175.00,146.67,5,12,S05,3
+I046,Rose Sharbat 750ml,Beverages,2106,160.00,121.90,5,12,S05,3
+I047,Detergent Powder 1kg,Household,3402,120.00,87.45,18,12,S06,4
+I048,Dishwash Bar 200g,Household,3401,25.00,17.38,18,30,S06,4
+I049,Floor Cleaner 1L,Household,3402,199.00,138.28,18,12,S06,4
+I050,Toilet Cleaner 500ml,Household,3402,99.00,68.80,18,12,S06,4
+I051,Herbal Phenyl 5L,Household,3808,450.00,297.46,18,4,S06,4
+I052,Agarbatti Pack,Household,3307,50.00,35.71,5,20,S06,4
+I053,Matchbox (10 pcs),Household,3605,20.00,16.19,5,20,S06,4
+I054,Bathing Soap 100g,Personal Care,3401,40.00,32.38,5,24,S08,4
+I055,Toothpaste 150g,Personal Care,3306,99.00,81.09,5,12,S08,4
+I056,Shampoo Sachets (Strip of 10),Personal Care,3305,30.00,23.43,5,20,S08,4
+I057,Coconut Hair Oil 300ml,Personal Care,3305,145.00,117.38,5,12,S08,4
+I058,Soan Papdi 500g,Festive & Sweets,1704,180.00,140.57,5,12,S07,5
+I059,Kaju Katli 250g,Festive & Sweets,1704,320.00,249.90,5,6,S07,5
+I060,Gulab Jamun Tin 1kg,Festive & Sweets,2106,260.00,205.52,5,6,S07,5
+I061,Diya Set (12 pcs),Festive & Sweets,6913,120.00,80.00,5,10,S07,5
+I062,Cashew 250g,Dry Fruits,0801,290.00,234.76,5,10,S07,5
+I063,Almonds 250g,Dry Fruits,0802,260.00,210.48,5,10,S07,5
+I064,Raisins 250g,Dry Fruits,0806,120.00,93.72,5,10,S07,5

@@ -1,5 +1,22 @@
 # VyaparPulse — Implementation Plan (with ArangoDB)
 
+> **Progress (14 Nov 2026):** Phases 0–5 backend done (72 tests passing). Frontend for Phase 0
+> deferred until the backend is complete. Design change: when ArangoDB is unreachable, graph
+> questions are answered by an in-memory graph engine with the same results (instead of
+> returning "graph unavailable"); every response names the engine that answered. Live ArangoDB
+> tests run once cloud credentials are in `.env`.
+>
+> **Phase 7 done:** chat agent on Gemini (`gemini-3.5-flash-lite`, falls over to
+> `gemini-3.1-flash-lite` on rate limits, then to rules-only mode). 19 typed tools, Hinglish /
+> Hindi / English, number-grounding check on every answer, SSE streaming, eval set 18/18 live
+> and 16/16 in rules mode.
+>
+> **Phase 9 done:** purchase orders per supplier (editable drafts), WhatsApp messages in
+> English / Hinglish / Hindi, lifecycle draft → sent → received (receiving adds stock and every
+> alert recomputes; partial deliveries supported), CSV export, morning brief, chat tools for
+> both. Orders are saved in ArangoDB `purchase_orders` when connected. 101 tests passing.
+> Next: Phase 10 hardening (response cache for demo questions, security pass), then frontend.
+
 Step-by-step build plan for the project described in `VyaparPulse — Kirana Inventory & Purchase Intelligence Copilot.md`.
 Each phase ends with a **Done when** check. Do not start the next phase until the current one passes.
 

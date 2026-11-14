@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-slate-800 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
+    "Noto Sans Devanagari", sans-serif;
+}
+
+.btn {
+  @apply inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-1.5
+    text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50;
+}
+.btn-primary {
+  @apply border-blue-600 bg-blue-600 text-white hover:bg-blue-700;
+}
+.btn-green {
+  @apply border-green-600 bg-green-600 text-white hover:bg-green-700;
+}
+.input {
+  @apply rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm focus:border-blue-500
+    focus:outline-none focus:ring-1 focus:ring-blue-500;
+}
+.prose-chat p { @apply my-1.5; }
+.prose-chat ul { @apply my-1.5 list-disc pl-5; }
+.prose-chat ol { @apply my-1.5 list-decimal pl-5; }
+.prose-chat strong { @apply font-semibold; }
+.prose-chat pre { @apply my-2 whitespace-pre-wrap rounded bg-slate-100 p-2 text-sm; }

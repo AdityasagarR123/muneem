@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "seed": 20261114,
+  "as_of": "2026-11-13",
+  "critical_items": [
+    "I001",
+    "I005"
+  ],
+  "soon_items": [
+    "I006",
+    "I009"
+  ],
+  "top_risk_supplier": "S01",
+  "dead_stock": [
+    {
+      "item_id": "I019",
+      "stock": 18,
+      "money_trapped_paise": 1123164
+    },
+    {
+      "item_id": "I046",
+      "stock": 24,
+      "money_trapped_paise": 292560
+    },
+    {
+      "item_id": "I051",
+      "stock": 8,
+      "money_trapped_paise": 237968
+    }
+  ],
+  "dead_stock_total_paise": 1653692,
+  "high_revenue_low_margin": "I015",
+  "expense_spike_category": "electricity",
+  "festive_adjusted_item": "I058",
+  "insufficient_data_item": "I039",
+  "bought_together": [
+    "I001",
+    "I015"
+  ]
+}
