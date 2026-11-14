@@ -1,0 +1,2540 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muneem AI (मुनीम AI) — Hackathon Pitch Deck</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Rozha+One&family=Yatra+One&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            devanagari: ['"Rozha One"', '"Yatra One"', 'serif']
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              accent: '#f59e0b',
+            },
+            dark: {
+              950: '#020617',
+              900: '#090d16',
+              850: '#0f172a',
+              800: '#1e293b',
+              750: '#273549',
+              700: '#334155'
+            }
+          },
+          backgroundImage: {
+            'radial-glow': 'radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, rgba(99, 102, 241, 0.08) 50%, transparent 80%)',
+            'radial-amber': 'radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.12) 0%, transparent 60%)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #10b981;
+    }
+
+    /* Glassmorphism Classes */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(71, 85, 105, 0.4);
+    }
+    .glass-card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-hover:hover {
+      transform: translateY(-3px);
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 12px 28px -6px rgba(16, 185, 129, 0.15);
+    }
+
+    /* Slide Transitions */
+    .slide-container {
+      position: relative;
+      overflow: hidden;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px) scale(0.99);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+    }
+
+    /* Pulse Glow */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    .ambient-glow {
+      animation: pulseGlow 8s ease-in-out infinite;
+    }
+
+    /* Mermaid Dark Mode Styling Overrides */
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    }
+  </style>
+</head>
+<body class="bg-dark-950 text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col justify-between overflow-hidden">
+
+  <!-- Ambient Glowing Background Spheres -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-32 left-1/4 w-[600px] h-[600px] rounded-full bg-brand-500/10 blur-[130px] ambient-glow"></div>
+    <div class="absolute top-1/3 -right-32 w-[550px] h-[550px] rounded-full bg-indigo-500/10 blur-[140px] ambient-glow" style="animation-delay: 3s;"></div>
+    <div class="absolute -bottom-32 left-10 w-[500px] h-[500px] rounded-full bg-amber-500/8 blur-[120px] ambient-glow" style="animation-delay: 5s;"></div>
+    <div class="absolute inset-0 bg-radial-glow"></div>
+  </div>
+
+  <!-- TOP HEADER / NAV BAR -->
+  <header class="relative z-30 border-b border-slate-800/80 bg-dark-900/80 backdrop-blur-md px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="goToSlide(0)">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 p-0.5 shadow-lg shadow-brand-500/20 flex items-center justify-center">
+          <div class="w-full h-full bg-dark-950 rounded-[10px] flex items-center justify-center">
+            <span class="text-xl font-bold bg-gradient-to-r from-brand-400 to-amber-400 bg-clip-text text-transparent font-devanagari">म</span>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">Muneem AI</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 font-medium">मुनीम AI</span>
+            <span class="hidden md:inline-flex text-[11px] px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/30 text-indigo-300">Infra Shift 2026</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Autonomous Financial & Operations Copilot for Bharat's 63M SMBs</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Slide Category Badge -->
+    <div class="hidden lg:flex items-center space-x-2 text-xs font-medium text-slate-400 glass-card px-3 py-1.5 rounded-full">
+      <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+      <span id="currentSlideCategory">Pitch & Problem</span>
+      <span class="text-slate-600">•</span>
+      <span id="currentSlideTitle" class="text-slate-200 font-semibold">Title & Hook</span>
+    </div>
+
+    <!-- Header Actions & Navigation -->
+    <div class="flex items-center space-x-3">
+      <!-- Presenter Timer -->
+      <div class="hidden md:flex items-center space-x-2 bg-slate-900/90 border border-slate-700/60 px-3 py-1.5 rounded-lg text-xs font-mono">
+        <i class="fa-regular fa-clock text-brand-400"></i>
+        <span id="timerDisplay" class="text-slate-200">00:00</span>
+        <button onclick="toggleTimer()" title="Pause/Resume Timer" class="text-slate-400 hover:text-white transition">
+          <i id="timerIcon" class="fa-solid fa-play text-[10px]"></i>
+        </button>
+        <button onclick="resetTimer()" title="Reset Timer" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-rotate-left text-[10px]"></i>
+        </button>
+      </div>
+
+      <!-- Slide Drawer Toggle -->
+      <button onclick="toggleDrawer()" title="Slide Thumbnails / Index (Press 'O')" class="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex items-center space-x-2 transition shadow-sm">
+        <i class="fa-solid fa-grid-2"></i>
+        <span class="hidden sm:inline">Slides</span>
+        <span id="headerSlideCount" class="bg-slate-900 px-1.5 py-0.5 rounded text-[10px] text-brand-400 font-mono">01/14</span>
+      </button>
+
+      <!-- Speaker Notes Toggle -->
+      <button onclick="toggleNotes()" title="Speaker Notes & Judge FAQs (Press 'N')" class="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 hover:text-brand-300 transition">
+        <i class="fa-regular fa-comment-dots text-sm"></i>
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button onclick="toggleFullScreen()" title="Toggle Fullscreen (Press 'F')" class="px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-expand text-sm"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- TOP PROGRESS BAR -->
+  <div class="relative z-30 w-full h-1 bg-slate-800/60 overflow-hidden">
+    <div id="progressBar" class="h-full bg-gradient-to-r from-brand-500 via-indigo-500 to-amber-500 transition-all duration-300" style="width: 7.14%;"></div>
+  </div>
+
+  <!-- MAIN SLIDES WRAPPER -->
+  <main class="relative z-10 flex-1 slide-container h-[calc(100vh-112px)] overflow-hidden">
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1: HERO / TITLE -->
+    <!-- ========================================== -->
+    <section class="slide active p-6 md:p-12 justify-center items-center text-center" data-category="Executive Overview" data-title="Muneem AI (मुनीम AI)">
+      <div class="max-w-5xl w-full mx-auto flex flex-col items-center">
+        <!-- Floating Pill -->
+        <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-semibold mb-6 shadow-inner">
+          <i class="fa-solid fa-bolt text-brand-400"></i>
+          <span>Infra Shift Hackathon 2026 • Problem Statement 2 Winner Track</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>
+          <span class="text-slate-300">Production-Ready & Fully Verified</span>
+        </div>
+
+        <!-- Big Title -->
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-none mb-4">
+          <span class="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">Muneem AI</span>
+          <span class="font-devanagari text-brand-400 ml-3">मुनीम AI</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="text-lg sm:text-2xl text-slate-300 max-w-3xl font-normal leading-relaxed mb-8">
+          The Autonomous <span class="text-emerald-400 font-semibold">Financial & Operations Copilot</span> for Bharat's 63 Million SMBs.
+        </p>
+
+        <p class="text-sm sm:text-base text-slate-400 max-w-2xl mb-10">
+          Transforming Kiranas, Pharmacies & Retailers from <span class="text-rose-400 font-medium line-through">passive bookkeeping</span> into an <span class="text-brand-400 font-medium">autonomous action engine</span> that recovers Udhar, cuts stockouts, and simulates business outcomes in real-time.
+        </p>
+
+        <!-- Key Feature Badges Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full max-w-4xl mb-10 text-left">
+          <div class="glass-card p-4 rounded-xl border border-slate-700/60 hover:border-brand-500/40 transition">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2.5">
+              <i class="fa-solid fa-calculator text-sm"></i>
+            </div>
+            <div class="font-bold text-sm text-white">Zero LLM Math</div>
+            <div class="text-xs text-slate-400">100% deterministic calculation in paise with verification envelope</div>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border border-slate-700/60 hover:border-indigo-500/40 transition">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-2.5">
+              <i class="fa-solid fa-diagram-project text-sm"></i>
+            </div>
+            <div class="font-bold text-sm text-white">ArangoDB Graph</div>
+            <div class="text-xs text-slate-400">Multi-model intelligence linking customers, bills, udhar & suppliers</div>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border border-slate-700/60 hover:border-amber-500/40 transition">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2.5">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+            </div>
+            <div class="font-bold text-sm text-white">Autonomous Actions</div>
+            <div class="text-xs text-slate-400">1-click WhatsApp recovery & restock orders with holdout RCT tracking</div>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border border-slate-700/60 hover:border-purple-500/40 transition">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2.5">
+              <i class="fa-solid fa-language text-sm"></i>
+            </div>
+            <div class="font-bold text-sm text-white">Hinglish Voice-First</div>
+            <div class="text-xs text-slate-400">Natural multilingual conversational intelligence for Bharat merchants</div>
+          </div>
+        </div>
+
+        <!-- Call to Action Controls -->
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <button onclick="goToSlide(1)" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-emerald-500 hover:from-brand-500 hover:to-emerald-400 text-white font-semibold text-sm shadow-lg shadow-brand-500/25 flex items-center space-x-2 transition transform hover:-translate-y-0.5">
+            <span>Explore Pitch Deck</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+          <button onclick="goToSlide(7)" class="px-5 py-3 rounded-xl glass-card hover:bg-slate-800 text-slate-200 font-medium text-sm flex items-center space-x-2 transition border border-slate-700">
+            <i class="fa-solid fa-play text-brand-400 text-xs"></i>
+            <span>Interactive Live Playground</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2: THE CRISIS / PROBLEM -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="The Crisis" data-title="India's ₹30 Lakh Cr Working Capital Trap">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>The Silent Bleeding of Bharat's SMBs</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            63 Million Enterprises. <span class="bg-gradient-to-r from-rose-400 to-amber-400 bg-clip-text text-transparent">₹30 Lakh Crore Locked Udhar</span>.
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base mt-1">Indian retail merchants drive 30% of GDP, yet operate blind on razor-thin 5-8% net margins.</p>
+        </div>
+
+        <!-- 4 Core Pain Points + Live Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: 4 Critical Failure Vectors -->
+          <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-rose-500">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-rose-400 uppercase tracking-wider">Pain 01</span>
+                <i class="fa-solid fa-hand-holding-dollar text-slate-500"></i>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1">Uncollected Udhar (Credit)</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Avg kirana has <span class="text-white font-medium">₹4.6 Lakhs</span> trapped in uncollected credit. 22% turns bad debt after 90 days. Shyness prevents aggressive collection.
+              </p>
+              <div class="mt-3 text-[11px] font-mono text-rose-300 bg-rose-950/40 px-2 py-1 rounded">
+                Sample Khata: ₹46,420 overdue across 45 debtors
+              </div>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-amber-500">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Pain 02</span>
+                <i class="fa-solid fa-boxes-stacked text-slate-500"></i>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1">Dead Stock vs Stockouts</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                18-24% of working capital sits idle in slow-moving SKUs (<span class="text-white font-medium">₹16,536 trapped</span> in 3 dead items), while staple Atta & Dal stock out weekly.
+              </p>
+              <div class="mt-3 text-[11px] font-mono text-amber-300 bg-amber-950/40 px-2 py-1 rounded">
+                Critical: Atta I001 stocks out in 1.8 days
+              </div>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-indigo-500">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Pain 03</span>
+                <i class="fa-solid fa-eye-slash text-slate-500"></i>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1">Zero Real-Time P&L</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Kirana owners confuse <span class="text-white font-medium">cash in register with actual profit</span>. They don't back out GST, hidden expenses, or supplier price hikes.
+              </p>
+              <div class="mt-3 text-[11px] font-mono text-indigo-300 bg-indigo-950/40 px-2 py-1 rounded">
+                High sales item I015 has only 3.2% net margin
+              </div>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl border-l-4 border-emerald-500">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Pain 04</span>
+                <i class="fa-solid fa-clock-rotate-left text-slate-500"></i>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1">Passive Software Fatigue</h3>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Existing tools (Khatabook, Vyapar, Tally) require <span class="text-white font-medium">manual typing & complex bookkeeping</span>. They record history but never give salaah (advice).
+              </p>
+              <div class="mt-3 text-[11px] font-mono text-emerald-300 bg-emerald-950/40 px-2 py-1 rounded">
+                Result: 68% abandon software within 60 days
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Chart of Udhar Aging & Working Capital Leakage -->
+          <div class="lg:col-span-5 glass-panel p-5 rounded-2xl flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-bold text-sm text-slate-200">Udhar Aging vs Bad Debt Risk Curve</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">Sample Kirana Data</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-4">Probability of complete default surges 5x after 60 days without autonomous follow-ups.</p>
+              <div class="h-56 relative w-full">
+                <canvas id="udharAgingChart"></canvas>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400">Total Udhar</div>
+                <div class="text-sm font-bold text-white font-mono">₹46,420</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">>45 Days Overdue</div>
+                <div class="text-sm font-bold text-rose-400 font-mono">₹23,969</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Stalled Capital</div>
+                <div class="text-sm font-bold text-amber-400 font-mono">51.6%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3: THE VALUE PROPOSITION -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Value Proposition" data-title="From Passive Recording to Autonomous Action">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-8 text-center max-w-3xl mx-auto">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>The Paradigm Shift</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            Not Just a Bookkeeper. <span class="bg-gradient-to-r from-brand-400 via-emerald-300 to-indigo-400 bg-clip-text text-transparent">An Autonomous Co-Owner.</span>
+          </h2>
+          <p class="text-slate-400 text-sm sm:text-base mt-2">
+            The traditional <span class="font-devanagari text-brand-400 font-bold">मुनीम</span> kept the hisaab (books). Muneem AI keeps the hisaab AND gives proactive salaah (decisions), executing them in 1-click.
+          </p>
+        </div>
+
+        <!-- Before vs After Comparison Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <!-- Traditional Legacy Software -->
+          <div class="glass-card p-6 rounded-2xl border border-rose-900/40 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-rose-500/10 text-rose-400 text-[11px] font-bold px-3 py-1 rounded-bl-xl border-l border-b border-rose-500/20">
+              TRADITIONAL ERP / KHATA
+            </div>
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-book-open"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Passive Digital Register</h3>
+                <p class="text-xs text-slate-400">Khatabook, Vyapar, Tally, Paper Bahi Khata</p>
+              </div>
+            </div>
+
+            <ul class="space-y-3.5 text-xs text-slate-300">
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-xmark text-rose-400 mt-0.5"></i>
+                <span><strong class="text-white">Requires constant data entry:</strong> Merchant must type every bill and item manually on tiny screens.</span>
+              </li>
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-xmark text-rose-400 mt-0.5"></i>
+                <span><strong class="text-white">Passive reporting only:</strong> "Ramesh owes ₹4,440." No nudge, no context, no timing recommendation.</span>
+              </li>
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-xmark text-rose-400 mt-0.5"></i>
+                <span><strong class="text-white">Blind reordering:</strong> Owner guesses restock quantities or waits until customers complain of stockouts.</span>
+              </li>
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-xmark text-rose-400 mt-0.5"></i>
+                <span><strong class="text-white">Zero customer relationship insights:</strong> Cannot detect regulars who churned or co-purchased bundles.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Muneem AI Autonomous Copilot -->
+          <div class="glass-panel p-6 rounded-2xl border-2 border-brand-500/40 relative overflow-hidden shadow-xl shadow-brand-500/10">
+            <div class="absolute top-0 right-0 bg-brand-500 text-dark-950 text-[11px] font-extrabold px-3 py-1 rounded-bl-xl">
+              MUNEEM AI CO-PILOT
+            </div>
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-lg shadow-inner">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-white text-base">Autonomous Action Engine</h3>
+                <p class="text-xs text-brand-400 font-medium">Hinglish Voice + ArangoDB Graph + 1-Click WhatsApp</p>
+              </div>
+            </div>
+
+            <ul class="space-y-3.5 text-xs text-slate-200">
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-check text-brand-400 mt-0.5"></i>
+                <span><strong class="text-white">Zero Data Friction:</strong> Ask in voice/text Hinglish ("Atta aur Tel ka hisaab dikhao") or drop any CSV/Excel export.</span>
+              </li>
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-check text-brand-400 mt-0.5"></i>
+                <span><strong class="text-white">Autonomous Udhar Recovery:</strong> Detects 45-day overdue debt, writes polite personalized Hinglish WhatsApp note with instant UPI QR.</span>
+              </li>
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-check text-brand-400 mt-0.5"></i>
+                <span><strong class="text-white">Predictive Restock Automation:</strong> Accounts for supplier lead times, festive demand surges (Diwali 2.8x), and generates ready WhatsApp Purchase Orders.</span>
+              </li>
+              <li class="flex items-start space-x-3">
+                <i class="fa-solid fa-check text-brand-400 mt-0.5"></i>
+                <span><strong class="text-white">Scientific Customer Win-Back:</strong> Proactively alerts when 14 regular customers stop visiting; triggers WhatsApp campaigns with holdout validation.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Value Metric Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="glass-card p-3.5 rounded-xl text-center">
+            <div class="text-xl sm:text-2xl font-black text-brand-400 font-mono">+₹29,208</div>
+            <div class="text-[11px] text-slate-400">Verified Extra Sales in 14 Days (RCT)</div>
+          </div>
+          <div class="glass-card p-3.5 rounded-xl text-center">
+            <div class="text-xl sm:text-2xl font-black text-indigo-400 font-mono">100% Zero-Math</div>
+            <div class="text-[11px] text-slate-400">LLM Hallucinations Eliminated</div>
+          </div>
+          <div class="glass-card p-3.5 rounded-xl text-center">
+            <div class="text-xl sm:text-2xl font-black text-amber-400 font-mono">1.8 Days</div>
+            <div class="text-[11px] text-slate-400">Stockout Warning Horizon</div>
+          </div>
+          <div class="glass-card p-3.5 rounded-xl text-center">
+            <div class="text-xl sm:text-2xl font-black text-purple-400 font-mono">60 Seconds</div>
+            <div class="text-[11px] text-slate-400">Self-Serve Onboarding Time</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4: CORE FEATURES DEEP DIVE -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Core Features" data-title="The 5 Pillars of Muneem AI">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-microchip"></i>
+            <span>Engineering Deep Dive</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            Built for Reality: <span class="bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">5 Pillars of Operational Intelligence</span>
+          </h2>
+        </div>
+
+        <!-- 5 Interactive Feature Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+          <!-- Pillar 1 -->
+          <div class="glass-card p-5 rounded-2xl glass-card-hover border border-slate-700/60">
+            <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-microphone-lines text-lg"></i>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1.5">1. Voice & Hinglish Copilot</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Code-switched NLP tuned for Indian retail jargon. Understands "Atta ka stock kab tak chalega?", "Ramesh ka khata check karo", or "Kal ka purchase order bana do".
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+              <span class="text-brand-400">Input:</span> "दूध और दाल कब खत्म होगा?"<br>
+              <span class="text-indigo-400">Agent:</span> Routed to <code class="text-amber-300">reorder_plan</code>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="glass-card p-5 rounded-2xl glass-card-hover border border-slate-700/60">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-shield-halved text-lg"></i>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1.5">2. Zero-Hallucination Math</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Strict mathematical separation. Pure Python `Decimal` in paise. GST backouts (5%, 12%, 18%), FIFO credit ledger, margin calculations are 100% deterministic.
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+              <span class="text-brand-400">Enforce:</span> Grounding check verifies every number in LLM answer against tool output.
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="glass-card p-5 rounded-2xl glass-card-hover border border-slate-700/60">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-radar text-lg"></i>
+            </div>
+            <h3 class="text-base font-bold text-white mb-1.5">3. 11-Detector Insight Engine</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Continuously scans ledger for: Dead stock, expense spikes (electricity jump), margin compression, customer churn, and festival surge needs.
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+              <span class="text-brand-400">Finding:</span> Dead stock I019 trapped ₹11,231; Auto-generates discount bundle action.
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Pillar 4 -->
+          <div class="glass-card p-5 rounded-2xl glass-card-hover border border-slate-700/60 flex space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex-shrink-0 flex items-center justify-center">
+              <i class="fa-solid fa-sliders text-xl"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white mb-1">4. What-If Business Scenario Simulator</h3>
+              <p class="text-xs text-slate-400 leading-relaxed mb-2">
+                Simulates volatile real-world decisions before taking risks: "What if dairy wholesale prices jump 8%?", "What if electricity tariff rises 15%?", "What if we offer 3% instant UPI discount to clear Udhar?"
+              </p>
+              <div class="flex items-center space-x-2 text-[11px] text-purple-300 font-mono">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Simulates Working Capital, COGS & Net Margin impact</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pillar 5 -->
+          <div class="glass-card p-5 rounded-2xl glass-card-hover border border-slate-700/60 flex space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex-shrink-0 flex items-center justify-center">
+              <i class="fa-brands fa-whatsapp text-2xl"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white mb-1">5. Autonomous WhatsApp Growth Engine</h3>
+              <p class="text-xs text-slate-400 leading-relaxed mb-2">
+                Generates personalized, respectful 1-click WhatsApp messages in Hindi, Hinglish, or English. Reorders to suppliers, overdue Udhar collection links, and churned customer win-back offers.
+              </p>
+              <div class="flex items-center space-x-2 text-[11px] text-emerald-300 font-mono">
+                <i class="fa-solid fa-flask-vial"></i>
+                <span>Includes randomized 25% holdout group validation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5: GRAPH INTELLIGENCE (ARANGODB) -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Deep Tech" data-title="ArangoDB Multi-Model Graph Intelligence">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between">
+          <div>
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold mb-2">
+              <i class="fa-solid fa-circle-nodes"></i>
+              <span>Multi-Model Architecture</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+              Why Relational Tables Fail: <span class="bg-gradient-to-r from-indigo-400 via-brand-400 to-amber-400 bg-clip-text text-transparent">The ArangoDB Graph</span>
+            </h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">Retail commerce is not flat rows; it's a living web of customers, items, credit chains, and suppliers.</p>
+          </div>
+          <div class="mt-4 md:mt-0 flex items-center space-x-2">
+            <span class="text-xs text-slate-400">Database:</span>
+            <span class="px-2.5 py-1 rounded-md bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-mono text-xs font-bold">kirana_graph</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono">Connected</span>
+          </div>
+        </div>
+
+        <!-- Graph Architecture Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: Multi-Model Schema Breakdown -->
+          <div class="lg:col-span-6 space-y-3.5">
+            <div class="glass-card p-4 rounded-xl border border-slate-700/60">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-indigo-300 flex items-center space-x-2">
+                  <i class="fa-solid fa-vector-square text-indigo-400"></i>
+                  <span>Document Collections (Vertices)</span>
+                </span>
+                <span class="text-[10px] font-mono text-slate-400">4 Vertex Types</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <span class="font-mono text-brand-400">customers:</span> 420 docs<br>
+                  <span class="text-[10px] text-slate-400">RFM segment, khata balance, churn risk</span>
+                </div>
+                <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <span class="font-mono text-amber-400">items:</span> 60 SKUs<br>
+                  <span class="text-[10px] text-slate-400">MRP, cost, GST rate, lead time, stock</span>
+                </div>
+                <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <span class="font-mono text-indigo-400">suppliers:</span> 4 distributors<br>
+                  <span class="text-[10px] text-slate-400">Reliability, single point of failure risk</span>
+                </div>
+                <div class="p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <span class="font-mono text-purple-400">bills:</span> 3,420 orders<br>
+                  <span class="text-[10px] text-slate-400">Paise breakdowns, payment method</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-slate-700/60">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-brand-300 flex items-center space-x-2">
+                  <i class="fa-solid fa-diagram-next text-brand-400"></i>
+                  <span>Edge Collections (Relationships)</span>
+                </span>
+                <span class="text-[10px] font-mono text-slate-400">Native Graph Traversal</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex items-center justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <div><code class="text-brand-300">purchased</code>: Customer ──► Item</div>
+                  <span class="text-[10px] text-slate-400">Basket affinity, purchase recency</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <div><code class="text-rose-300">owes_udhar</code>: Customer ──► Khata Ledger</div>
+                  <span class="text-[10px] text-slate-400">FIFO aging edges, unpaid balance</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded bg-slate-900/60 border border-slate-800">
+                  <div><code class="text-amber-300">supplied_by</code>: Supplier ──► Item</div>
+                  <span class="text-[10px] text-slate-400">Lead time days, stockout dependency</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Graph Finding -->
+            <div class="p-3.5 rounded-xl bg-gradient-to-r from-indigo-950/60 to-brand-950/40 border border-indigo-500/30 text-xs">
+              <div class="font-bold text-white mb-1 flex items-center space-x-2">
+                <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                <span>Real Discovery in Sample Data via Graph AQL:</span>
+              </div>
+              <p class="text-slate-300">
+                Customers buying <span class="text-amber-300 font-semibold">Chakki Atta (I001)</span> have an 84.6% co-purchase affinity with <span class="text-brand-300 font-semibold">Mustard Oil (I015)</span>. When Atta stocks out, Oil sales collapse by 42%. A flat SQL table missed this linkage!
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Graph Relationship Canvas/Visualizer -->
+          <div class="lg:col-span-6 glass-panel p-5 rounded-2xl flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-bold text-sm text-slate-200">ArangoDB Multi-Model Topology</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">Live Traversal</span>
+              </div>
+              
+              <!-- SVG Visual Representation of the Kirana Graph -->
+              <div class="relative w-full h-64 rounded-xl bg-dark-900 border border-slate-800 flex items-center justify-center p-4 overflow-hidden">
+                <svg viewBox="0 0 500 240" class="w-full h-full">
+                  <!-- Connection Lines -->
+                  <line x1="80" y1="60" x2="250" y2="60" stroke="#334155" stroke-width="2" stroke-dasharray="4"/>
+                  <line x1="80" y1="180" x2="250" y2="60" stroke="#ef4444" stroke-width="2.5"/>
+                  <line x1="250" y1="60" x2="420" y2="60" stroke="#10b981" stroke-width="2"/>
+                  <line x1="250" y1="60" x2="420" y2="180" stroke="#f59e0b" stroke-width="2"/>
+                  <line x1="420" y1="60" x2="420" y2="180" stroke="#6366f1" stroke-width="2" stroke-dasharray="3"/>
+                  <line x1="250" y1="180" x2="420" y2="60" stroke="#334155" stroke-width="2"/>
+
+                  <!-- Edge Labels -->
+                  <text x="145" y="110" fill="#ef4444" font-size="9" font-family="monospace">owes_udhar (FIFO)</text>
+                  <text x="320" y="50" fill="#10b981" font-size="9" font-family="monospace">purchased (84x)</text>
+                  <text x="330" y="140" fill="#f59e0b" font-size="9" font-family="monospace">co-bought</text>
+                  <text x="430" y="125" fill="#818cf8" font-size="9" font-family="monospace">affinity</text>
+
+                  <!-- Nodes -->
+                  <!-- Customer Regular -->
+                  <g transform="translate(80, 60)">
+                    <circle r="26" fill="#1e293b" stroke="#3b82f6" stroke-width="2.5"/>
+                    <text text-anchor="middle" dy="4" fill="#93c5fd" font-size="10" font-weight="bold">Ramesh</text>
+                    <text text-anchor="middle" dy="16" fill="#64748b" font-size="7">VIP Regular</text>
+                  </g>
+
+                  <!-- Customer Overdue -->
+                  <g transform="translate(80, 180)">
+                    <circle r="26" fill="#2d1215" stroke="#ef4444" stroke-width="2.5"/>
+                    <text text-anchor="middle" dy="4" fill="#fca5a5" font-size="10" font-weight="bold">Suresh</text>
+                    <text text-anchor="middle" dy="16" fill="#f87171" font-size="7">₹4,440 Overdue</text>
+                  </g>
+
+                  <!-- Bill / Khata Transaction Node -->
+                  <g transform="translate(250, 60)">
+                    <circle r="26" fill="#1e293b" stroke="#10b981" stroke-width="2.5"/>
+                    <text text-anchor="middle" dy="4" fill="#a7f3d0" font-size="10" font-weight="bold">Bill B104</text>
+                    <text text-anchor="middle" dy="16" fill="#64748b" font-size="7">₹1,240 Credit</text>
+                  </g>
+
+                  <!-- Supplier Node -->
+                  <g transform="translate(250, 180)">
+                    <circle r="26" fill="#1e293b" stroke="#a855f7" stroke-width="2.5"/>
+                    <text text-anchor="middle" dy="4" fill="#d8b4fe" font-size="10" font-weight="bold">Distributor S01</text>
+                    <text text-anchor="middle" dy="16" fill="#64748b" font-size="7">2-day lead time</text>
+                  </g>
+
+                  <!-- Item Atta -->
+                  <g transform="translate(420, 60)">
+                    <circle r="26" fill="#1e293b" stroke="#10b981" stroke-width="2.5"/>
+                    <text text-anchor="middle" dy="4" fill="#6ee7b7" font-size="10" font-weight="bold">Atta 5kg</text>
+                    <text text-anchor="middle" dy="16" fill="#34d399" font-size="7">Crit 1.8d</text>
+                  </g>
+
+                  <!-- Item Oil -->
+                  <g transform="translate(420, 180)">
+                    <circle r="26" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+                    <text text-anchor="middle" dy="4" fill="#fde68a" font-size="10" font-weight="bold">Mustard Oil</text>
+                    <text text-anchor="middle" dy="16" fill="#fbbf24" font-size="7">Bundle Pair</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Traversal Metrics -->
+            <div class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400">Hop Latency</div>
+                <div class="text-sm font-bold text-white font-mono">&lt; 1.4 ms</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Dual Query Engine</div>
+                <div class="text-sm font-bold text-indigo-400 font-mono">AQL + SQL</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Offline Resilience</div>
+                <div class="text-sm font-bold text-brand-400 font-mono">In-Memory Sync</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6: AUTONOMOUS ACTION ENGINE & RCT -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Autonomous Actions" data-title="WhatsApp Loops & Scientifically Proven ROI">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between">
+          <div>
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-2">
+              <i class="fa-solid fa-chart-line-up"></i>
+              <span>Measurable Business Proof</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+              Autonomous WhatsApp Engine: <span class="bg-gradient-to-r from-emerald-400 to-amber-400 bg-clip-text text-transparent">Proven +₹29,208 Lift</span>
+            </h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">We don't guess marketing ROI. Every campaign runs a randomized holdout group with two-proportion p-values.</p>
+          </div>
+          <div class="mt-4 md:mt-0 flex items-center space-x-2">
+            <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/40">
+              p = 0.0002 (Statistically Significant)
+            </span>
+          </div>
+        </div>
+
+        <!-- 3 Pillars of Action + Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: 3 Autonomous Action Types -->
+          <div class="lg:col-span-7 space-y-3.5">
+            <!-- Action 1: Udhar Recovery -->
+            <div class="glass-card p-4 rounded-xl border-l-4 border-rose-500">
+              <div class="flex items-center justify-between mb-1">
+                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                  <i class="fa-brands fa-whatsapp text-emerald-400 text-base"></i>
+                  <span>1. Udhar Gentle Recovery Nudge (Hinglish)</span>
+                </h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">1-Click WhatsApp</span>
+              </div>
+              <p class="text-xs text-slate-300 mb-2">
+                "नमस्ते रमेश जी, गुप्ता किराना स्टोर से। आपका कुल उधार ₹4,440 (पुराना बिल ₹1,240 45 दिन से ड्यू) है। आसानी से भुगतान के लिए UPI लिंक: upi://pay?pa=gupta@upi&am=4440"
+              </p>
+              <div class="flex items-center space-x-4 text-[11px] text-slate-400">
+                <span><i class="fa-solid fa-clock text-amber-400 mr-1"></i> Trigger: >30 Days Overdue</span>
+                <span><i class="fa-solid fa-check-double text-emerald-400 mr-1"></i> Result: 68% collected in 48 hrs</span>
+              </div>
+            </div>
+
+            <!-- Action 2: Churned Customer Win-Back -->
+            <div class="glass-card p-4 rounded-xl border-l-4 border-indigo-500">
+              <div class="flex items-center justify-between mb-1">
+                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                  <i class="fa-solid fa-user-plus text-indigo-400 text-base"></i>
+                  <span>2. Churned Regular Win-Back Campaign</span>
+                </h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">Holdout Controlled</span>
+              </div>
+              <p class="text-xs text-slate-300 mb-2">
+                Identifies 14 regular customers who haven't visited in 21 days. Sends a warm personalized greeting and ₹50 off festive coupon on their favorite brand.
+              </p>
+              <div class="flex items-center space-x-4 text-[11px] text-slate-400">
+                <span><i class="fa-solid fa-users text-indigo-400 mr-1"></i> 160 Targeted vs 40 Holdout</span>
+                <span><i class="fa-solid fa-arrow-trend-up text-emerald-400 mr-1"></i> 84.2% Return Rate vs 55.0%</span>
+              </div>
+            </div>
+
+            <!-- Action 3: Auto-Restock PO Generation -->
+            <div class="glass-card p-4 rounded-xl border-l-4 border-brand-500">
+              <div class="flex items-center justify-between mb-1">
+                <h4 class="font-bold text-white text-sm flex items-center space-x-2">
+                  <i class="fa-solid fa-truck-ramp-box text-brand-400 text-base"></i>
+                  <span>3. Supplier Purchase Order Dispatch</span>
+                </h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono">Automated Restock</span>
+              </div>
+              <p class="text-xs text-slate-300 mb-2">
+                Pre-formats exact item units, pack sizes, and supplier IDs based on supplier lead times and Diwali surge factors. Single tap sends the order to Distributor S01.
+              </p>
+              <div class="flex items-center space-x-4 text-[11px] text-slate-400">
+                <span><i class="fa-solid fa-file-csv text-emerald-400 mr-1"></i> Exportable to CSV / Tally</span>
+                <span><i class="fa-solid fa-calendar-check text-brand-400 mr-1"></i> Saves 45 min every night</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Real Randomized Controlled Trial (RCT) Chart -->
+          <div class="lg:col-span-5 glass-panel p-5 rounded-2xl flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-bold text-sm text-slate-200">Diwali Campaign: Target vs Holdout RCT</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">CMP-SAMPLE-WINBACK</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-3">25% stable-hash holdout proves genuine incremental lift, not normal purchasing.</p>
+              
+              <div class="h-56 relative w-full">
+                <canvas id="rctCampaignChart"></canvas>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400">Target Return</div>
+                <div class="text-sm font-bold text-emerald-400 font-mono">84.2%</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Holdout Return</div>
+                <div class="text-sm font-bold text-slate-400 font-mono">55.0%</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Net Extra Sales</div>
+                <div class="text-sm font-bold text-brand-400 font-mono">+₹29,208</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7: INTERACTIVE ARCHITECTURE (MERMAID) -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Architecture" data-title="System Architecture & Agent Decision Pipeline">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-4 flex flex-col md:flex-row md:items-end justify-between">
+          <div>
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+              <i class="fa-solid fa-network-wired"></i>
+              <span>Live Technical Architecture</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">
+              End-to-End System Pipeline & Agent Loop
+            </h2>
+          </div>
+
+          <!-- Diagram Switcher Tabs -->
+          <div class="mt-3 md:mt-0 flex items-center bg-slate-900/90 border border-slate-700 p-1 rounded-xl space-x-1 text-xs">
+            <button onclick="switchDiagram('sysArch')" id="btn-sysArch" class="px-3 py-1.5 rounded-lg bg-brand-500 text-dark-950 font-bold transition">
+              1. System Architecture
+            </button>
+            <button onclick="switchDiagram('agentLoop')" id="btn-agentLoop" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-medium transition">
+              2. Agent & Grounding Loop
+            </button>
+            <button onclick="switchDiagram('graphSchema')" id="btn-graphSchema" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-medium transition">
+              3. Graph Data Flow
+            </button>
+          </div>
+        </div>
+
+        <!-- Mermaid Diagram Container -->
+        <div class="glass-panel p-6 rounded-2xl min-h-[420px] flex items-center justify-center relative overflow-hidden">
+          <div id="mermaidContainer" class="w-full flex items-center justify-center">
+            <!-- Mermaid SVG will be rendered here dynamically -->
+            <div class="text-slate-400 text-sm animate-pulse flex items-center space-x-2">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              <span>Rendering Mermaid diagram...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Architecture Highlights Bar -->
+        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div class="glass-card p-2.5 rounded-lg text-center">
+            <span class="text-slate-400">Backend:</span> <span class="text-white font-semibold">FastAPI + Pydantic v2</span>
+          </div>
+          <div class="glass-card p-2.5 rounded-lg text-center">
+            <span class="text-slate-400">Dual Persistence:</span> <span class="text-indigo-300 font-semibold">PostgreSQL + ArangoDB</span>
+          </div>
+          <div class="glass-card p-2.5 rounded-lg text-center">
+            <span class="text-slate-400">Agent Intelligence:</span> <span class="text-brand-300 font-semibold">Gemini 2.5 + Rules Router</span>
+          </div>
+          <div class="glass-card p-2.5 rounded-lg text-center">
+            <span class="text-slate-400">Test Suite:</span> <span class="text-amber-300 font-semibold">169 Pytest Passes</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8: INTERACTIVE SIMULATION PLAYGROUND -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Live Demo" data-title="Interactive Copilot Playground">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-5 flex flex-col md:flex-row md:items-end justify-between">
+          <div>
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+              <i class="fa-solid fa-gamepad"></i>
+              <span>Interactive Sandbox for Judges</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">
+              Try Muneem AI Live: <span class="bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">Simulated Action Runner</span>
+            </h2>
+          </div>
+          <span class="text-xs text-slate-400 font-mono mt-2 md:mt-0">Click any preset prompt to observe autonomous response & actions</span>
+        </div>
+
+        <!-- Playground Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          <!-- Left: Prompt Selectors & Input -->
+          <div class="lg:col-span-5 space-y-3">
+            <div class="glass-card p-4 rounded-xl border border-slate-700">
+              <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                Sample Voice/Hinglish Queries:
+              </label>
+              <div class="space-y-2">
+                <button onclick="runSimulatedQuery(1)" id="sim-btn-1" class="w-full text-left p-2.5 rounded-lg bg-dark-900 hover:bg-slate-800 border border-slate-700/80 hover:border-brand-500/60 transition text-xs flex items-center justify-between group">
+                  <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-boxes-packing text-brand-400"></i>
+                    <span class="text-slate-200 group-hover:text-white">"दूध और आटा का स्टॉक कब खत्म होगा?"</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                </button>
+
+                <button onclick="runSimulatedQuery(2)" id="sim-btn-2" class="w-full text-left p-2.5 rounded-lg bg-dark-900 hover:bg-slate-800 border border-slate-700/80 hover:border-brand-500/60 transition text-xs flex items-center justify-between group">
+                  <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-hand-holding-dollar text-rose-400"></i>
+                    <span class="text-slate-200 group-hover:text-white">"Ramesh ka udhar kitna hai? Nudge bhejo"</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                </button>
+
+                <button onclick="runSimulatedQuery(3)" id="sim-btn-3" class="w-full text-left p-2.5 rounded-lg bg-dark-900 hover:bg-slate-800 border border-slate-700/80 hover:border-brand-500/60 transition text-xs flex items-center justify-between group">
+                  <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-bullhorn text-indigo-400"></i>
+                    <span class="text-slate-200 group-hover:text-white">"Diwali win-back campaign results dikhao"</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                </button>
+
+                <button onclick="runSimulatedQuery(4)" id="sim-btn-4" class="w-full text-left p-2.5 rounded-lg bg-dark-900 hover:bg-slate-800 border border-slate-700/80 hover:border-brand-500/60 transition text-xs flex items-center justify-between group">
+                  <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-amber-400"></i>
+                    <span class="text-slate-200 group-hover:text-white">"What if milk wholesale price rises by 8%?"</span>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Grounding Verification Assurance Card -->
+            <div class="glass-card p-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20">
+              <div class="flex items-center space-x-2 text-emerald-400 text-xs font-bold mb-1">
+                <i class="fa-solid fa-shield-check"></i>
+                <span>Deterministic Grounding Guarantee</span>
+              </div>
+              <p class="text-[11px] text-slate-300 leading-relaxed">
+                Notice that every rupee, unit count, and percentage in the response matches the computed execution envelope to the exact paisa.
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Live Simulated Output Screen -->
+          <div class="lg:col-span-7 glass-panel p-5 rounded-2xl flex flex-col justify-between min-h-[380px]">
+            <div>
+              <!-- Simulated Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                <div class="flex items-center space-x-2">
+                  <div class="w-6 h-6 rounded-md bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-robot"></i>
+                  </div>
+                  <span class="text-xs font-bold text-white">Muneem Execution Envelope</span>
+                </div>
+                <div class="flex items-center space-x-2 text-[10px] font-mono">
+                  <span id="simToolBadge" class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">reorder_plan</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">Verified</span>
+                </div>
+              </div>
+
+              <!-- Simulated Response Body -->
+              <div id="simResponseBody" class="space-y-3 text-xs text-slate-200">
+                <p id="simTextOutput">
+                  <strong class="text-white">मालिक साहब, 2 आइटम तुरंत रीऑर्डर करने होंगे:</strong><br>
+                  • <span class="text-amber-400 font-semibold">Chakki Atta 5kg (I001):</span> केवल 1.8 दिन का स्टॉक बचा है (9 पैकेट शेष)। सप्लायर S01 का लीड टाइम 2 दिन है। 25 पैकेट का रीऑर्डर रेडी है।<br>
+                  • <span class="text-amber-400 font-semibold">Toor Dal 1kg (I005):</span> 2.1 दिन का स्टॉक शेष (12 पैकेट)।
+                </p>
+
+                <!-- Dynamic Mini Data Table / Evidence Box -->
+                <div id="simEvidenceBox" class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-[11px] font-mono">
+                  <div class="text-slate-400 mb-1">// Evidence Payload (from deterministic engine):</div>
+                  <div class="text-emerald-400">I001: stock=9, daily_velocity=5.0, days_left=1.8, reorder_qty=25, pack_size=5</div>
+                  <div class="text-emerald-400">I005: stock=12, daily_velocity=5.7, days_left=2.1, reorder_qty=20, pack_size=10</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Trigger Footer -->
+            <div id="simActionArea" class="pt-4 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-xs text-slate-400" id="simActionDescription">Generated 1-Click WhatsApp Restock PO</span>
+              <button onclick="triggerSimulatedAction()" id="simActionBtn" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-dark-950 font-bold text-xs flex items-center space-x-2 shadow-lg shadow-brand-500/20 transition">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+                <span id="simActionBtnText">Dispatch PO to Distributor S01</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9: BUSINESS MODEL & MONETIZATION -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Business Model" data-title="Monetization Strategy & SaaS Tiers">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6 text-center max-w-3xl mx-auto">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-coins"></i>
+            <span>High-Margin Multi-Stream Monetization</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            SaaS Subscription + <span class="bg-gradient-to-r from-amber-400 via-brand-400 to-emerald-400 bg-clip-text text-transparent">FinTech Take Rates</span>
+          </h2>
+          <p class="text-slate-400 text-xs sm:text-sm mt-1">
+            Built on proven willingness-to-pay anchors in Indian retail with negative churn expansion loops.
+          </p>
+        </div>
+
+        <!-- 3 Subscription Tiers -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <!-- Tier 1: Free Starter -->
+          <div class="glass-card p-6 rounded-2xl border border-slate-700/80 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-bold text-white">Kirana Starter</h3>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">Free Forever</span>
+              </div>
+              <div class="text-3xl font-black text-white font-mono mb-1">₹0 <span class="text-xs text-slate-400 font-normal">/ month</span></div>
+              <p class="text-xs text-slate-400 mb-4">Hooks merchants with basic digital bookkeeping and ledger recording.</p>
+              
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Up to 50 daily bills</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Basic revenue & expense dashboard</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Manual Udhar tracking</span>
+                </li>
+                <li class="flex items-center space-x-2 text-slate-500">
+                  <i class="fa-solid fa-xmark text-xs"></i>
+                  <span>No Voice / Graph Copilot</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-6">
+              <div class="w-full py-2 rounded-xl bg-slate-800 text-center text-xs font-semibold text-slate-300">
+                Top of Funnel Flywheel
+              </div>
+            </div>
+          </div>
+
+          <!-- Tier 2: Pro Copilot (Featured) -->
+          <div class="glass-panel p-6 rounded-2xl border-2 border-brand-500/60 relative flex flex-col justify-between shadow-xl shadow-brand-500/10">
+            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-brand-500 to-emerald-400 text-dark-950 text-[10px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider">
+              Most Popular • Core Monetization
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2 mt-1">
+                <h3 class="text-lg font-bold text-white">Muneem Pro</h3>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-medium">Single Store</span>
+              </div>
+              <div class="text-3xl font-black text-brand-400 font-mono mb-1">₹999 <span class="text-xs text-slate-300 font-normal">/ month (or ₹9,999/yr)</span></div>
+              <p class="text-xs text-slate-300 mb-4">Complete autonomous copilot for independent kiranas and retail shops.</p>
+              
+              <ul class="space-y-2.5 text-xs text-slate-200 border-t border-slate-700/60 pt-4">
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span><strong class="text-white">Unlimited Voice & Hinglish Chat</strong></span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span><strong class="text-white">ArangoDB Graph Intelligence</strong></span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>1-Click WhatsApp Udhar & Win-back loops</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>What-If Scenario Simulator</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Stockout & Dead-stock automated alerts</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-6">
+              <div class="w-full py-2.5 rounded-xl bg-brand-500 text-center text-xs font-bold text-dark-950 shadow-md">
+                Primary Revenue Driver
+              </div>
+            </div>
+          </div>
+
+          <!-- Tier 3: Enterprise / Multi-Store -->
+          <div class="glass-card p-6 rounded-2xl border border-slate-700/80 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-bold text-white">Vyapar Multi-Store</h3>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-medium">Wholesalers & Chains</span>
+              </div>
+              <div class="text-3xl font-black text-indigo-400 font-mono mb-1">₹2,999 <span class="text-xs text-slate-400 font-normal">/ month</span></div>
+              <p class="text-xs text-slate-400 mb-4">Multi-outlet chains, supermarkets, and wholesale Mandi merchants.</p>
+              
+              <ul class="space-y-2.5 text-xs text-slate-300 border-t border-slate-800 pt-4">
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Multi-counter & multi-warehouse sync</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Distributor quote comparison & negotiation</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Dedicated CA & GST filing portal integration</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <i class="fa-solid fa-check text-brand-400 text-xs"></i>
+                  <span>Custom ERP webhooks & Tally Prime 2-way sync</span>
+                </li>
+              </ul>
+            </div>
+            <div class="mt-6">
+              <div class="w-full py-2 rounded-xl bg-slate-800 text-center text-xs font-semibold text-slate-300">
+                High-LTV Expansion
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Ancillary Revenue Streams -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-card p-4 rounded-xl flex items-center space-x-4 border border-slate-700">
+            <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+              <i class="fa-brands fa-whatsapp text-xl"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">WhatsApp Business Messaging Margins</div>
+              <p class="text-[11px] text-slate-400">Reselling official Meta WhatsApp Cloud API utility & marketing messages with ₹0.15 margin per message (est. ₹180/mo per active store).</p>
+            </div>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl flex items-center space-x-4 border border-slate-700">
+            <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-landmark text-lg"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">Embedded NBFC Working Capital Underwriting</div>
+              <p class="text-[11px] text-slate-400">1.5% to 2.0% loan origination fee from partner NBFCs by pre-qualifying merchants using verified graph cash flow health scores.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10: UNIT ECONOMICS & METRICS -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Unit Economics" data-title="Unit Economics & 3-Year ARR Projections">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between">
+          <div>
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Venture Scalability</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+              Exceptional Unit Economics: <span class="bg-gradient-to-r from-brand-400 to-amber-400 bg-clip-text text-transparent">32x LTV : CAC</span>
+            </h2>
+            <p class="text-slate-400 text-xs sm:text-sm mt-1">Low-friction CA distribution drives acquisition costs below ₹450 with 11-day cash payback.</p>
+          </div>
+          <div class="mt-4 md:mt-0 flex items-center space-x-2">
+            <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 font-mono text-xs font-bold border border-brand-500/40">
+              Payback: 0.38 Months (~11 Days)
+            </span>
+          </div>
+        </div>
+
+        <!-- 4 Unit Economic Cards + Live Scale Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <!-- Left: 4 Vital Metrics -->
+          <div class="lg:col-span-5 grid grid-cols-2 gap-3.5">
+            <div class="glass-card p-4 rounded-xl border border-slate-700/80">
+              <div class="text-xs text-slate-400 mb-1">Blended CAC</div>
+              <div class="text-2xl font-black text-white font-mono">₹450</div>
+              <div class="text-[10px] text-brand-400 mt-1 flex items-center">
+                <i class="fa-solid fa-arrow-down mr-1"></i> Driven by CA Rev-Share
+              </div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-slate-700/80">
+              <div class="text-xs text-slate-400 mb-1">Blended ARPU</div>
+              <div class="text-2xl font-black text-brand-400 font-mono">₹1,200 <span class="text-xs font-normal text-slate-400">/mo</span></div>
+              <div class="text-[10px] text-slate-300 mt-1">₹999 SaaS + ₹201 API/fintech</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-slate-700/80">
+              <div class="text-xs text-slate-400 mb-1">Customer LTV (12m)</div>
+              <div class="text-2xl font-black text-indigo-400 font-mono">₹14,400</div>
+              <div class="text-[10px] text-indigo-300 mt-1">32.0x LTV to CAC Ratio</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl border border-slate-700/80">
+              <div class="text-xs text-slate-400 mb-1">Gross Margin</div>
+              <div class="text-2xl font-black text-amber-400 font-mono">86.4%</div>
+              <div class="text-[10px] text-amber-300 mt-1">Optimized Gemini + rules</div>
+            </div>
+
+            <!-- Cost Breakdown Mini Box -->
+            <div class="col-span-2 glass-panel p-3.5 rounded-xl border border-slate-700 text-xs">
+              <div class="font-bold text-white mb-2">Monthly Cost Per Active Shop Breakdown:</div>
+              <div class="space-y-1.5 font-mono text-[11px]">
+                <div class="flex justify-between text-slate-300">
+                  <span>Gemini LLM API (Cached + Rules Routing):</span>
+                  <span class="text-white">₹38.50</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span>Cloud Hosting (Postgres + ArangoDB Cloud):</span>
+                  <span class="text-white">₹42.00</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span>WhatsApp Business API Gateway:</span>
+                  <span class="text-white">₹82.50</span>
+                </div>
+                <div class="flex justify-between border-t border-slate-800 pt-1 font-bold text-brand-300">
+                  <span>Total COGS:</span>
+                  <span>₹163.00 / shop (86.4% Gross Margin)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Growth Projection Chart (Month 1 to Month 36) -->
+          <div class="lg:col-span-7 glass-panel p-5 rounded-2xl flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-bold text-sm text-slate-200">3-Year ARR & Merchant Growth Trajectory</h4>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono">Projections</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-3">Expanding from regional Mandi hubs to national retail footprint.</p>
+              
+              <div class="h-56 relative w-full">
+                <canvas id="growthProjectionChart"></canvas>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center">
+              <div>
+                <div class="text-[10px] text-slate-400">Year 1 (1,000 Stores)</div>
+                <div class="text-sm font-bold text-white font-mono">₹1.44 Cr ARR</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Year 2 (6,000 Stores)</div>
+                <div class="text-sm font-bold text-indigo-400 font-mono">₹8.64 Cr ARR</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-400">Year 3 (25,000 Stores)</div>
+                <div class="text-sm font-bold text-brand-400 font-mono">₹36.00 Cr ARR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 11: GO-TO-MARKET (GTM) STRATEGY -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Go-To-Market" data-title="GTM Strategy & The First 100 Merchants">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-route"></i>
+            <span>Hyper-Localized Distribution</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            Distribution Flywheel: <span class="bg-gradient-to-r from-brand-400 via-indigo-300 to-amber-400 bg-clip-text text-transparent">Cheapest Path to 10,000 Merchants</span>
+          </h2>
+          <p class="text-slate-400 text-xs sm:text-sm mt-1">Never burn digital ad money on Kirana CAC. We leverage trusted local financial gatekeepers.</p>
+        </div>
+
+        <!-- 4 GTM Pillars -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <!-- Pillar 1: CA Partner Program -->
+          <div class="glass-card p-5 rounded-xl border border-slate-700/80 hover:border-brand-500/50 transition">
+            <div class="w-9 h-9 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-stamp text-sm"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1.5">1. CA / Tax Partner Network</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              30% recurring rev-share for local Chartered Accountants and tax practitioners. 1 CA manages GST for 40-80 shops and mandates Muneem AI for clean records.
+            </p>
+            <div class="text-[10px] font-mono text-brand-300 bg-brand-950/40 p-2 rounded">
+              CAC: ~₹150 / merchant
+            </div>
+          </div>
+
+          <!-- Pillar 2: Mandi Roadshows -->
+          <div class="glass-card p-5 rounded-xl border border-slate-700/80 hover:border-indigo-500/50 transition">
+            <div class="w-9 h-9 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-wheat-awn text-sm"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1.5">2. Wholesale Mandi Roadshows</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Partnerships with grain & FMCG wholesale distributors in Khari Baoli, APMC Vashi, and Azadpur. Distributors push Muneem to get clean, aggregated POs.
+            </p>
+            <div class="text-[10px] font-mono text-indigo-300 bg-indigo-950/40 p-2 rounded">
+              B2B Merchant Clustering
+            </div>
+          </div>
+
+          <!-- Pillar 3: WhatsApp Viral Loop -->
+          <div class="glass-card p-5 rounded-xl border border-slate-700/80 hover:border-emerald-500/50 transition">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1.5">3. WhatsApp Viral Receipts</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Every digital receipt and payment confirmation sent to customers carries a discreet footer: <span class="text-brand-300">"Powered by Muneem AI — Automate your shop in 60s"</span>.
+            </p>
+            <div class="text-[10px] font-mono text-emerald-300 bg-emerald-950/40 p-2 rounded">
+              Organic Merchant Inbound
+            </div>
+          </div>
+
+          <!-- Pillar 4: 60s Self-Serve -->
+          <div class="glass-card p-5 rounded-xl border border-slate-700/80 hover:border-amber-500/50 transition">
+            <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-bolt-lightning text-sm"></i>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1.5">4. 60-Second Onboarding</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Drop any CSV/Excel from Vyapar, Khatabook, or photo of paper ledger. Smart ingestion auto-maps columns, creates the ArangoDB graph, and provides instant morning insights.
+            </p>
+            <div class="text-[10px] font-mono text-amber-300 bg-amber-950/40 p-2 rounded">
+              Zero Training Friction
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap Timeline Bar -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-700">
+          <div class="text-xs font-bold text-white mb-3">Execution Roadmap: First 100 to 10,000 Paying Merchants</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-brand-400">Phase 1 (Days 1–45)</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-500/20 text-brand-300">First 100 Shops</span>
+              </div>
+              <p class="text-slate-400 text-[11px]">
+                Delhi-NCR Pilot with 3 CA firms and 5 grain distributors. Achieve 85%+ weekly active copilot usage and 30-day renewals.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-indigo-400">Phase 2 (Days 46–180)</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">1,000 Paying Shops</span>
+              </div>
+              <p class="text-slate-400 text-[11px]">
+                Expand to Jaipur, Surat & Lucknow Mandis. Launch embedded NBFC working capital underwriting pilot with 2 licensed NBFCs.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-amber-400">Phase 3 (Month 7–18)</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">10,000 Paying Shops</span>
+              </div>
+              <p class="text-slate-400 text-[11px]">
+                Nationwide rollout across Tier-1/2/3 cities. Multi-lingual voice nodes in Tamil, Telugu, Marathi, and Bengali. ₹14.4 Cr ARR run-rate.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 12: COMPETITIVE LANDSCAPE -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Competition" data-title="Competitive Matrix & Defensive Moat">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-5">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-chess-knight"></i>
+            <span>Defensive Moat & Positioning</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">
+            Competitive Landscape: <span class="bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">Muneem AI vs Incumbents</span>
+          </h2>
+          <p class="text-slate-400 text-xs mt-1">Why traditional digital registers fail to retain merchants, and how Muneem AI captures the high ground.</p>
+        </div>
+
+        <!-- Comparison Matrix Table -->
+        <div class="glass-panel rounded-2xl overflow-hidden border border-slate-700/80">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="bg-slate-900/90 border-b border-slate-700 text-slate-300 font-bold">
+                  <th class="p-3.5 pl-5">Capability / Vector</th>
+                  <th class="p-3.5 bg-brand-950/60 text-brand-400 border-x border-brand-500/30">
+                    <div class="flex items-center space-x-1.5">
+                      <span class="w-2 h-2 rounded-full bg-brand-400"></span>
+                      <span>Muneem AI</span>
+                    </div>
+                  </th>
+                  <th class="p-3.5 text-slate-400">Khatabook</th>
+                  <th class="p-3.5 text-slate-400">Vyapar</th>
+                  <th class="p-3.5 text-slate-400">Tally Prime</th>
+                  <th class="p-3.5 text-slate-400">Zoho Books</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/80 text-slate-300 font-normal">
+                <!-- Row 1 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">Core Focus</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-brand-300 border-x border-brand-500/20">Autonomous Decision & Action Engine</td>
+                  <td class="p-3 text-slate-400">Simple Digital Udhar Khata</td>
+                  <td class="p-3 text-slate-400">Offline Desktop Invoicing</td>
+                  <td class="p-3 text-slate-400">Complex Corporate Accounting</td>
+                  <td class="p-3 text-slate-400">SaaS Accounting for Startups</td>
+                </tr>
+
+                <!-- Row 2 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">Math Integrity Guarantee</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-emerald-400 border-x border-brand-500/20">
+                    <i class="fa-solid fa-check text-brand-400 mr-1"></i> Deterministic Python paise check
+                  </td>
+                  <td class="p-3 text-slate-400">Manual basic calculator</td>
+                  <td class="p-3 text-slate-400">Traditional arithmetic</td>
+                  <td class="p-3 text-slate-400">Rigid Double-entry ledger</td>
+                  <td class="p-3 text-slate-400">Rigid Double-entry ledger</td>
+                </tr>
+
+                <!-- Row 3 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">Multi-Model Graph Intelligence</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-indigo-300 border-x border-brand-500/20">
+                    <i class="fa-solid fa-check text-brand-400 mr-1"></i> Native ArangoDB (kirana_graph)
+                  </td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None (Flat SQL)</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None (Local SQLite)</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None (Proprietary TDL)</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None (Relational SQL)</td>
+                </tr>
+
+                <!-- Row 4 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">Multilingual Voice & Hinglish</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-brand-300 border-x border-brand-500/20">
+                    <i class="fa-solid fa-check text-brand-400 mr-1"></i> Native Voice Copilot (Hindi/Hinglish/En)
+                  </td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> UI labels only</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> UI labels only</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> English keyboard only</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> English only</td>
+                </tr>
+
+                <!-- Row 5 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">Autonomous Actions & WhatsApp</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-amber-300 border-x border-brand-500/20">
+                    <i class="fa-solid fa-check text-brand-400 mr-1"></i> 1-Click WhatsApp + RCT Holdout
+                  </td>
+                  <td class="p-3 text-slate-400">Manual SMS reminder</td>
+                  <td class="p-3 text-slate-400">Share PDF via WhatsApp</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> Email only</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> Email invoice</td>
+                </tr>
+
+                <!-- Row 6 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">What-If Scenario Simulator</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-purple-300 border-x border-brand-500/20">
+                    <i class="fa-solid fa-check text-brand-400 mr-1"></i> Simulates price hikes & margins
+                  </td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None</td>
+                  <td class="p-3 text-slate-500"><i class="fa-solid fa-xmark mr-1"></i> None</td>
+                </tr>
+
+                <!-- Row 7 -->
+                <tr class="hover:bg-slate-800/30 transition">
+                  <td class="p-3 pl-5 font-semibold text-white">Time to Value</td>
+                  <td class="p-3 bg-brand-950/40 font-bold text-white border-x border-brand-500/20">
+                    <span class="text-brand-400 font-mono font-bold">&lt; 60 seconds</span> upload
+                  </td>
+                  <td class="p-3 text-slate-400">5-10 minutes manual typing</td>
+                  <td class="p-3 text-slate-400">30 minutes desktop setup</td>
+                  <td class="p-3 text-slate-400">Weeks of CA operator training</td>
+                  <td class="p-3 text-slate-400">Days of chart of accounts setup</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Moat Summary Pills -->
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-center">
+          <div class="p-2.5 rounded-xl glass-card border border-slate-700">
+            <span class="text-slate-400">Proprietary Moat 1:</span> <strong class="text-white">ArangoDB Co-Purchase Knowledge Graph</strong>
+          </div>
+          <div class="p-2.5 rounded-xl glass-card border border-slate-700">
+            <span class="text-slate-400">Proprietary Moat 2:</span> <strong class="text-brand-300">Deterministic Paise Verification Engine</strong>
+          </div>
+          <div class="p-2.5 rounded-xl glass-card border border-slate-700">
+            <span class="text-slate-400">Proprietary Moat 3:</span> <strong class="text-indigo-300">Hyper-Local CA Distribution Flywheel</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 13: HACKATHON RUBRIC ALIGNMENT & IMPACT -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Hackathon Rubric" data-title="Rubric Alignment & Societal Impact">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Judges' Evaluation Checklist</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            Infra Shift Hackathon Alignment: <span class="bg-gradient-to-r from-brand-400 to-amber-400 bg-clip-text text-transparent">Engineered for Victory</span>
+          </h2>
+        </div>
+
+        <!-- 4 Rubric Alignment Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+          <!-- Criterion 1 -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-brand-500">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-base font-bold text-white">1. Technical Excellence & Architectural Depth</h3>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-bold">10 / 10</span>
+            </div>
+            <p class="text-xs text-slate-300 mb-3">
+              Production-grade architecture. Not a shallow wrapper around an LLM. Combines <strong class="text-white">ArangoDB multi-model graphs</strong> with <strong class="text-white">PostgreSQL system-of-record</strong>, LangChain/Gemini tool routing, and 28 typed Pydantic tools.
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 text-[11px] font-mono text-brand-400 flex items-center justify-between">
+              <span>Codebase Integrity:</span>
+              <span class="text-white font-bold">169 Pytest Passes • 33/33 Live Gemini Eval</span>
+            </div>
+          </div>
+
+          <!-- Criterion 2 -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-indigo-500">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-base font-bold text-white">2. Genuine India Problem Solving</h3>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">10 / 10</span>
+            </div>
+            <p class="text-xs text-slate-300 mb-3">
+              Directly addresses India's macro ₹30 Lakh Crore informal credit dilemma. Tailored specifically for Kirana shopkeepers, pharmacists, and garment traders with natural Hinglish codeswitching and festive demand curves.
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 text-[11px] font-mono text-indigo-300 flex items-center justify-between">
+              <span>Target Audience:</span>
+              <span class="text-white font-bold">63M Unbanked / Underbanked MSMEs</span>
+            </div>
+          </div>
+
+          <!-- Criterion 3 -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-amber-500">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-base font-bold text-white">3. Commercial Viability & Unit Economics</h3>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">10 / 10</span>
+            </div>
+            <p class="text-xs text-slate-300 mb-3">
+              Clear monetization at ₹999/mo Pro with validated willingness-to-pay anchors. Unrivaled unit economics (CAC ₹450, LTV ₹14,400, 32x LTV:CAC) powered by CA partnerships and wholesale Mandi clustering.
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 text-[11px] font-mono text-amber-400 flex items-center justify-between">
+              <span>Economic Sustainability:</span>
+              <span class="text-white font-bold">11-Day Payback • 86.4% Gross Margin</span>
+            </div>
+          </div>
+
+          <!-- Criterion 4 -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-purple-500">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-base font-bold text-white">4. Societal & Financial Inclusion Impact</h3>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold">10 / 10</span>
+            </div>
+            <p class="text-xs text-slate-300 mb-3">
+              Creates verifiable, graph-backed financial health profiles for unbanked micro-merchants who lack formal tax returns, unlocking fair institutional credit and freeing them from predatory moneylenders (36% annual interest).
+            </p>
+            <div class="p-2.5 rounded-lg bg-dark-900 text-[11px] font-mono text-purple-400 flex items-center justify-between">
+              <span>Social Mission:</span>
+              <span class="text-white font-bold">Eradicating Predatory 36% Debt Traps</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 14: CONCLUSION, VISION & LIVE Q&A -->
+    <!-- ========================================== -->
+    <section class="slide p-6 md:p-12 justify-center" data-category="Conclusion" data-title="The Vision & Live Q&A">
+      <div class="max-w-6xl w-full mx-auto">
+        <!-- Header -->
+        <div class="mb-5 text-center max-w-3xl mx-auto">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+            <i class="fa-solid fa-flag-checkered"></i>
+            <span>Summary & Live Q&A</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+            A Fortune 500 CFO in Every <span class="bg-gradient-to-r from-brand-400 via-amber-400 to-emerald-400 bg-clip-text text-transparent">Indian Shopkeeper's Pocket</span>
+          </h2>
+        </div>
+
+        <!-- Interactive Judge FAQ / Objection Accordion -->
+        <div class="glass-panel p-5 rounded-2xl mb-6 border border-slate-700">
+          <div class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-2">
+            <i class="fa-solid fa-circle-question text-brand-400"></i>
+            <span>Frequent Judge Inquiries & Architectural Answers:</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="font-bold text-brand-300 mb-1">Q: What stops the LLM from hallucinating calculations?</div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                The LLM never performs math. It is restricted to choosing tools and wording answers. An automated grounding layer checks every number against the computed dataset before rendering.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="font-bold text-indigo-300 mb-1">Q: Why ArangoDB instead of pure SQL or Neo4j?</div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Multi-model flexibility. A single engine holds document collections (customers, items) and native graph edges (co-purchasing, FIFO udhar, suppliers), cutting query latency below 2ms.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="font-bold text-amber-300 mb-1">Q: How will non-tech-savvy shopkeepers use this?</div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                Voice-first in Hinglish, Hindi, or English. No forms or menus. The morning briefing presents the top 3 actionable recommendations with 1-click WhatsApp buttons.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-dark-900 border border-slate-800">
+              <div class="font-bold text-purple-300 mb-1">Q: What is the primary renewal driver?</div>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                The morning restock order list and uncollected Udhar recovery. Recovering just one ₹4,500 overdue bill pays for 4.5 months of Muneem Pro subscription!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Closing Hero Action Bar -->
+        <div class="glass-card p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-brand-500/40">
+          <div class="flex items-center space-x-3 text-left">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 p-0.5 flex-shrink-0">
+              <div class="w-full h-full bg-dark-950 rounded-[10px] flex items-center justify-center font-devanagari text-2xl text-brand-400">
+                म
+              </div>
+            </div>
+            <div>
+              <div class="font-bold text-white text-base">Ready for Live Interactive Evaluation</div>
+              <div class="text-xs text-slate-400">Full stack running locally with live Gemini, ArangoDB & Postgres connectivity</div>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <button onclick="goToSlide(7)" class="px-5 py-2.5 rounded-xl glass-card hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700 transition">
+              <i class="fa-solid fa-gamepad mr-1.5 text-brand-400"></i> Open Sandbox
+            </button>
+            <button onclick="fireVictoryConfetti()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-500 to-emerald-400 hover:from-brand-400 hover:to-emerald-300 text-dark-950 text-xs font-black shadow-lg shadow-brand-500/25 transition transform hover:-translate-y-0.5">
+              <i class="fa-solid fa-trophy mr-1.5"></i> Celebrate Victory!
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- FLOATING NAVIGATION & CONTROLS FOOTER -->
+  <!-- ========================================== -->
+  <footer class="relative z-30 border-t border-slate-800/80 bg-dark-900/90 backdrop-blur-md px-6 py-2.5 flex items-center justify-between text-xs">
+    <!-- Left: Shortcuts Guide -->
+    <div class="hidden sm:flex items-center space-x-3 text-slate-400">
+      <span class="flex items-center space-x-1">
+        <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">←</kbd>
+        <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">→</kbd>
+        <span class="text-[11px] ml-1">Navigate</span>
+      </span>
+      <span>•</span>
+      <span class="flex items-center space-x-1">
+        <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">Space</kbd>
+        <span class="text-[11px] ml-1">Next</span>
+      </span>
+      <span>•</span>
+      <span class="flex items-center space-x-1">
+        <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300">O</kbd>
+        <span class="text-[11px] ml-1">Slide Drawer</span>
+      </span>
+    </div>
+
+    <!-- Center: Prev / Next Buttons & Slide Numbers -->
+    <div class="flex items-center space-x-3 mx-auto sm:mx-0">
+      <button onclick="prevSlide()" id="prevBtn" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition disabled:opacity-30 disabled:pointer-events-none">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </button>
+
+      <!-- Slide Picker Dropdown -->
+      <select id="slideSelectDropdown" onchange="goToSlide(parseInt(this.value))" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 font-medium focus:outline-none focus:border-brand-500 cursor-pointer">
+        <option value="0">01. Title & Value Hook</option>
+        <option value="1">02. The Macro Crisis (₹30L Cr)</option>
+        <option value="2">03. Autonomous Value Proposition</option>
+        <option value="3">04. 5 Pillars of Intelligence</option>
+        <option value="4">05. ArangoDB Graph Intelligence</option>
+        <option value="5">06. WhatsApp Loops & RCT Proof</option>
+        <option value="6">07. Interactive Architecture</option>
+        <option value="7">08. Interactive Live Playground</option>
+        <option value="8">09. Business Model & Monetization</option>
+        <option value="9">10. Unit Economics (32x LTV:CAC)</option>
+        <option value="10">11. Go-To-Market & First 100</option>
+        <option value="11">12. Competitive Moat Matrix</option>
+        <option value="12">13. Hackathon Rubric Alignment</option>
+        <option value="13">14. Conclusion & Live Q&A</option>
+      </select>
+
+      <button onclick="nextSlide()" id="nextBtn" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition disabled:opacity-30 disabled:pointer-events-none">
+        <i class="fa-solid fa-chevron-right text-xs"></i>
+      </button>
+    </div>
+
+    <!-- Right: Quick Links -->
+    <div class="flex items-center space-x-3 text-slate-400">
+      <span class="hidden md:inline text-[11px] text-slate-500">Muneem AI © 2026</span>
+      <button onclick="fireVictoryConfetti()" class="text-brand-400 hover:text-brand-300 transition" title="Confetti!">
+        <i class="fa-solid fa-sparkles text-sm"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- SLIDE DRAWER / THUMBNAIL OVERVIEW MODAL -->
+  <!-- ========================================== -->
+  <div id="drawerModal" class="fixed inset-0 z-50 bg-dark-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-5xl max-h-[85vh] rounded-2xl p-6 flex flex-col border border-slate-700 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-grid-2 text-brand-400 text-base"></i>
+          <h3 class="text-base font-bold text-white">Presentation Slide Index</h3>
+          <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">14 Slides</span>
+        </div>
+        <button onclick="toggleDrawer()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Drawer Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 overflow-y-auto pr-1">
+        <!-- Slide Thumbnails rendered dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SPEAKER NOTES / JUDGE FAQ DRAWER -->
+  <!-- ========================================== -->
+  <div id="notesDrawer" class="fixed bottom-12 right-6 z-40 w-96 glass-panel rounded-2xl p-4 border border-slate-700 shadow-2xl transform translate-y-8 opacity-0 pointer-events-none transition-all duration-300">
+    <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-2">
+      <div class="flex items-center space-x-2 text-xs font-bold text-brand-400">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>Speaker Cues & Judge Notes</span>
+      </div>
+      <button onclick="toggleNotes()" class="text-slate-400 hover:text-white text-xs">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="currentNotesContent" class="text-xs text-slate-300 space-y-2 max-h-60 overflow-y-auto pr-1 font-sans">
+      <!-- Injected dynamically -->
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: LOGIC, MERMAID, CHARTS & PLAYGROUND -->
+  <!-- ========================================== -->
+  <script>
+    // State
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let timerSeconds = 0;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    // Speaker Notes Dictionary
+    const slideNotes = [
+      "HOOK (0:00-0:30): Introduce Muneem AI. Emphasize that Indian kiranas run on paper, but Muneem turns existing records into decisions without requiring new bookkeeping habits.",
+      "THE CRISIS (0:30-1:00): Cite ₹30 Lakh Crore locked Udhar in India. Highlight that the sample kirana has ₹46,420 overdue, half over 45 days. Dead stock locks ₹16,536.",
+      "VALUE PROP (1:00-1:30): Contrast passive recording (Khatabook) with autonomous action. Reiterate the Zero LLM Math Guarantee — code does the math, LLM words the advice.",
+      "CORE ENGINE (1:30-2:00): Explain the 5 pillars. Emphasize Hinglish code-switching and the 11-detector insight engine scanning for hidden profit leakage.",
+      "ARANGODB GRAPH (2:00-2:30): Show the ArangoDB multi-model graph. Walk judges through the co-purchase finding: Atta & Mustard Oil affinity (84.6%). Flat SQL missed this.",
+      "ACTION & RCT (2:30-3:00): Highlight the 1-click WhatsApp loops. Crucial: mention the 25% holdout group proving +₹29,208 net sales lift with p=0.0002 statistical significance.",
+      "ARCHITECTURE (3:00-3:30): Review the technical pipeline. Switch between the 3 diagrams. Emphasize FastAPI + PostgreSQL + ArangoDB + 169 Pytest tests.",
+      "SANDBOX DEMO (3:30-4:00): Click a query pill in front of judges! Trigger the WhatsApp PO or Udhar reminder. Show the deterministic evidence payload in paise.",
+      "BUSINESS MODEL (4:00-4:30): Outline the ₹999/mo Pro subscription. Explain the ancillary revenue from WhatsApp API margins (₹0.15/msg) and embedded NBFC underwriting.",
+      "UNIT ECONOMICS (4:30-5:00): Highlight 32x LTV:CAC, CAC ₹450, payback in 0.38 months (~11 days), and 86.4% gross margin per store.",
+      "GTM & FIRST 100 (5:00-5:30): The secret weapon: Chartered Accountants (30% rev share). 1 CA brings 40-80 shops. Plus wholesale Mandi distributor roadshows.",
+      "COMPETITIVE MOAT (5:30-6:00): Contrast with Khatabook (passive ledger), Vyapar (offline desktop), Tally (complex CA software). Muneem is an autonomous copilot.",
+      "RUBRIC ALIGNMENT (6:00-6:30): Walk through the hackathon scoring criteria: technical depth, problem fit, financial inclusion, production readiness.",
+      "CONCLUSION & Q&A: Close with the vision: A Fortune 500 CFO in every Indian shopkeeper's pocket. Open for live questions and trigger celebration confetti!"
+    ];
+
+    // Mermaid Diagram Definitions
+    const mermaidDiagrams = {
+      sysArch: `flowchart TB
+  subgraph Ingestion ["1. Data Ingestion & Sync"]
+    CSV["CSV / XLSX / Khata Export"] --> Normalizer["Header & Hinglish Normalizer"]
+    Normalizer --> Validator["Pydantic Row-Level Validator"]
+  end
+
+  subgraph Storage ["2. Dual System of Record"]
+    Validator --> PG[("PostgreSQL DB<br/>Bills · Repayments · Customers")]
+    Validator --> AG[("ArangoDB Cloud<br/>kirana_graph Multi-Model")]
+  end
+
+  subgraph AnalyticsEngine ["3. Deterministic Financial Core"]
+    PG --> Math["Pure Python Math Engine<br/>Paise Precision · Zero LLM Math"]
+    AG --> GraphTraverse["AQL Graph Traversal<br/>Co-purchase · Udhar Aging"]
+    Math --> Detectors["11-Detector Insight Engine<br/>Dead Stock · Spikes · Churn"]
+  end
+
+  subgraph AgentCopilot ["4. LangChain / Gemini Copilot"]
+    User["Shopkeeper (Voice / Text)"] --> Router{"Rules Router / Gemini 2.5"}
+    Router --> Tools["28 Pydantic Tools"]
+    Tools --> AnalyticsEngine
+    AnalyticsEngine --> Verify{"Grounding Verifier<br/>Checks all numbers match"}
+  end
+
+  subgraph ActionTier ["5. Autonomous Actions"]
+    Verify --> OrbitUI["React Orbit UI<br/>Charts & Visual Bridge"]
+    Verify --> WA["1-Click WhatsApp API<br/>Holdout Controlled Campaigns"]
+    Verify --> Restock["Supplier Purchase Orders<br/>Lead-Time Aware Restock"]
+  end
+
+  classDef accent fill:#064e3b,stroke:#10b981,color:#a7f3d0
+  classDef graph fill:#1e1b4b,stroke:#6366f1,color:#c7d2fe
+  classDef action fill:#451a03,stroke:#f59e0b,color:#fde68a
+  class Math,Verify accent
+  class AG,GraphTraverse graph
+  class WA,Restock action`,
+
+      agentLoop: `sequenceDiagram
+  autonumber
+  actor Owner as Shopkeeper (Hinglish Voice)
+  participant UI as Orbit Frontend / Chat
+  participant Router as Rules / Gemini Agent
+  participant Engine as Python Math Core (Paise)
+  participant Graph as ArangoDB kirana_graph
+  participant Verifier as Grounding Verification
+  participant WhatsApp as WhatsApp Cloud API
+
+  Owner->>UI: "Ramesh ka udhar kitna hai aur follow-up bhejo"
+  UI->>Router: POST /api/chat (SSE Stream)
+  Note over Router: Detects intent: customer_360 + udhar_aging
+  Router->>Engine: Run get_customer_summary("Ramesh")
+  Router->>Graph: Traverse owes_udhar FIFO edges
+  Graph-->>Router: {outstanding: ₹4,440, days_overdue: 45, phone: "+9198..."}
+  Router->>Engine: Generate WhatsApp message payload
+  Router->>Verifier: Validate all numbers in response match computed dataset
+  Verifier-->>UI: Response Envelope {answer, evidence, 1-click action}
+  UI-->>Owner: Displays Hinglish answer & "Send WhatsApp Nudge" button
+  Owner->>UI: Clicks 1-Click Send
+  UI->>WhatsApp: Deep link / API dispatch to Ramesh with UPI QR
+  WhatsApp-->>Owner: Delivered (Holdout group tracked)`,
+
+      graphSchema: `erDiagram
+  CUSTOMERS ||--o{ BILLS : places
+  CUSTOMERS ||--o{ REPAYMENTS : pays
+  CUSTOMERS ||--o{ ITEMS : purchased
+  CUSTOMERS ||--o{ OWES_UDHAR : owes
+  ITEMS ||--o{ SUPPLIERS : supplied_by
+  ITEMS ||--o{ ITEMS : bought_together
+
+  CUSTOMERS {
+    string customer_id PK
+    string name
+    string phone
+    string rfm_segment
+    int outstanding_paise
+    boolean is_churned
+  }
+
+  ITEMS {
+    string item_id PK
+    string name
+    string category
+    int mrp_paise
+    int cost_paise
+    int gst_rate
+    int stock_units
+    int lead_time_days
+  }
+
+  SUPPLIERS {
+    string supplier_id PK
+    string name
+    int lead_time_days
+    float reliability_score
+  }
+
+  OWES_UDHAR {
+    string edge_id PK
+    int amount_paise
+    int days_overdue
+    string fifo_bucket
+  }`
+    };
+
+    // Navigation Logic
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+
+      // Update Header info
+      const activeSlideEl = slides[currentSlide];
+      document.getElementById('currentSlideCategory').innerText = activeSlideEl.dataset.category || 'Muneem AI';
+      document.getElementById('currentSlideTitle').innerText = activeSlideEl.dataset.title || '';
+      document.getElementById('headerSlideCount').innerText = `${String(currentSlide + 1).padStart(2, '0')}/${String(totalSlides).padStart(2, '0')}`;
+      
+      // Update Progress Bar
+      const pct = ((currentSlide + 1) / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = `${pct}%`;
+
+      // Update Dropdown
+      const dropdown = document.getElementById('slideSelectDropdown');
+      if (dropdown) dropdown.value = currentSlide;
+
+      // Update Prev / Next Buttons
+      document.getElementById('prevBtn').disabled = (currentSlide === 0);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides - 1);
+
+      // Update Notes Drawer
+      document.getElementById('currentNotesContent').innerHTML = `
+        <div class="font-bold text-white mb-1">Slide ${currentSlide + 1}: ${activeSlideEl.dataset.title}</div>
+        <p class="text-slate-300 leading-relaxed">${slideNotes[currentSlide] || 'Deliver key takeaways and address judge questions.'}</p>
+      `;
+
+      // Trigger Slide-Specific Visuals
+      if (currentSlide === 1) renderUdharAgingChart();
+      if (currentSlide === 5) renderRCTCampaignChart();
+      if (currentSlide === 6) renderMermaidDiagram('sysArch');
+      if (currentSlide === 9) renderGrowthProjectionChart();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      if (n >= 0 && n < totalSlides) {
+        currentSlide = n;
+        updateSlide();
+        closeDrawer();
+      }
+    }
+
+    // Keyboard Listeners
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullScreen();
+      } else if (e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        toggleDrawer();
+      } else if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        toggleNotes();
+      } else if (e.key === 'Escape') {
+        closeDrawer();
+      }
+    });
+
+    // Presenter Timer
+    function toggleTimer() {
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        document.getElementById('timerIcon').className = 'fa-solid fa-play text-[10px]';
+      } else {
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+          const secs = String(timerSeconds % 60).padStart(2, '0');
+          document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
+        }, 1000);
+        isTimerRunning = true;
+        document.getElementById('timerIcon').className = 'fa-solid fa-pause text-[10px]';
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerSeconds = 0;
+      document.getElementById('timerDisplay').innerText = '00:00';
+      document.getElementById('timerIcon').className = 'fa-solid fa-play text-[10px]';
+    }
+
+    // Fullscreen Toggle
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Drawer / Thumbnail Modal
+    function toggleDrawer() {
+      const modal = document.getElementById('drawerModal');
+      const isVisible = modal.classList.contains('opacity-100');
+      if (isVisible) {
+        closeDrawer();
+      } else {
+        populateDrawer();
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100', 'pointer-events-auto');
+      }
+    }
+
+    function closeDrawer() {
+      const modal = document.getElementById('drawerModal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100', 'pointer-events-auto');
+    }
+
+    function populateDrawer() {
+      const container = document.querySelector('#drawerModal .grid');
+      container.innerHTML = '';
+      slides.forEach((s, i) => {
+        const item = document.createElement('div');
+        const isCurrent = (i === currentSlide);
+        item.className = `p-3 rounded-xl border cursor-pointer transition flex flex-col justify-between ${
+          isCurrent ? 'bg-brand-950/70 border-brand-500 shadow-md shadow-brand-500/20' : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50'
+        }`;
+        item.onclick = () => goToSlide(i);
+        item.innerHTML = `
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-2">
+            <span>Slide ${String(i + 1).padStart(2, '0')}</span>
+            <span class="${isCurrent ? 'text-brand-400 font-bold' : 'text-slate-500'}">${isCurrent ? 'Active' : ''}</span>
+          </div>
+          <div class="text-xs font-bold ${isCurrent ? 'text-brand-300' : 'text-slate-200'} line-clamp-2 mb-1">
+            ${s.dataset.title || `Slide ${i + 1}`}
+          </div>
+          <div class="text-[10px] text-slate-400 line-clamp-1">
+            ${s.dataset.category || ''}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Notes Drawer Toggle
+    function toggleNotes() {
+      const notesEl = document.getElementById('notesDrawer');
+      const isVisible = notesEl.classList.contains('opacity-100');
+      if (isVisible) {
+        notesEl.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+        notesEl.classList.add('opacity-0', 'pointer-events-none', 'translate-y-8');
+      } else {
+        notesEl.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+        notesEl.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-8');
+      }
+    }
+
+    // Chart.js Instances
+    let udharChart = null;
+    let rctChart = null;
+    let growthChart = null;
+
+    function renderUdharAgingChart() {
+      const ctx = document.getElementById('udharAgingChart');
+      if (!ctx || udharChart) return;
+
+      udharChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['0-15 Days', '16-30 Days', '31-45 Days', '46-60 Days', '60+ Days'],
+          datasets: [
+            {
+              label: 'Outstanding Udhar (₹)',
+              data: [8450, 14001, 9200, 8530, 6239],
+              backgroundColor: ['#10b981', '#34d399', '#f59e0b', '#fb923c', '#f43f5e'],
+              borderRadius: 6,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Default Risk %',
+              data: [2, 6, 18, 44, 76],
+              type: 'line',
+              borderColor: '#f43f5e',
+              borderWidth: 2,
+              pointBackgroundColor: '#f43f5e',
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { size: 10 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { color: '#1e293b' }
+            },
+            y: {
+              type: 'linear',
+              position: 'left',
+              ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => '₹' + v },
+              grid: { color: '#1e293b' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              ticks: { color: '#f43f5e', font: { size: 10 }, callback: v => v + '%' },
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+    }
+
+    function renderRCTCampaignChart() {
+      const ctx = document.getElementById('rctCampaignChart');
+      if (!ctx || rctChart) return;
+
+      rctChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Target Group (160 shops)', 'Holdout Control (40 shops)'],
+          datasets: [{
+            label: 'Customer Return Rate %',
+            data: [84.2, 55.0],
+            backgroundColor: ['#10b981', '#64748b'],
+            borderRadius: 8,
+            barThickness: 50
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                afterLabel: () => 'Net Extra Sales: +₹29,208 (p=0.0002)'
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#cbd5e1', font: { size: 11, weight: 'bold' } },
+              grid: { display: false }
+            },
+            y: {
+              max: 100,
+              ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => v + '%' },
+              grid: { color: '#1e293b' }
+            }
+          }
+        }
+      });
+    }
+
+    function renderGrowthProjectionChart() {
+      const ctx = document.getElementById('growthProjectionChart');
+      if (!ctx || growthChart) return;
+
+      growthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['M1', 'M6', 'M12', 'M18', 'M24', 'M30', 'M36'],
+          datasets: [
+            {
+              label: 'ARR (₹ Crores)',
+              data: [0.05, 0.45, 1.44, 4.20, 10.80, 21.60, 36.00],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 3,
+              pointBackgroundColor: '#10b981',
+              yAxisID: 'y'
+            },
+            {
+              label: 'Active Paying Stores',
+              data: [35, 310, 1000, 2900, 7500, 15000, 25000],
+              borderColor: '#6366f1',
+              borderWidth: 2,
+              borderDash: [4, 4],
+              pointBackgroundColor: '#6366f1',
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { size: 10 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { color: '#1e293b' }
+            },
+            y: {
+              position: 'left',
+              ticks: { color: '#10b981', font: { size: 10 }, callback: v => '₹' + v + ' Cr' },
+              grid: { color: '#1e293b' }
+            },
+            y1: {
+              position: 'right',
+              ticks: { color: '#818cf8', font: { size: 10 }, callback: v => v.toLocaleString() },
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Mermaid.js Rendering
+    let currentDiagramKey = 'sysArch';
+
+    function switchDiagram(key) {
+      currentDiagramKey = key;
+      ['sysArch', 'agentLoop', 'graphSchema'].forEach(k => {
+        const btn = document.getElementById('btn-' + k);
+        if (btn) {
+          if (k === key) {
+            btn.className = 'px-3 py-1.5 rounded-lg bg-brand-500 text-dark-950 font-bold transition';
+          } else {
+            btn.className = 'px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-medium transition';
+          }
+        }
+      });
+      renderMermaidDiagram(key);
+    }
+
+    async function renderMermaidDiagram(key) {
+      const container = document.getElementById('mermaidContainer');
+      if (!container) return;
+
+      const code = mermaidDiagrams[key] || mermaidDiagrams['sysArch'];
+      container.innerHTML = '<div class="text-slate-400 text-sm animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Rendering Diagram...</div>';
+
+      try {
+        const id = 'mermaid_' + Math.random().toString(36).substr(2, 9);
+        const { svg } = await mermaid.render(id, code);
+        container.innerHTML = svg;
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+        container.innerHTML = `<pre class="text-xs text-brand-300 font-mono bg-dark-900 p-4 rounded-xl overflow-x-auto text-left w-full">${code}</pre>`;
+      }
+    }
+
+    // Interactive Playground Simulation Logic
+    const simulatedQueries = {
+      1: {
+        tool: "reorder_plan",
+        text: `<strong class="text-white">मालिक साहब, 2 आइटम तुरंत रीऑर्डर करने होंगे:</strong><br>
+        • <span class="text-amber-400 font-semibold">Chakki Atta 5kg (I001):</span> केवल 1.8 दिन का स्टॉक बचा है (9 पैकेट शेष)। सप्लायर S01 का लीड टाइम 2 दिन है। 25 पैकेट का रीऑर्डर रेडी है।<br>
+        • <span class="text-amber-400 font-semibold">Toor Dal 1kg (I005):</span> 2.1 दिन का स्टॉक शेष (12 पैकेट)।`,
+        evidence: `// Evidence Payload (from deterministic engine):
+I001: stock=9, daily_velocity=5.0, days_left=1.8, reorder_qty=25, pack_size=5, supplier=S01
+I005: stock=12, daily_velocity=5.7, days_left=2.1, reorder_qty=20, pack_size=10, supplier=S01`,
+        actionDesc: "Pre-generated Purchase Order to Distributor S01",
+        btnText: "Dispatch PO to Distributor S01 via WhatsApp",
+        successMsg: "PO Dispatched! WhatsApp link generated for Distributor S01 (25 units Chakki Atta, 20 units Toor Dal)."
+      },
+      2: {
+        tool: "udhar_aging_fifo",
+        text: `<strong class="text-white">रमेश जी का कुल उधार ₹4,440 है:</strong><br>
+        • <span class="text-rose-400 font-semibold">बिल #104 (15 सितंबर):</span> ₹1,240 (45 दिन पुराना - हाई रिस्क)<br>
+        • <span class="text-amber-400 font-semibold">बिल #189 (12 अक्टूबर):</span> ₹3,200 (18 दिन पुराना)<br>
+        WhatsApp पर विनम्र रीमाइंड और UPI लिंक तैयार है।`,
+        evidence: `// FIFO Debt Breakdown:
+customer_id: C0009, name: "Ramesh Sharma", phone: "+919876543210"
+aging_brackets: { "0-30d": 320000 paise, "31-60d": 124000 paise }
+total_overdue: 444000 paise (₹4,440.00)`,
+        actionDesc: "1-Click Hinglish Nudge with UPI Intent Link",
+        btnText: "Send 1-Click WhatsApp Reminder to Ramesh",
+        successMsg: "WhatsApp message delivered to Ramesh with direct UPI link upi://pay?pa=gupta@upi&am=4440!"
+      },
+      3: {
+        tool: "campaign_results",
+        text: `<strong class="text-white">Diwali Win-Back Campaign (CMP-SAMPLE-WINBACK):</strong><br>
+        • टारगेटेड कस्टमर्स: <span class="text-emerald-400 font-bold">84.2% वापस आए</span> (135 / 160)<br>
+        • होल्डआउट ग्रुप: केवल <span class="text-slate-400 font-bold">55.0% वापस आए</span> (22 / 40)<br>
+        • कुल अतिरिक्त बिक्री: <span class="text-brand-400 font-black">+₹29,208</span> (p = 0.0002 सांख्यिकीय रूप से सत्यापित)।`,
+        evidence: `// RCT Holdout Statistics:
+target_n: 160, target_return: 135 (0.84375)
+holdout_n: 40, holdout_return: 22 (0.55000)
+two_prop_z: 3.719, p_value: 0.00020
+incremental_revenue: 2920800 paise`,
+        actionDesc: "Export Full Holdout Report & Customer Cohorts",
+        btnText: "Download Verified RCT Report (CSV)",
+        successMsg: "Campaign evaluation CSV exported with complete p-value significance breakdown!"
+      },
+      4: {
+        tool: "what_if_simulator",
+        text: `<strong class="text-white">दूध की थोक कीमत 8% बढ़ने पर प्रभाव:</strong><br>
+        • मासिक लागत में वृद्धि: <span class="text-rose-400 font-bold">+₹4,320</span><br>
+        • ग्रॉस मार्जिन पर असर: 14.8% से गिरकर <span class="text-amber-400 font-bold">13.4% (-1.4%)</span><br>
+        • <span class="text-brand-400 font-semibold">सुझाव:</span> ₹60 वाले पैकेट की कीमत ₹62 करने पर मार्जिन 15.1% पर सुरक्षित रहेगा।`,
+        evidence: `// Scenario Simulation Parameters:
+category: "Dairy", shock_pct: 0.08, baseline_cogs: 5400000 paise
+projected_cogs: 5832000 paise, net_margin_delta: -140 bps
+optimal_retail_price: ₹62.00 (protects 15.1% margin)`,
+        actionDesc: "Auto-adjust POS selling prices & print shelf tags",
+        btnText: "Apply Recommended ₹62 Retail Price Shift",
+        successMsg: "New shelf price ₹62 updated across billing catalog! Margin protected at 15.1%."
+      }
+    };
+
+    let activeSimQueryId = 1;
+
+    function runSimulatedQuery(id) {
+      activeSimQueryId = id;
+      const data = simulatedQueries[id];
+
+      // Highlight button
+      [1, 2, 3, 4].forEach(i => {
+        const btn = document.getElementById('sim-btn-' + i);
+        if (btn) {
+          if (i === id) {
+            btn.className = 'w-full text-left p-2.5 rounded-lg bg-slate-800 border-2 border-brand-500 transition text-xs flex items-center justify-between group shadow-md shadow-brand-500/10';
+          } else {
+            btn.className = 'w-full text-left p-2.5 rounded-lg bg-dark-900 hover:bg-slate-800 border border-slate-700/80 hover:border-brand-500/60 transition text-xs flex items-center justify-between group';
+          }
+        }
+      });
+
+      // Update Screen
+      document.getElementById('simToolBadge').innerText = data.tool;
+      document.getElementById('simTextOutput').innerHTML = data.text;
+      document.getElementById('simEvidenceBox').innerHTML = `<div class="text-slate-400 mb-1">// Evidence Payload (from deterministic engine):</div>` + data.evidence.replace(/\n/g, '<br>');
+      document.getElementById('simActionDescription').innerText = data.actionDesc;
+      document.getElementById('simActionBtnText').innerText = data.btnText;
+    }
+
+    function triggerSimulatedAction() {
+      const data = simulatedQueries[activeSimQueryId];
+      fireVictoryConfetti();
+      
+      const btn = document.getElementById('simActionBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<i class="fa-solid fa-check text-white"></i> <span>Action Executed!</span>`;
+      btn.className = 'px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center space-x-2 transition';
+
+      setTimeout(() => {
+        alert("🚀 Muneem Autonomous Engine:\n" + data.successMsg);
+        btn.innerHTML = originalText;
+        btn.className = 'px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-400 text-dark-950 font-bold text-xs flex items-center space-x-2 shadow-lg shadow-brand-500/20 transition';
+      }, 350);
+    }
+
+    function fireVictoryConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        themeVariables: {
+          darkMode: true,
+          background: '#090d16',
+          primaryColor: '#064e3b',
+          primaryTextColor: '#ecfdf5',
+          lineColor: '#64748b'
+        },
+        securityLevel: 'loose'
+      });
+
+      updateSlide();
+      renderMermaidDiagram('sysArch');
+    });
+  </script>
+</body>
+</html>

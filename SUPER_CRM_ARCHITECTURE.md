@@ -178,6 +178,47 @@ sends a message. Everything numeric comes from the metrics layer or detectors an
 | campaigns | segment rule snapshot, message, channel, members, hold-out, status, outcome | For measuring whether outreach worked |
 | events | type, entity, at, payload | Webhook / platform events; enables funnels where they exist |
 
+### 5.1 Knowledge Graph Schema (`kirana_graph`)
+
+The graph projection in ArangoDB links commercial relationships across vertices and typed edge collections, allowing 1- to 2-hop traversals for co-purchase lift, supplier risk propagation, and customer balance tracking:
+
+```mermaid
+flowchart TD
+    %% Custom Styling Definitions
+    classDef customerNode fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#ffffff;
+    classDef invoiceNode fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#ffffff;
+    classDef itemNode fill:#701a75,stroke:#d946ef,stroke-width:2px,color:#ffffff;
+    classDef supplierNode fill:#7c2d12,stroke:#f97316,stroke-width:2px,color:#ffffff;
+    classDef categoryNode fill:#1f2937,stroke:#94a3b8,stroke-width:2px,color:#ffffff;
+    classDef ledgerNode fill:#831843,stroke:#f43f5e,stroke-width:2px,color:#ffffff;
+
+    subgraph Entities["ArangoDB Multi-Model Vertex Collections (kirana_graph)"]
+        C["Customer (customers)<br/>phone E.164 · RFM segment · consent"]:::customerNode
+        I["Invoice (invoices)<br/>invoice_id · date · payment_mode"]:::invoiceNode
+        P["Item (items)<br/>item_id · name · MRP · cost · GST rate"]:::itemNode
+        S["Supplier (suppliers)<br/>supplier_id · name · lead_time_days"]:::supplierNode
+        Cat["Category (categories)<br/>category_id · name · tax_slab"]:::categoryNode
+        L["Udhaar Ledger (repayments)<br/>balance · FIFO aging · overdue"]:::ledgerNode
+    end
+
+    %% Edge Collections and Relations
+    C -->|"purchased (bills, qty, total_paise)"| P
+    I -->|"contains (qty, unit_price_paise, gst)"| P
+    C -->|"billed_in (invoice reference)"| I
+    S -->|"supplies (lead_time_days, min_qty)"| P
+    P -->|"belongs_to (margin target)"| Cat
+    C -->|"carries_balance (outstanding_paise)"| L
+
+    %% Edge styling
+    linkStyle 0 stroke:#3b82f6,stroke-width:2px;
+    linkStyle 1 stroke:#22c55e,stroke-width:2px;
+    linkStyle 2 stroke:#06b6d4,stroke-width:2px;
+    linkStyle 3 stroke:#f97316,stroke-width:2px;
+    linkStyle 4 stroke:#d946ef,stroke-width:2px;
+    linkStyle 5 stroke:#f43f5e,stroke-width:2px;
+```
+
+
 ## 6. Intelligent ingestion pipeline
 
 1. **Land raw** — keep the original file/rows untouched, with source and timestamp.
@@ -249,6 +290,66 @@ Every insight is one object:
 Insights are ranked by `impact_rs × confidence` and feed the daily briefing, the Insights page
 and the chat ("What should I focus on today?" = top insights).
 
+### 8.1 WhatsApp Campaign Trigger & Lifecycle State Machine
+
+Automated customer re-engagement and khata collection follow a strict state machine. The system detects opportunities deterministically, crafts personalized multilingual outreach, partitions a scientifically rigorous hold-out group via stable SHA-1 hashing, and measures incremental revenue using two-proportion z-tests:
+
+```mermaid
+stateDiagram-v2
+    classDef trigger fill:#0369a1,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef draft fill:#b45309,stroke:#fbbf24,stroke-width:2px,color:#ffffff;
+    classDef sent fill:#15803d,stroke:#4ade80,stroke-width:2px,color:#ffffff;
+    classDef measure fill:#7e22ce,stroke:#c084fc,stroke-width:2px,color:#ffffff;
+    classDef cancel fill:#b91c1c,stroke:#f87171,stroke-width:2px,color:#ffffff;
+
+    [*] --> Idle: Engine Cycle
+    Idle --> InsightTriggered: Anomaly / Churn / Udhaar Flagged
+
+    state InsightTriggered {
+        [*] --> EvaluateRule
+        EvaluateRule --> ChurnDetected: Days > 2x Gap (At-Risk)
+        EvaluateRule --> UdhaarOverdue: Ledger Unpaid > N Days
+        EvaluateRule --> CrossSellLift: Basket Lift > 1.5x
+        EvaluateRule --> ChampionNudge: RFM Quintile == 5
+    }
+
+    InsightTriggered --> CampaignDrafting: Auto-generate Campaign Action Draft
+
+    state CampaignDrafting {
+        [*] --> ResolveCohort: Query Deterministic Customer IDs
+        ResolveCohort --> StableHashPartition: SHA-1(CampaignID + CustID)
+        StableHashPartition --> TargetGroup: 90% Target Recipients
+        StableHashPartition --> HoldoutGroup: 10% Control Holdout
+        TargetGroup --> LocalizeCopy: Render English / Hinglish / Hindi
+        HoldoutGroup --> QuarantineControl: Suppress Outreach
+    }
+
+    CampaignDrafting --> DraftReview: Merchant UI Review
+    DraftReview --> Cancelled: Merchant Dismisses
+    Cancelled --> [*]
+
+    DraftReview --> Sent: Merchant Clicks WhatsApp / Exports CSV
+
+    state Sent {
+        [*] --> WindowTracking: Day 1 to Day 14 Window
+        WindowTracking --> StreamBills: Ingest Subsequent POS Invoices
+        WindowTracking --> StreamRepayments: Ingest Khata Repayments
+    }
+
+    Sent --> Measuring: Window Expires or Data Re-uploaded
+
+    state Measuring {
+        [*] --> ConversionCalc: Target Rate vs Holdout Rate
+        ConversionCalc --> ZTest: Two-Proportion Z-Test (p-value)
+        ZTest --> LiftVerdict: Lift Points + Incremental Value (Rs)
+    }
+
+    Measuring --> Measured: p < 0.05 ("Worked") or ("No Clear Effect")
+    Measured --> FeedbackLoop: Feeds Insights History & Model Context
+    FeedbackLoop --> [*]
+```
+
+
 ## 9. The agent
 
 **Tool families** (the LLM only chooses and fills arguments):
@@ -293,6 +394,53 @@ right-sized for single-merchant volumes; ArangoDB kept as an optional graph proj
 already works. All access goes through a repository interface so the store can change without
 touching analytics or the agent. For the hackathon, the current in-memory + ArangoDB setup can
 stay and Postgres can come in the last phase.
+
+### 10.1 ArangoDB AQL Query Pipeline Architecture
+
+Muneem guarantees **zero prompt-to-database injection** and **zero hallucinated database mutations**. The LLM never writes AQL or SQL. All graph traversals use pre-compiled, parameter-bound AQL statements executed via Python drivers, feeding a deterministic mathematical processing layer:
+
+```mermaid
+flowchart TD
+    classDef client fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef agent fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef security fill:#831843,stroke:#f43f5e,stroke-width:2px,color:#f8fafc;
+    classDef arango fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#f8fafc;
+    classDef engine fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef envelope fill:#1e1b4b,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+
+    User["Natural Language Query (User/Merchant)<br/>'Kaunsa supplier late karega aur kiska udhaar baaki hai?'"]:::client
+    Router["Gemini Agent / Router<br/>(Chooses typed tool: supplier_risk / explain_change)"]:::agent
+    ParamValidation["Pydantic Parameter Validator<br/>(Validates types, enums, limits; rejects freeform SQL)"]:::security
+
+    subgraph AQLPipeline["ArangoDB Hardened AQL Pipeline (Zero SQL/AQL Injection)"]
+        FixedTemplate["Pre-compiled AQL String (aql.py)<br/>FOR s IN suppliers FILTER s.supplier_id == @supplier_id ..."]:::arango
+        BindParams["Parameter Binding Injection<br/>@supplier_id, @item_id, @n (Strict Bound Variables)"]:::security
+        GraphTraversal["ArangoDB Native Traversal Engine<br/>1..2 OUTBOUND 'supplies', INBOUND 'contains', 'purchased'"]:::arango
+        GraphProjectionFallback["In-Memory Graph Projection Engine<br/>(Automatic seamless fallback if offline / in-memory tests)"]:::arango
+    end
+
+    subgraph DeterministicMath["Python Deterministic Math Engine (Paise-level Precision)"]
+        MathEngine["Pure Python Calculation Core<br/>FIFO Udhaar Aging, Lead Time Buffer, GST Back-out"]:::engine
+        FormulaAuditor["Formula Registry & Audit Trail<br/>Attaches mathematical equation to every rupee value"]:::engine
+    end
+
+    GroundingCheck["Grounding & Trust Verification<br/>Verifies all numbers in model text against tool rows"]:::security
+    OutputEnvelope["Evidence Envelope JSON Response<br/>answer · evidence · formula · visuals (charts/mermaid) · actions"]:::envelope
+
+    User --> Router
+    Router --> ParamValidation
+    ParamValidation --> FixedTemplate
+    FixedTemplate --> BindParams
+    BindParams --> GraphTraversal
+    GraphTraversal -.->|Fallback on Connection Drop| GraphProjectionFallback
+    GraphTraversal --> MathEngine
+    GraphProjectionFallback --> MathEngine
+    MathEngine --> FormulaAuditor
+    FormulaAuditor --> GroundingCheck
+    GroundingCheck --> OutputEnvelope
+    OutputEnvelope --> User
+```
+
 
 ## 11. UI / UX direction (Orbit-style)
 
