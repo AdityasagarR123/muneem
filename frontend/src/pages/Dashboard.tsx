@@ -48,7 +48,7 @@ export default function Dashboard() {
           <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
           <p className="text-sm text-slate-500">Last 30 days · data as of {alerts.as_of}</p>
         </div>
-        <Link to="/chat" className="btn btn-primary">💬 Ask Muneem</Link>
+        <Link to="/" className="btn btn-dark">Ask Muneem</Link>
       </header>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

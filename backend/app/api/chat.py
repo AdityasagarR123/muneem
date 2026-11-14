@@ -47,12 +47,18 @@ def chat(req: ChatRequest, a: Agent = Depends(agent)):
     return a.ask(req.message, req.conversation_id, req.mode)
 
 
+@router.get("/chats")
+def recent_chats(a: Agent = Depends(agent)):
+    return a.recent()
+
+
 @router.get("/chat/{conversation_id}")
 def history(conversation_id: str, a: Agent = Depends(agent)):
-    h = a.conversation(conversation_id)
-    if not h:
+    t = a.transcript(conversation_id)
+    if not t:
         raise HTTPException(404, "Unknown conversation")
-    return {"conversation_id": conversation_id, "messages": h}
+    return {"conversation_id": conversation_id, "title": t["title"], "turns": t["turns"],
+            "messages": a.conversation(conversation_id)}
 
 
 @router.get("/charts/{chart_id}.png")

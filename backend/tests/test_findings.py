@@ -124,3 +124,18 @@ def test_findings_api(settings):
         ex = c.get("/api/explain", params={"period": "this_week"}).json()
         assert ex["headline"]["direction"] == "down"
         assert c.get("/api/explain", params={"period": "next_year"}).status_code == 422
+
+
+def test_home_and_chat_history_api(settings):
+    with TestClient(create_app()) as c:
+        h = c.get("/api/home").json()
+        assert h["briefing"][0]["kind"] == "stockout" and len(h["health"]) == 5
+        assert {x["key"] for x in h["health"]} == {"sales", "margin", "repeat", "at_risk", "udhaar"}
+        r = c.post("/api/chat", json={"message": "Udhaar kitna baaki hai?", "mode": "rules"}).json()
+        c.post("/api/chat", json={"message": "Dead stock dikhao", "mode": "rules",
+                                  "conversation_id": r["conversation_id"]})
+        chats = c.get("/api/chats").json()
+        assert chats[0]["conversation_id"] == r["conversation_id"] and chats[0]["turns"] == 2
+        t = c.get(f"/api/chat/{r['conversation_id']}").json()
+        assert t["title"] == "Udhaar kitna baaki hai?"
+        assert [x["envelope"]["evidence"][0]["tool"] for x in t["turns"]] == ["udhaar_report", "dead_stock"]

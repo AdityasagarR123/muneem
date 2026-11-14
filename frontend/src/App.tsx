@@ -1,66 +1,67 @@
-import { NavLink, Route, Routes } from "react-router-dom";
-import { Badge, useAsync } from "./components/ui";
+import { useCallback, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Icon, { Logo } from "./components/Icon";
+import Sidebar from "./components/Sidebar";
+import { useAsync } from "./components/ui";
 import { api } from "./lib/api";
-import Chat from "./pages/Chat";
+import Campaigns, { CampaignDetail } from "./pages/Campaigns";
+import Customers, { CustomerDetail } from "./pages/Customers";
 import Dashboard from "./pages/Dashboard";
 import Data from "./pages/Data";
+import Home from "./pages/Home";
+import Insights from "./pages/Insights";
 import Restock from "./pages/Restock";
 
-const NAV = [
-  { to: "/", label: "Dashboard", icon: "📊" },
-  { to: "/chat", label: "Ask Muneem", icon: "💬" },
-  { to: "/restock", label: "Restock", icon: "🛒" },
-  { to: "/data", label: "Data", icon: "📁" },
-];
-
 export default function App() {
-  const status = useAsync(() => Promise.all([api.get("/status"), api.get("/agent/status")]), []);
-  const [st, agent] = status.data ?? [null, null];
+  const status = useAsync(() => api.get("/status"), []);
+  const chats = useAsync(() => api.get<any[]>("/chats"), []);
+  const findings = useAsync(() => api.get<any[]>("/findings", { limit: 50 }), []);
+  const [open, setOpen] = useState(false);
+  const refreshChats = useCallback(() => chats.reload(), [chats.reload]);
+  const newCount = (findings.data ?? []).filter((f) => f.status === "new").length;
+
+  const sidebar = (
+    <Sidebar chats={chats.data ?? []} status={status.data} insightCount={newCount} onNavigate={() => setOpen(false)} />
+  );
 
   return (
-    <div className="min-h-screen md:flex">
-      <aside className="border-b border-slate-200 bg-white md:sticky md:top-0 md:h-screen md:w-56 md:shrink-0 md:border-b-0 md:border-r">
-        <div className="flex items-center gap-2 px-4 py-3 md:py-5">
-          <span className="text-2xl">📒</span>
-          <div>
-            <div className="font-bold leading-tight text-slate-900">Muneem</div>
-            <div className="text-[11px] leading-tight text-slate-500">hisaab bhi, salaah bhi</div>
-          </div>
+    <div className="flex h-screen overflow-hidden bg-white">
+      <aside className="hidden w-[272px] shrink-0 border-r border-slate-200 bg-slate-50 md:block">{sidebar}</aside>
+      {open && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="absolute inset-0 bg-slate-900/30" onClick={() => setOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-[272px] border-r border-slate-200 bg-slate-50">{sidebar}</aside>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col md:pb-0">
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.to === "/"}
-              className={({ isActive }) =>
-                `flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium ${
-                  isActive ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}>
-              <span>{n.icon}</span>{n.label}
-            </NavLink>
-          ))}
-        </nav>
-        {st && (
-          <div className="hidden space-y-1.5 px-4 pt-6 text-xs text-slate-500 md:block">
-            <div>Data as of <b className="text-slate-700">{st.dataset?.as_of ?? "–"}</b></div>
-            <div>Source: {st.dataset?.source ?? "–"}</div>
-            <div className="flex flex-wrap gap-1 pt-1">
-              <Badge tone={st.arango.status === "connected" ? "green" : st.arango.configured ? "red" : "gray"}
-                title={st.arango.error ?? ""}>
-                ArangoDB: {st.arango.status}{st.arango.status === "connected" ? ` · ${st.arango.sync}` : ""}
-              </Badge>
-              <Badge tone={agent?.llm_configured ? "blue" : "gray"}>
-                AI: {agent?.llm_configured ? agent.llm.models[0] : "rules only"}
-              </Badge>
-            </div>
+      )}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 md:px-8">
+          <div className="flex items-center gap-3">
+            <button className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100 md:hidden" onClick={() => setOpen(true)} aria-label="Menu">
+              <Icon name="sidebar" />
+            </button>
+            <span className="md:hidden"><Logo size={22} /></span>
+            <span className="text-[15px] font-medium text-slate-800">Muneem</span>
           </div>
-        )}
-      </aside>
-      <main className="min-w-0 flex-1 p-4 md:p-6">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/restock" element={<Restock />} />
-          <Route path="/data" element={<Data onChange={status.reload} />} />
-        </Routes>
-      </main>
+          <span className="text-xs text-slate-500">{status.data?.dataset?.source === "sample" ? "Sample shop · synthetic data" : "Private workspace"}</span>
+        </header>
+        <main className="min-h-0 flex-1 overflow-y-auto">
+          <Routes>
+            <Route path="/" element={<Home onChatsChanged={refreshChats} />} />
+            <Route path="/c/:cid" element={<Home onChatsChanged={refreshChats} />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/customers/:cid" element={<CustomerDetail />} />
+            <Route path="/campaigns" element={<Campaigns />} />
+            <Route path="/campaigns/:id" element={<CampaignDetail />} />
+            <Route path="/orders" element={<div className="mx-auto max-w-6xl px-4 py-8 md:px-6"><Restock /></div>} />
+            <Route path="/business" element={<div className="mx-auto max-w-6xl px-4 py-8 md:px-6"><Dashboard /></div>} />
+            <Route path="/data" element={<div className="mx-auto max-w-5xl px-4 py-8 md:px-6"><Data onChange={status.reload} /></div>} />
+            <Route path="/chat" element={<Navigate to="/" replace />} />
+            <Route path="/restock" element={<Navigate to="/orders" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }

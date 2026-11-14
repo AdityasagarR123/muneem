@@ -73,6 +73,18 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[] = []) {
   return { data, error, loading, reload, setData };
 }
 
+export function PageHeader({ title, sub, right }: { title: string; sub?: ReactNode; right?: ReactNode }) {
+  return (
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
+        {sub && <p className="mt-1 text-sm text-slate-500">{sub}</p>}
+      </div>
+      {right}
+    </div>
+  );
+}
+
 export function Stat({ label, value, sub, tone }: { label: string; value: ReactNode; sub?: ReactNode; tone?: "up" | "down" }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">

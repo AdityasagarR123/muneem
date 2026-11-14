@@ -77,6 +77,7 @@ class Agent:
         self.llm = llm
         self.s = manager.settings
         self.history: dict[str, list[tuple[str, str]]] = {}
+        self.transcripts: dict[str, dict] = {}  # full envelopes, so old chats reopen with charts
         self._lock = threading.Lock()
         self.tool_decls = [{"name": t.name, "description": t.description,
                             "parameters": json_schema(t.args)} for t in TOOLS.values()]
@@ -125,6 +126,13 @@ class Agent:
             h = self.history.setdefault(conv, [])
             h += [("user", message), ("model", env.answer_md)]
             del h[:-2 * self.s.chat_history_turns]
+            t = self.transcripts.setdefault(conv, {"title": message[:80], "turns": []})
+            t["turns"].append({"question": message, "envelope": env.model_dump()})
+            t["updated_at"] = time.time()
+            del t["turns"][:-30]
+            while len(self.transcripts) > 100:  # keep memory bounded
+                oldest = min(self.transcripts, key=lambda k: self.transcripts[k]["updated_at"])
+                self.transcripts.pop(oldest)
         self.m.record("chat_history", {
             "conversation_id": conv, "question": message, "answer": env.answer_md,
             "mode": env.mode, "model": env.model, "language": lang,
@@ -136,6 +144,14 @@ class Agent:
 
     def conversation(self, conversation_id: str) -> list[dict]:
         return [{"role": r, "text": t} for r, t in self.history.get(conversation_id, [])]
+
+    def transcript(self, conversation_id: str) -> dict | None:
+        return self.transcripts.get(conversation_id)
+
+    def recent(self, limit: int = 30) -> list[dict]:
+        items = sorted(self.transcripts.items(), key=lambda kv: -kv[1]["updated_at"])[:limit]
+        return [{"conversation_id": k, "title": v["title"], "turns": len(v["turns"]),
+                 "updated_at": v["updated_at"]} for k, v in items]
 
     def status(self) -> dict:
         return {"llm_configured": self.llm is not None,

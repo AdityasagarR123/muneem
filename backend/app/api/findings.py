@@ -43,6 +43,46 @@ def set_status(finding_id: str, body: StatusBody, m: DataManager = Depends(manag
     return found.model_copy(update={"status": body.status})
 
 
+@router.get("/home")
+def home(m: DataManager = Depends(manager)):
+    """Everything the home screen needs in one call: briefing + health strip."""
+    from app.analytics import kpis as kpis_mod
+    from app.analytics import metrics as metrics_mod
+    from app.analytics.common import public
+    from app.analytics.customers import ledger
+
+    ds = m.require()
+    k = kpis_mod.compute_kpis(ds, 30).headline
+    rep = metrics_mod.query_metric(ds, "repeat_rate_pct", None, "last_30_days").headline
+    weekly = metrics_mod.query_metric(ds, "revenue", "week", "last_90_days", "none").rows
+    st = m.customer_stats()
+    risk = st[st["at_risk"]] if len(st) else st
+    led = ledger(ds)
+    findings = [f for f in m.findings() if f.status != "dismissed"]
+    return {
+        "shop_name": m.settings.shop_name, "as_of": ds.as_of.isoformat(),
+        "briefing": [f.model_dump() for f in findings[:5]],
+        "findings_total": len(findings),
+        "health": public([
+            {"key": "sales", "label": "Sales · 30 days", "value_paise": k["revenue_paise"],
+             "change_pct": k.get("revenue_change_pct"),
+             "spark": [r["value_rs"] for r in weekly][1:-1] or [r["value_rs"] for r in weekly]},
+            {"key": "margin", "label": "Margin after GST", "value_paise": k["gross_margin_paise"],
+             "change_pct": k.get("gross_margin_change_pct"), "sub": f"{k['gross_margin_pct']}%"},
+            {"key": "repeat", "label": "Returning customers", "value": rep.get("value"),
+             "unit": "%", "change_pct": rep.get("change_pct")},
+            {"key": "at_risk", "label": "Customers at risk", "value": int(len(risk)),
+             "sub_paise": int(risk["monthly_value_paise"].sum()) if len(risk) else 0,
+             "sub_label": "monthly spend"},
+            {"key": "udhaar", "label": "Udhaar outstanding",
+             "value_paise": int(led["outstanding_paise"].clip(lower=0).sum()) if len(led) else 0,
+             "sub": f"{int(led['overdue'].sum()) if len(led) else 0} overdue"},
+        ]),
+        "suggestions": ["What should I focus on today?", "Why did sales drop this week?",
+                        "Kaun se customers ne aana band kar diya?", "Kal kya order karna chahiye?"],
+    }
+
+
 @router.get("/explain", response_model=Insight)
 def explain(period: str = "last_7_days",
             compare: Literal["previous_period", "same_period_last_month"] = "previous_period",

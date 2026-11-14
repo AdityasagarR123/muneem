@@ -75,6 +75,19 @@ balances, total udhaar ₹49,475.50 to the paisa.
 - Chat tools `draft_campaign`, `campaign_results`; `/api/campaigns/*`. 168 tests pass; live
   Gemini campaign questions 4/4 grounded.
 
+**Phase 5 done (14 Nov 2026):**
+- Orbit-style app: light sidebar (New chat, workspace, recent chats, EN / Hinglish / हिं switch,
+  Postgres/ArangoDB status); Home = greeting + 5-tile health strip (sparkline) + today's briefing
+  (what · why · ₹ impact · one action) + suggestions + composer; chats reopen with charts.
+- Pages: Insights (filter, Ask Muneem, Done, Dismiss), Customers (segment chips, scatter, table,
+  "draft messages to this segment"), Customer 360 (stats, monthly spend, items, udhaar, one
+  context-aware message button), Campaigns (new + preview, edit, WhatsApp per message, CSV, mark
+  sent, results card with hold-out comparison). Existing Orders / Business / Data kept.
+- Insight → action in two clicks: briefing button creates the draft and opens it; WhatsApp
+  button sends.
+- Live: Postgres (Supabase) and ArangoDB cloud connected - dataset round-trips; AQL graph results
+  identical to the in-memory engine. 169 tests pass.
+
 ## 1. Verdict in one paragraph
 
 The current Muneem already has the hardest part of the vision right: **a deterministic engine
