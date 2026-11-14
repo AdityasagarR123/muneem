@@ -1,3 +1,5 @@
+ 
+
 # Muneem — Kirana Inventory & Purchase Intelligence Copilot
 
 **Infra Shift Hackathon 2026 · Problem Statement 2 (AI-powered business intelligence and operations copilot for small enterprises)**
@@ -10,6 +12,7 @@ Project document + Technical document · Prepared 14 Nov 2026 · Repo: https://g
 ## Table of contents
 
 **Part A — Project document**
+
 1. One-paragraph summary
 2. Name and positioning
 3. PS2 requirement → proof matrix
@@ -63,14 +66,15 @@ Muneem turns a kirana store's existing sales, stock and expense records into dec
 
 The official statement lists four MVP items, asks for realistic Indian data (rupees, GST rates, UPI and cash, festive-season demand), and says a chatbot without validated calculations or business logic is insufficient [R1].
 
-| PS2 requirement [R1] | What Muneem builds | What the judge sees |
-|---|---|---|
-| Import a realistic dataset and show key metrics on one dashboard | CSV/XLSX upload with a validation report; KPI dashboard | Upload → revenue, margin after GST, GST collected, UPI vs cash, stock value in ₹ |
-| Answer at least one natural-language question using calculations grounded in the data | Tool-calling agent over fixed analytics functions | Ask "Kal kya order karna chahiye?" → ranked answer + formula + source rows |
-| Identify a business pattern, exception or opportunity and explain the evidence | Stockout risk, dead stock, high-revenue/low-margin items | Card: "₹X locked in N dead-stock items" with the rule used and the item list |
-| Demonstrate one useful action | Restock plan, supplier WhatsApp draft, CSV export | Click → order list + message; downloadable CSV |
-| Indian realism | GST slabs 0/5/12/18, MRP-inclusive pricing, UPI/cash/credit mix, festive uplift | Visible in data, metrics and reorder logic |
-| "Ask in everyday language" | Hindi/English/Hinglish questions | Same tools answer in the user's language |
+
+| PS2 requirement [R1]                                                                  | What Muneem builds                                                              | What the judge sees                                                                |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Import a realistic dataset and show key metrics on one dashboard                      | CSV/XLSX upload with a validation report; KPI dashboard                         | Upload → revenue, margin after GST, GST collected, UPI vs cash, stock value in ₹ |
+| Answer at least one natural-language question using calculations grounded in the data | Tool-calling agent over fixed analytics functions                               | Ask "Kal kya order karna chahiye?" → ranked answer + formula + source rows        |
+| Identify a business pattern, exception or opportunity and explain the evidence        | Stockout risk, dead stock, high-revenue/low-margin items                        | Card: "₹X locked in N dead-stock items" with the rule used and the item list      |
+| Demonstrate one useful action                                                         | Restock plan, supplier WhatsApp draft, CSV export                               | Click → order list + message; downloadable CSV                                    |
+| Indian realism                                                                        | GST slabs 0/5/12/18, MRP-inclusive pricing, UPI/cash/credit mix, festive uplift | Visible in data, metrics and reorder logic                                         |
+| "Ask in everyday language"                                                            | Hindi/English/Hinglish questions                                                | Same tools answer in the user's language                                           |
 
 Optional items named in the brief — demand forecasting, invoice extraction, automated reports, Hindi/regional/voice interaction, UPI/GST billing integrations, scheduled alerts, outreach drafts, scenario planning — are stretch goals, not prerequisites [R1].
 
@@ -81,6 +85,7 @@ Optional items named in the brief — demand forecasting, invoice extraction, au
 **Problem.** The records exist but do not tell the owner what to buy, what is stuck, or what really earns money. Indian billing/khata products already cover billing, GST, stock and udhaar [R16][R17]. Muneem's wedge is **decision support on top of that data**, not another billing tool.
 
 **What the owner asks themselves every morning:**
+
 - Which items will run out before the next delivery?
 - How much should I order, and what will it cost?
 - Which items are sitting unsold, and how much money is stuck in them?
@@ -94,6 +99,7 @@ Optional items named in the brief — demand forecasting, invoice extraction, au
 Priority tiers, not a clock plan. Build P0 completely before touching P1.
 
 ### P0 — must ship (this is the whole demo)
+
 1. Upload + validation (required columns, types, duplicates, negative stock, GST-rate sanity, date parsing).
 2. KPI dashboard with ₹ metrics and 3–4 charts.
 3. Chat agent with fixed analytics tools; every answer shows its formula and evidence rows.
@@ -105,40 +111,47 @@ Priority tiers, not a clock plan. Build P0 completely before touching P1.
 9. "Load sample data" button and a rules-only fallback mode (no LLM needed for scripted questions).
 
 ### P1 — only after P0 is demo-stable
+
 Expense-spike flag; festive-uplift tuning; matplotlib PNG export for reports and WhatsApp attachments; supplier comparison (needs quote data); saved question history; GSTIN format/check-digit validator.
 
 ### P2 — mention in the pitch, do not build
+
 Voice input; scheduled alerts; billing-app integrations; forecasting beyond a moving average; multi-store; WhatsApp Business API sending.
 
 ### Explicitly out
+
 Placing orders automatically (the agent drafts; the owner sends); collecting Aadhaar/PAN/bank details or logins; free-form LLM-written SQL or Python executed against the data.
 
 ## 6. Competitive landscape and differentiation
 
-| Product | What it does | Relation to Muneem |
-|---|---|---|
-| **Chat2Cash** — Build India 2026 winner | WhatsApp chat → structured orders, GST invoices, payment tracking, follow-ups [R2] | Input/billing layer. Muneem is the insight layer. Winner reports a 7-hour solo build [R3]; its accuracy and leakage figures are self-reported. Repo could not be opened (**Unverified**) |
-| **SUTRA Core** | FastAPI WhatsApp ERP: inventory, udhaar ledger, GST invoices, multi-agent order pipeline; ₹499/₹1,499/₹4,999 tiers [R9] | Broader ERP; no analytics-first copilot |
-| **code-vyapar (Vyapar Vaani)** | Agent works out a reorder quantity and drafts the supplier message without placing the order [R10] | **Closest overlap.** Muneem differs by analysing the whole catalogue (dead stock, margin, trends), showing formulas, and drawing charts/diagrams in chat |
-| **StockMitra** | GST billing, inventory, khata, low-stock and reorder management; starter listed from ₹249 [R16] | Incumbent-style tool; price anchor |
-| **BUSY** | Kirana billing/accounting with GST, stock, purchases, khata [R17] | Incumbent; confirms billing is crowded and decision support is the gap |
+
+| Product                                  | What it does                                                                                                               | Relation to Muneem                                                                                                                                                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Chat2Cash** — Build India 2026 winner | WhatsApp chat → structured orders, GST invoices, payment tracking, follow-ups [R2]                                        | Input/billing layer. Muneem is the insight layer. Winner reports a 7-hour solo build [R3]; its accuracy and leakage figures are self-reported. Repo could not be opened (**Unverified**) |
+| **SUTRA Core**                           | FastAPI WhatsApp ERP: inventory, udhaar ledger, GST invoices, multi-agent order pipeline; ₹499/₹1,499/₹4,999 tiers [R9] | Broader ERP; no analytics-first copilot                                                                                                                                                  |
+| **code-vyapar (Vyapar Vaani)**           | Agent works out a reorder quantity and drafts the supplier message without placing the order [R10]                         | **Closest overlap.** Muneem differs by analysing the whole catalogue (dead stock, margin, trends), showing formulas, and drawing charts/diagrams in chat                                 |
+| **StockMitra**                           | GST billing, inventory, khata, low-stock and reorder management; starter listed from ₹249 [R16]                           | Incumbent-style tool; price anchor                                                                                                                                                       |
+| **BUSY**                                 | Kirana billing/accounting with GST, stock, purchases, khata [R17]                                                          | Incumbent; confirms billing is crowded and decision support is the gap                                                                                                                   |
 
 **Differentiators to say out loud:** (1) numbers from tested code with visible formulas; (2) honest "insufficient data" instead of guesses; (3) charts and diagrams generated inline in conversation; (4) Hinglish-first; (5) the output is an action (supplier message + CSV), not just a report.
 
 ## 7. Demo story and judge Q&A
 
 ### Script (about 4 minutes)
-| Time | Step | What to say / show |
-|---|---|---|
-| 0:00 | Hook | "A kirana owner has the data but not the time." Click **Load sample data** |
-| 0:20 | Dashboard | Revenue, margin after GST, UPI vs cash, stock value in ₹ |
-| 0:50 | Ask | "Kal kya order karna chahiye?" → ranked list; expand **Show calculation** on one item |
-| 1:50 | Pattern | Dead-stock card: "₹X locked in N items with no sale in 30 days" |
-| 2:35 | Visual | "Atta ki sales trend dikhao" → chart inline; "Supply flow dikhao" → Mermaid diagram |
-| 3:05 | Action | Click **Restock** → order list + supplier message; download CSV |
-| 3:35 | Business case | Buyer, price, first 100 shops, renewal feature (Section 8) |
+
+
+| Time | Step          | What to say / show                                                                     |
+| ------ | --------------- | ---------------------------------------------------------------------------------------- |
+| 0:00 | Hook          | "A kirana owner has the data but not the time." Click **Load sample data**             |
+| 0:20 | Dashboard     | Revenue, margin after GST, UPI vs cash, stock value in ₹                              |
+| 0:50 | Ask           | "Kal kya order karna chahiye?" → ranked list; expand **Show calculation** on one item |
+| 1:50 | Pattern       | Dead-stock card: "₹X locked in N items with no sale in 30 days"                       |
+| 2:35 | Visual        | "Atta ki sales trend dikhao" → chart inline; "Supply flow dikhao" → Mermaid diagram  |
+| 3:05 | Action        | Click **Restock** → order list + supplier message; download CSV                       |
+| 3:35 | Business case | Buyer, price, first 100 shops, renewal feature (Section 8)                             |
 
 ### Likely judge questions
+
 - **How is this different from pasting a CSV into a chatbot?** Numbers come from tested functions; formulas are visible; unknowns are declared; the output is an action.
 - **What if the data is thin?** Items with under 14 days of history return `insufficient_data` and are excluded from forecasts.
 - **Can the model make up numbers?** It never computes. It selects a tool and words the result.
@@ -159,17 +172,18 @@ The brief requires the demo to close with the business case: which Indian small 
 
 ## 9. Risk register and fallbacks
 
-| Risk | Likelihood | Impact | Mitigation / fallback |
-|---|---|---|---|
-| LLM API slow, rate-limited or offline during demo | Medium | High | Provider-agnostic wrapper; cached responses for scripted questions; **rules-only mode** routing keywords to tools |
-| Wrong tool chosen or bad arguments | Medium | Medium | Pydantic-validated tool schemas; ask or refuse when confidence is low; show tool + args in the UI |
-| Mermaid fails to render | Medium | Low | Parse check on the client; fall back to source text + a native chart |
-| Reused repo has unclear licence or hidden bugs | Medium | Medium | Copy ideas/formulas, write our own code; attribute (Sections 23–24) |
-| Malformed upload on stage | Low | Medium | Row-level validation report; one-click sample data |
-| Prompt injection through CSV cells (item names etc.) | Low–Med | High | Treat all data as untrusted text; never place raw cells in system prompts; escape on render |
-| Scope creep | High | High | P0 freeze; P1 only after rehearsal passes |
-| Wi-Fi failure | Medium | High | Local run + screen-recorded backup demo |
-| Teammates edit the same files | Medium | Medium | Module ownership + short-lived branches (Section 22) |
+
+| Risk                                                 | Likelihood | Impact | Mitigation / fallback                                                                                             |
+| ------------------------------------------------------ | ------------ | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| LLM API slow, rate-limited or offline during demo    | Medium     | High   | Provider-agnostic wrapper; cached responses for scripted questions; **rules-only mode** routing keywords to tools |
+| Wrong tool chosen or bad arguments                   | Medium     | Medium | Pydantic-validated tool schemas; ask or refuse when confidence is low; show tool + args in the UI                 |
+| Mermaid fails to render                              | Medium     | Low    | Parse check on the client; fall back to source text + a native chart                                              |
+| Reused repo has unclear licence or hidden bugs       | Medium     | Medium | Copy ideas/formulas, write our own code; attribute (Sections 23–24)                                              |
+| Malformed upload on stage                            | Low        | Medium | Row-level validation report; one-click sample data                                                                |
+| Prompt injection through CSV cells (item names etc.) | Low–Med   | High   | Treat all data as untrusted text; never place raw cells in system prompts; escape on render                       |
+| Scope creep                                          | High       | High   | P0 freeze; P1 only after rehearsal passes                                                                         |
+| Wi-Fi failure                                        | Medium     | High   | Local run + screen-recorded backup demo                                                                           |
+| Teammates edit the same files                        | Medium     | Medium | Module ownership + short-lived branches (Section 22)                                                              |
 
 ---
 
@@ -204,16 +218,17 @@ flowchart LR
 
 ## 11. Stack and rationale
 
-| Layer | Choice | Why |
-|---|---|---|
-| Backend | FastAPI + pandas + Pydantic | Fast to write, typed tool schemas, SSE streaming |
-| Storage | In-memory DataFrames; optional SQLite for saved history | Avoids two analytics engines; hackathon-sized data |
-| LLM | Any provider behind one `llm.chat(messages, tools)` wrapper | Swap if rate-limited; configured by env vars |
-| Frontend | React (Vite) + Tailwind + Recharts | Native, interactive charts from JSON specs |
-| Chat rendering | Streamdown with its Mermaid plugin | Built for streaming AI markdown; copes with half-finished blocks; Mermaid plugin available [R6] |
-| Alternative Mermaid renderer | assistant-ui `mermaid-diagram` component | Skeleton while streaming, renders when complete [R7] |
-| Server-side charts (P1) | matplotlib → PNG | Images for reports and WhatsApp drafts |
-| Tests | pytest | Golden-value tests protect the demo |
+
+| Layer                        | Choice                                                      | Why                                                                                             |
+| ------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Backend                      | FastAPI + pandas + Pydantic                                 | Fast to write, typed tool schemas, SSE streaming                                                |
+| Storage                      | In-memory DataFrames; optional SQLite for saved history     | Avoids two analytics engines; hackathon-sized data                                              |
+| LLM                          | Any provider behind one `llm.chat(messages, tools)` wrapper | Swap if rate-limited; configured by env vars                                                    |
+| Frontend                     | React (Vite) + Tailwind + Recharts                          | Native, interactive charts from JSON specs                                                      |
+| Chat rendering               | Streamdown with its Mermaid plugin                          | Built for streaming AI markdown; copes with half-finished blocks; Mermaid plugin available [R6] |
+| Alternative Mermaid renderer | assistant-ui `mermaid-diagram` component                    | Skeleton while streaming, renders when complete [R7]                                            |
+| Server-side charts (P1)      | matplotlib → PNG                                           | Images for reports and WhatsApp drafts                                                          |
+| Tests                        | pytest                                                      | Golden-value tests protect the demo                                                             |
 
 **Fallback UI:** Streamlit, if React slows the team down. It gives dashboards quickly but has no native Mermaid, so chat diagrams would degrade to images.
 
@@ -303,6 +318,7 @@ class SaleLine(BaseModel):
 ```
 
 ### 13.3 Validation rules (return a report, never crash)
+
 1. Required columns present; unknown columns ignored with a note.
 2. Dates parse; no future-dated sales; sales span ≥ 14 days (else warn).
 3. `qty > 0`, prices > 0, stock ≥ 0 (negative stock → flagged, treated as 0 for calculations).
@@ -313,12 +329,14 @@ class SaleLine(BaseModel):
 8. Report format: `{ok: bool, errors: [...], warnings: [...], rows_loaded: {...}}` shown in the UI.
 
 ### 13.4 Synthetic dataset spec (seeded, reproducible)
+
 - 60–80 SKUs across staples (atta, rice, oil, dal), dairy, snacks, beverages, household, and festive items (sweets, dry fruits).
 - About 120 days of sales; include a Diwali-fortnight window with category uplift (**verify the exact dates for the window you choose**).
 - Payment mix trending toward UPI over the period.
 - Fixed random seed; one command regenerates identical files.
 
 **Planted stories (so the demo has something real to find):**
+
 1. Two fast items that will stock out inside their lead time.
 2. Three dead-stock items with meaningful rupees locked.
 3. One high-revenue, low-margin staple.
@@ -332,20 +350,25 @@ The sample data is synthetic — say so on the slide and in the README.
 All money is kept in paise (integers) or `Decimal`; rounding happens only at display.
 
 ### 14.1 GST (MRP is GST-inclusive)
+
 ```
 taxable = price_incl / (1 + gst_rate/100)
 gst     = price_incl − taxable
 ```
+
 Backing GST out of an inclusive price, instead of adding it on top, avoids overstating takings and tax; code-vyapar documents the same rule [R10].
 
 ### 14.2 Margin
+
 ```
 unit_margin  = taxable_selling − cost_ex_gst
 margin_pct   = unit_margin / taxable_selling
 ```
+
 **Worked example:** ₹105 incl. 5% GST → taxable ₹100; cost ₹88 → margin ₹12 (12%).
 
 ### 14.3 Demand
+
 ```
 d      = units sold in last 14 days / 14
 sigma  = std of daily units over last 28 days
@@ -353,27 +376,33 @@ d_adj  = d × festive_multiplier(category, window)     # default 1.0
 ```
 
 ### 14.4 Reorder maths
+
 Standard inventory formulas, as implemented in public repos such as StockPulse and Sales-Data-Analysis [R4][R5]:
+
 ```
 safety_stock   = Z × sigma × sqrt(L)                  # Z = 1.65 ≈ 95% service level
 reorder_point  = d_adj × L + safety_stock
 order_qty      = ceil(max(0, d_adj × (L + R) + safety_stock − stock))   # then round up to pack_size
 days_left      = stock / d_adj
 ```
+
 `L` = supplier lead time (days); `R` = review period (default 2 days).
 
 **Golden test.** d = 6/day, L = 2, R = 2, σ = 2, stock = 12 → safety stock = 1.65 × 2 × √2 = 4.67; order qty = ceil(6 × 4 + 4.67 − 12) = ceil(16.67) = 17 → pack of 6 → **18**. Cost = 18 × `cost_ex_gst`.
 
 ### 14.5 Alert tiers
-| Condition | Tier | UI colour |
-|---|---|---|
-| `days_left < L` | Critical — order now | red |
-| `days_left < L + R` | Soon | amber |
-| otherwise | OK | green |
+
+
+| Condition           | Tier                  | UI colour |
+| --------------------- | ----------------------- | ----------- |
+| `days_left < L`     | Critical — order now | red       |
+| `days_left < L + R` | Soon                  | amber     |
+| otherwise           | OK                    | green     |
 
 Tiered alerts follow the stock-alert pattern in public stock dashboards [R8].
 
 ### 14.6 Other rules
+
 - **Dead stock:** `stock > 0` and zero sales in the last 30 days; `money_trapped = stock × cost_ex_gst`.
 - **Slow mover:** velocity below 20% of its category median.
 - **High revenue, low profit:** revenue in the top quartile and `margin_pct` in the bottom quartile.
@@ -385,17 +414,18 @@ Tiered alerts follow the stock-alert pattern in public stock dashboards [R8].
 
 ### 15.1 Tools (each pure, typed, unit-tested)
 
-| Tool | Arguments | Returns |
-|---|---|---|
-| `get_kpis` | `period` | revenue, taxable revenue, GST, margin, UPI/cash split, stock value |
-| `top_items` | `by` (revenue/qty/margin), `n`, `period` | ranked items |
-| `sales_trend` | `item?`, `category?`, `grain` (day/week), `period` | time series |
-| `stock_status` | `item?` | days left, tier |
-| `reorder_plan` | `horizon_days`, `budget?` | items, qty, ₹ cost, formula inputs |
-| `dead_stock` | `days` | items, ₹ locked |
-| `margin_report` | `group_by` (item/category) | margin %, flags |
-| `payment_mix` | `period` | shares by mode |
-| `explain_flow` | `topic`, `item?` | Mermaid text from templates filled with computed values |
+
+| Tool            | Arguments                                          | Returns                                                            |
+| ----------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| `get_kpis`      | `period`                                           | revenue, taxable revenue, GST, margin, UPI/cash split, stock value |
+| `top_items`     | `by` (revenue/qty/margin), `n`, `period`           | ranked items                                                       |
+| `sales_trend`   | `item?`, `category?`, `grain` (day/week), `period` | time series                                                        |
+| `stock_status`  | `item?`                                            | days left, tier                                                    |
+| `reorder_plan`  | `horizon_days`, `budget?`                          | items, qty, ₹ cost, formula inputs                                |
+| `dead_stock`    | `days`                                             | items, ₹ locked                                                   |
+| `margin_report` | `group_by` (item/category)                         | margin %, flags                                                    |
+| `payment_mix`   | `period`                                           | shares by mode                                                     |
+| `explain_flow`  | `topic`, `item?`                                   | Mermaid text from templates filled with computed values            |
 
 ```python
 class ReorderPlanArgs(BaseModel):
@@ -406,6 +436,7 @@ def reorder_plan(args: ReorderPlanArgs, data: Dataset) -> ToolResult: ...
 ```
 
 ### 15.2 Loop
+
 1. User message arrives (any of Hindi/English/Hinglish).
 2. LLM selects a tool and JSON arguments.
 3. Pydantic validates; invalid → one retry, then ask a clarifying question.
@@ -414,6 +445,7 @@ def reorder_plan(args: ReorderPlanArgs, data: Dataset) -> ToolResult: ...
 6. If no tool fits, the agent says it cannot answer from the uploaded data instead of guessing.
 
 ### 15.3 System prompt skeleton
+
 ```
 You are Muneem, an assistant for a kirana store owner.
 Rules:
@@ -426,14 +458,17 @@ Rules:
 ```
 
 ### 15.4 Rules-only mode (no LLM)
+
 A keyword/regex router maps the scripted questions to tools and uses string templates for answers. Enabled by `DEMO_MODE=rules` or automatically after two LLM failures. This is the guarantee that the demo runs without the network.
 
 ### 15.5 Language handling
+
 The model handles Hindi (Devanagari), English and Hinglish (Roman Hindi). Item names stay as stored. Units and ₹ formatting use Indian numerals (e.g., ₹1,25,000) at the display layer.
 
 ## 16. Response envelope and inline visuals
 
 ### 16.1 Envelope
+
 ```json
 {
   "answer_md": "Kal ke liye 4 items order karne hain...",
@@ -448,18 +483,21 @@ The model handles Hindi (Devanagari), English and Hinglish (Roman Hindi). Item n
   "confidence": "ok"
 }
 ```
+
 (`confidence` is `"ok"` or `"insufficient_data"`. Numbers above are illustrative.)
 
 ### 16.2 Visual types
 
-| Visual | How | Safety |
-|---|---|---|
-| **Native chart** (P0) | Tool returns a JSON chart spec; React renders with Recharts | No code from the LLM |
-| **Mermaid** (P0) | Templates filled with computed values; optional LLM-authored Mermaid validated with a parse check; rendered via Streamdown's Mermaid plugin [R6] or assistant-ui's component [R7] | On parse failure show source + a native chart |
-| **HTML card** (P0-lite) | Rendered inside `<iframe sandbox srcdoc=...>` without `allow-same-origin` | Isolated from the app |
-| **matplotlib PNG** (P1) | Server function from fixed chart templates → base64 PNG | Not LLM-written code |
+
+| Visual                  | How                                                                                                                                                                               | Safety                                        |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **Native chart** (P0)   | Tool returns a JSON chart spec; React renders with Recharts                                                                                                                       | No code from the LLM                          |
+| **Mermaid** (P0)        | Templates filled with computed values; optional LLM-authored Mermaid validated with a parse check; rendered via Streamdown's Mermaid plugin [R6] or assistant-ui's component [R7] | On parse failure show source + a native chart |
+| **HTML card** (P0-lite) | Rendered inside `<iframe sandbox srcdoc=...>` without `allow-same-origin`                                                                                                         | Isolated from the app                         |
+| **matplotlib PNG** (P1) | Server function from fixed chart templates → base64 PNG                                                                                                                          | Not LLM-written code                          |
 
 ### 16.3 Chart spec
+
 ```json
 {
   "kind": "line",            // line | bar | stacked_bar | pie | scatter
@@ -472,6 +510,7 @@ The model handles Hindi (Devanagari), English and Hinglish (Roman Hindi). Item n
 ```
 
 ### 16.4 Mermaid template example
+
 ```mermaid
 flowchart LR
   S["Supplier: {supplier}"] -->|"lead time {L} days"| ST["Stock: {stock} units"]
@@ -481,28 +520,33 @@ flowchart LR
 ```
 
 ### 16.5 Streaming notes
+
 Streaming-markdown libraries exist for exactly this case: they cope with unfinished code fences while tokens arrive [R6][R7][R14]. One description of Streamdown says Mermaid appears as a code block with a render button, so test the behaviour in our own UI before relying on it. Chat-with-CSV projects that let a model write matplotlib/pandas code exist (PandasAI [R18], easonlai's Streamlit demo [R19]); they are good UX references, but executing generated code is a security risk, so Muneem uses fixed tools instead.
 
 ## 17. API surface
 
-| Endpoint | Purpose |
-|---|---|
-| `POST /api/upload` | Accept CSV/XLSX files; return the validation report |
-| `POST /api/sample` | Load seeded sample data |
-| `GET /api/kpis?period=30d` | Dashboard metrics |
-| `GET /api/alerts` | Stock tiers, dead stock, margin flags |
-| `POST /api/chat` | SSE stream: tokens, then the final envelope |
-| `POST /api/restock/draft` | Order list + supplier message |
-| `GET /api/restock/export.csv` | Downloadable order list |
-| `GET /api/health` | Liveness + current mode (`llm` or `rules`) |
+
+| Endpoint                      | Purpose                                             |
+| ------------------------------- | ----------------------------------------------------- |
+| `POST /api/upload`            | Accept CSV/XLSX files; return the validation report |
+| `POST /api/sample`            | Load seeded sample data                             |
+| `GET /api/kpis?period=30d`    | Dashboard metrics                                   |
+| `GET /api/alerts`             | Stock tiers, dead stock, margin flags               |
+| `POST /api/chat`              | SSE stream: tokens, then the final envelope         |
+| `POST /api/restock/draft`     | Order list + supplier message                       |
+| `GET /api/restock/export.csv` | Downloadable order list                             |
+| `GET /api/health`             | Liveness + current mode (`llm` or `rules`)          |
 
 **Example — `POST /api/chat` request**
+
 ```json
 {"message": "Kal kya order karna chahiye?", "session_id": "demo-1"}
 ```
+
 **SSE events:** `token` (text chunk), `tool_call` (name + args, for the "show calculation" panel), `final` (the envelope), `error`.
 
 **Example — restock draft response**
+
 ```json
 {
   "supplier": "Sharma Traders",
@@ -511,11 +555,13 @@ Streaming-markdown libraries exist for exactly this case: they cope with unfinis
   "message": "Namaste, kal ke liye ye saman chahiye: Atta 5kg x 18 ... Kripya confirm karein."
 }
 ```
+
 (Illustrative values.)
 
 ## 18. Frontend design
 
 **Screens**
+
 1. **Upload** — drag-and-drop for the 4 CSVs, validation report, **Load sample data** button.
 2. **Dashboard** — KPI cards (revenue, margin after GST, GST collected, stock value), 3–4 charts (daily revenue, top items, UPI vs cash, stock-days-left bars), alert strip (Critical/Soon counts, dead-stock ₹).
 3. **Chat** — message list, input with sample-question chips, per-answer **Show calculation** accordion, inline charts/diagrams, **Restock** button.
@@ -555,42 +601,48 @@ Streaming-markdown libraries exist for exactly this case: they cope with unfinis
 ## 21. Test plan and evaluation set
 
 ### 21.1 Unit tests (golden values)
-| Test | Input | Expected |
-|---|---|---|
-| GST back-out | ₹105 @ 5% | taxable ₹100.00, GST ₹5.00 |
-| Margin | taxable ₹100, cost ₹88 | ₹12, 12% |
-| Safety stock | σ=2, L=2, Z=1.65 | 4.67 |
-| Reorder | d=6, L=2, R=2, σ=2, stock=12, pack=6 | 18 |
-| Reorder, no need | stock very high | 0 |
-| Sufficiency | 10 days of history | `insufficient_data` |
-| Dead stock | stock 40, last sale 45 days ago, cost ₹30 | flagged, ₹1,200 locked |
-| Validator | `gst_rate=7` | row rejected with message |
+
+
+| Test             | Input                                      | Expected                     |
+| ------------------ | -------------------------------------------- | ------------------------------ |
+| GST back-out     | ₹105 @ 5%                                 | taxable ₹100.00, GST ₹5.00 |
+| Margin           | taxable ₹100, cost ₹88                   | ₹12, 12%                    |
+| Safety stock     | σ=2, L=2, Z=1.65                          | 4.67                         |
+| Reorder          | d=6, L=2, R=2, σ=2, stock=12, pack=6      | 18                           |
+| Reorder, no need | stock very high                            | 0                            |
+| Sufficiency      | 10 days of history                         | `insufficient_data`          |
+| Dead stock       | stock 40, last sale 45 days ago, cost ₹30 | flagged, ₹1,200 locked      |
+| Validator        | `gst_rate=7`                               | row rejected with message    |
 
 ### 21.2 Scenario tests
+
 Each planted story (Section 13.4) must appear in the output with exact ₹ values from the seeded data.
 
 ### 21.3 Question evaluation set (15 fixed questions)
+
 Run before every rehearsal; each has an expected tool and expected key number.
 
-| # | Question | Expected tool |
-|---|---|---|
-| 1 | Kal kya order karna chahiye? | `reorder_plan` |
-| 2 | Which items will run out this week? | `stock_status` |
-| 3 | Which items haven't sold in 30 days? | `dead_stock` |
-| 4 | Kitna paisa dead stock me fasa hai? | `dead_stock` |
-| 5 | UPI vs cash split dikhao | `payment_mix` |
-| 6 | Atta ka margin kitna hai? | `margin_report` |
-| 7 | Top 5 items by revenue last month | `top_items` |
-| 8 | Which item earns the most profit? | `top_items` (by margin) |
-| 9 | Atta ki sales trend dikhao | `sales_trend` |
-| 10 | Diwali ke time kaunsa item sabse zyada bika? | `top_items` / `sales_trend` |
-| 11 | Total GST collected this month? | `get_kpis` |
-| 12 | Supply flow dikhao for Atta | `explain_flow` |
-| 13 | Mera total stock value kitna hai? | `get_kpis` |
-| 14 | Kaunsa item zyada bikta hai par kam profit deta hai? | `margin_report` |
-| 15 | What is the weather today? | none → "can't answer from your data" |
+
+| #  | Question                                             | Expected tool                         |
+| ---- | ------------------------------------------------------ | --------------------------------------- |
+| 1  | Kal kya order karna chahiye?                         | `reorder_plan`                        |
+| 2  | Which items will run out this week?                  | `stock_status`                        |
+| 3  | Which items haven't sold in 30 days?                 | `dead_stock`                          |
+| 4  | Kitna paisa dead stock me fasa hai?                  | `dead_stock`                          |
+| 5  | UPI vs cash split dikhao                             | `payment_mix`                         |
+| 6  | Atta ka margin kitna hai?                            | `margin_report`                       |
+| 7  | Top 5 items by revenue last month                    | `top_items`                           |
+| 8  | Which item earns the most profit?                    | `top_items` (by margin)               |
+| 9  | Atta ki sales trend dikhao                           | `sales_trend`                         |
+| 10 | Diwali ke time kaunsa item sabse zyada bika?         | `top_items` / `sales_trend`           |
+| 11 | Total GST collected this month?                      | `get_kpis`                            |
+| 12 | Supply flow dikhao for Atta                          | `explain_flow`                        |
+| 13 | Mera total stock value kitna hai?                    | `get_kpis`                            |
+| 14 | Kaunsa item zyada bikta hai par kam profit deta hai? | `margin_report`                       |
+| 15 | What is the weather today?                           | none → "can't answer from your data" |
 
 ### 21.4 Failure drills
+
 Kill the LLM → rules-only mode answers the scripted questions. Upload a broken CSV → readable error. Paste an item name containing an instruction (e.g., "ignore previous instructions") → the agent does not obey it.
 
 ## 22. Git workflow and commit plan
@@ -604,6 +656,7 @@ The repo `AdityasagarR123/muneem` was empty when checked [R23].
 **Commit message convention:** `type(scope): summary` — e.g., `feat(engine): add reorder_plan with pack rounding`, `test(engine): golden case for reorder`, `docs: add attribution notice`.
 
 **First commits (in order):**
+
 1. `chore: scaffold repo (README, LICENSE, NOTICE, .gitignore, Makefile)`
 2. `docs: add MUNEEM_PLAN.md`
 3. `feat(data): seeded sample generator`
@@ -621,22 +674,23 @@ The repo `AdityasagarR123/muneem` was empty when checked [R23].
 
 Research covered READMEs and descriptions only. **Code quality, runnability and licences were not verified.** Read each LICENSE file before copying anything, and prefer re-implementing small pieces.
 
-| Area | Source | Take | Leave |
-|---|---|---|---|
-| Reorder formulas | StockPulse [R4] | Moving-average, safety stock, reorder point, EOQ definitions | Its dependency-free local dashboard |
-| Safety stock / ROP UI | Sales-Data-Analysis [R5] | Parameter tooltips; ROP/SS presentation idea | Streamlit app structure |
-| Dashboard layout | adfelt/inventory-dashboard [R20], StockSight [R21] | KPI card/chart layout; export button; chatbot-commands idea | Rule-based JSON chatbot |
-| Alert tiers | Snowflake_Hackathon [R8] | Priority/alert-table concept | Snowflake-specific stack |
-| GST handling | code-vyapar [R10] | Back-out-of-MRP rule; draft-don't-order boundary | Next.js/Supabase/Sarvam stack |
-| Money integrity | BahiPilot [R12] | Decimal/paise discipline; LLM never does maths | Ollama extraction path; SQLite schema |
-| GSTIN / GSTR-1 | OrderMitra [R13] | Check-digit validation idea (P1/P2) | TypeScript WhatsApp pharma flow |
-| Hindi/regional bills | BillBot [R11] | Multilingual extraction idea only (it supports 18% GST only) | Whole app |
-| Indian ERP structure | SUTRA Core [R9] | Entity ideas (inventory, udhaar, GST) | Multi-agent WhatsApp pipeline |
-| Order capture | Chat2Cash [R2] | Few-shot Hinglish prompting; human-verification pattern (concept) | Everything else; repo unverified |
-| Chat rendering | Streamdown [R6], assistant-ui [R7], markstream-react [R14] | Streaming markdown + Mermaid | — |
-| NL-to-chart reference | PandasAI [R18], easonlai demo [R19] | Chart-from-question UX idea | Executing model-written code |
-| POS reference | KiranaMitra [R15] | Domain vocabulary (offline-first POS, udhaar) | React Native app |
-| Related WhatsApp stock tools | RackPilot [R22] | Concept of reserved-stock ledger (reference only) | Whole app |
+
+| Area                         | Source                                                     | Take                                                              | Leave                                 |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------- | --------------------------------------- |
+| Reorder formulas             | StockPulse [R4]                                            | Moving-average, safety stock, reorder point, EOQ definitions      | Its dependency-free local dashboard   |
+| Safety stock / ROP UI        | Sales-Data-Analysis [R5]                                   | Parameter tooltips; ROP/SS presentation idea                      | Streamlit app structure               |
+| Dashboard layout             | adfelt/inventory-dashboard [R20], StockSight [R21]         | KPI card/chart layout; export button; chatbot-commands idea       | Rule-based JSON chatbot               |
+| Alert tiers                  | Snowflake_Hackathon [R8]                                   | Priority/alert-table concept                                      | Snowflake-specific stack              |
+| GST handling                 | code-vyapar [R10]                                          | Back-out-of-MRP rule; draft-don't-order boundary                  | Next.js/Supabase/Sarvam stack         |
+| Money integrity              | BahiPilot [R12]                                            | Decimal/paise discipline; LLM never does maths                    | Ollama extraction path; SQLite schema |
+| GSTIN / GSTR-1               | OrderMitra [R13]                                           | Check-digit validation idea (P1/P2)                               | TypeScript WhatsApp pharma flow       |
+| Hindi/regional bills         | BillBot [R11]                                              | Multilingual extraction idea only (it supports 18% GST only)      | Whole app                             |
+| Indian ERP structure         | SUTRA Core [R9]                                            | Entity ideas (inventory, udhaar, GST)                             | Multi-agent WhatsApp pipeline         |
+| Order capture                | Chat2Cash [R2]                                             | Few-shot Hinglish prompting; human-verification pattern (concept) | Everything else; repo unverified      |
+| Chat rendering               | Streamdown [R6], assistant-ui [R7], markstream-react [R14] | Streaming markdown + Mermaid                                      | —                                    |
+| NL-to-chart reference        | PandasAI [R18], easonlai demo [R19]                        | Chart-from-question UX idea                                       | Executing model-written code          |
+| POS reference                | KiranaMitra [R15]                                          | Domain vocabulary (offline-first POS, udhaar)                     | React Native app                      |
+| Related WhatsApp stock tools | RackPilot [R22]                                            | Concept of reserved-stock ledger (reference only)                 | Whole app                             |
 
 ## 24. Attribution and licence checklist
 
@@ -648,6 +702,7 @@ Research covered READMEs and descriptions only. **Code quality, runnability and 
 6. Confirm with the organisers whether pre-existing code or open-source libraries are allowed and how reuse must be declared — the problem-statement PDF does not say [R1].
 
 **`NOTICE.md` template**
+
 ```
 Muneem — third-party notices
 
@@ -715,15 +770,17 @@ The screenshots show a **web demo app with a "WhatsApp Simulator"**, not the liv
 
 **Layout.** A green header (logo "Chat2Cash", tagline "AI-powered order extraction for WhatsApp Business") above three equal cards: *WhatsApp Simulator* → *Extracted Order* → *Orders Dashboard*. The flow reads left to right: chat in, structured order out, business view on the right.
 
-| Screenshot | What it shows |
-|---|---|
-| 1. Empty state | Simulator pane with a hint ("Load Demo Chat to test"), a **Load Demo Chat** link, a **Simulate Voice Note** link, a message box with send button, and a large **Extract Order with Claude** button (greyed out until a chat exists). Middle card shows an upload icon and an instruction line. Right card shows KPI tiles (Total Orders 0, Pending 0, Revenue 0), a **7-day revenue trend** bar chart with ₹0k labels, and "No orders found" under Recent Orders. Two small icons (export and refresh) sit at the top right of the dashboard |
+
+| Screenshot         | What it shows                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Empty state     | Simulator pane with a hint ("Load Demo Chat to test"), a **Load Demo Chat** link, a **Simulate Voice Note** link, a message box with send button, and a large **Extract Order with Claude** button (greyed out until a chat exists). Middle card shows an upload icon and an instruction line. Right card shows KPI tiles (Total Orders 0, Pending 0, Revenue 0), a **7-day revenue trend** bar chart with ₹0k labels, and "No orders found" under Recent Orders. Two small icons (export and refresh) sit at the top right of the dashboard                                                                                                                                 |
 | 2. Extracted order | A Hinglish demo chat between a customer (Rajesh Kumar) and the seller about a yellow cotton kurti and sarees. The middle card shows a **HIGH CONFIDENCE** badge, customer name with "WhatsApp Contact", an items list (10× Yellow cotton kurti at ₹525 each; 5× Red saree at ₹1,150 each; 3× Green saree at ₹1,150 each), a delivery-address row reading "No address found in chat", **Total Amount ₹14,700**, and an **AI confidence score of 95%** with the reason "All details clearly stated in conversation". The dashboard updates to 1 order, 1 pending, ₹14.7K revenue, one bar in the trend chart, and a Recent Orders row (name, date, "3 items", ₹14,700) |
-| 3. Payment link | A modal titled "Payment Link Generated": a **UPI QR** code, "Scan to pay ₹14,700", a **Copy Payment Link to Share** button, a small fallback note for customers who cannot scan, and Close. A **Generate Payment Link** button sits at the bottom of the extracted-order card behind the modal |
+| 3. Payment link    | A modal titled "Payment Link Generated": a **UPI QR** code, "Scan to pay ₹14,700", a **Copy Payment Link to Share** button, a small fallback note for customers who cannot scan, and Close. A **Generate Payment Link** button sits at the bottom of the extracted-order card behind the modal                                                                                                                                                                                                                                                                                                                                                                               |
 
 **Observation worth learning from.** The three visible line items sum to ₹5,250 + ₹5,750 + ₹3,450 = **₹14,450**, but the total shows ₹14,700, and the recent-orders row says "3 items". The items list has a scrollbar, so a hidden line (or a delivery/packing charge) may explain the ₹250 gap — the screenshots do not tell us. Either way, it is a reminder that Muneem must show line-by-line arithmetic that visibly adds up. Also note the dashboard counts a **pending** (unpaid) order in "Revenue"; Muneem should separate billed from collected amounts.
 
 **Patterns to borrow as ideas (not code or branding):**
+
 1. Three-panel flow with clear empty states that say what to do next.
 2. A one-click **Load Demo** path so judges never face a blank screen. Muneem equivalent: *Load sample data*.
 3. A confidence score with a plain-language reason, and a visible "not found" state for missing fields. Muneem equivalent: `confidence` plus `insufficient_data` messages.
@@ -734,21 +791,22 @@ The screenshots show a **web demo app with a "WhatsApp Simulator"**, not the liv
 
 ## 28. Appendix: Glossary
 
-| Term | Meaning |
-|---|---|
-| Kirana | Small neighbourhood grocery store |
-| Muneem (मुनीम) | Traditional shop accountant/bookkeeper |
-| Hisaab | Accounts / calculation |
-| Salaah | Advice |
-| Udhaar / khata | Credit given to customers / the ledger of it |
-| MRP | Maximum retail price (GST-inclusive in India) |
-| GST slabs | 0, 5, 12, 18 (and 28) percent; we model 0/5/12/18 |
-| CGST / SGST / IGST | Central, State, and Integrated GST components |
-| HSN | Harmonised System of Nomenclature code for goods |
-| UPI | Unified Payments Interface (instant digital payments) |
-| Lead time (L) | Days between ordering and receiving stock |
-| Review period (R) | Days between ordering opportunities |
-| Safety stock | Buffer stock covering demand variability |
-| Reorder point | Stock level at which a new order should be placed |
-| Dead stock | Stock with no sales over a defined window |
-| SSE | Server-Sent Events, used to stream chat tokens |
+
+| Term                | Meaning                                               |
+| --------------------- | ------------------------------------------------------- |
+| Kirana              | Small neighbourhood grocery store                     |
+| Muneem (मुनीम) | Traditional shop accountant/bookkeeper                |
+| Hisaab              | Accounts / calculation                                |
+| Salaah              | Advice                                                |
+| Udhaar / khata      | Credit given to customers / the ledger of it          |
+| MRP                 | Maximum retail price (GST-inclusive in India)         |
+| GST slabs           | 0, 5, 12, 18 (and 28) percent; we model 0/5/12/18     |
+| CGST / SGST / IGST  | Central, State, and Integrated GST components         |
+| HSN                 | Harmonised System of Nomenclature code for goods      |
+| UPI                 | Unified Payments Interface (instant digital payments) |
+| Lead time (L)       | Days between ordering and receiving stock             |
+| Review period (R)   | Days between ordering opportunities                   |
+| Safety stock        | Buffer stock covering demand variability              |
+| Reorder point       | Stock level at which a new order should be placed     |
+| Dead stock          | Stock with no sales over a defined window             |
+| SSE                 | Server-Sent Events, used to stream chat tokens        |
