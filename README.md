@@ -13,10 +13,12 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![ArangoDB](https://img.shields.io/badge/ArangoDB-Graph%20Engine-D12E66.svg?logo=arangodb&logoColor=white)](https://www.arangodb.com/)
 [![Google Gemini](https://img.shields.io/badge/AI-Google%20Gemini%20Flash-4285F4.svg?logo=google&logoColor=white)](https://ai.google.dev/)
-[![Tests Passing](https://img.shields.io/badge/Pytest-169%20Passed-success.svg?logo=pytest&logoColor=white)](backend/tests/)
+[![Tests Passing](https://img.shields.io/badge/Pytest-228%20Passed-success.svg?logo=pytest&logoColor=white)](backend/tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Built for Infra Shift Hackathon 2026 — Problem Statement 2: AI-Powered Business Intelligence & Operations Copilot for Small Enterprises.**
+
+🌐 **Landing page:** [muneem-virid.vercel.app/welcome](https://muneem-virid.vercel.app/welcome) &nbsp;·&nbsp; the full app runs locally (see [Quickstart](#-quickstart-guide))
 
 ---
 
@@ -185,6 +187,23 @@ flowchart LR
 * **GST Back-Out & True Margins**: Accurately strips GST from gross receipts across all slabs (0%, 5%, 12%, 18%, 28%) to reveal true unit gross margin.
 * **Daily 5-Line Morning Briefing (`GET /api/brief`)**: Delivers an executive store summary (yesterday's revenue, cash/UPI split, critical stockouts, top pending udhar) directly formatted for WhatsApp sharing.
 * **Deterministic `explain_change`**: Mathematically bridges revenue changes into constituent drivers (customer count, order frequency, basket value, weekday mix, festival effects, and stockout lost sales).
+
+### 6. Smart Data Import & Live Google Sheets
+* **Any column names**: A profiler types each column from its values (money, date, phone, GSTIN, UPI…), a classifier works out which table a file is (products, bills, stock, expenses, customers…), and a mapper proposes each field with a confidence score. Only unsure fields are shown for confirmation.
+* **Remembers layouts**: Confirmed mappings are saved by header signature, so the next export from the same billing app maps itself.
+* **Live Google Sheets**: Paste a sheet shared as *"Anyone with the link can view"*. Muneem reads it through Google's CSV export (only `docs.google.com` is ever fetched) and re-reads it every 2 minutes (`SHEETS_POLL_MINUTES`). Each sheet feeds one table; a change is applied only if the whole dataset still validates, so a broken edit never wipes your data.
+* **Other connectors**: Read-only PostgreSQL / MySQL import and an HMAC-signed webhook for billing apps.
+
+### 7. Cited Web Research (Tavily + TinyFish)
+* Ask about market or wholesale prices, news or GST rule changes; answers carry a separate **"From the web"** block with the source title, site, published date and retrieval time.
+* **Privacy guard**: customer names, phone numbers, UPI ids, GSTINs, amounts and the shop name are removed from every query before it leaves the server.
+* Web figures are counted as *"from the web"*, never as verified shop numbers. Results are cached for a day with daily caps per provider.
+
+### 8. Interface
+* Warm grey design (off-white cards, deep-green accent, Plus Jakarta Sans + Fraunces).
+* **Customers**: a clickable donut of sales share by segment and a "when did they last come?" bar chart that filter the customer list.
+* **Order progress**: each supplier order drawn as connected 3D blocks — Drafted → Sent → Delivered → Stock updated — with late deliveries flagged.
+* **Landing page** at `/welcome` with scroll-reveal animations.
 
 ---
 
@@ -378,7 +397,10 @@ flowchart TD
 | **Knowledge Graph** | **ArangoDB Cloud (AQL)** + In-Memory Fallback | Multi-model graph database allowing document storage and native traversal queries (`kirana_graph`). In-memory network projection guarantees zero-setup offline evaluation. |
 | **AI Reasoning** | **Google Gemini 2.5/3.x Flash-Lite** | Ultra-low latency (~300ms), low-cost token consumption, structured function-calling capabilities for real-time mobile responses. |
 | **Grounding Engine** | **Deterministic AST & Numerical Verifier** | Custom Python mathematical verification engine that parses LLM responses and ensures every single number exists in the database execution envelope. |
-| **Frontend UI** | **React 18 + Vite + Tailwind CSS + Recharts** | High-speed, responsive, Orbit-inspired UI designed for low-bandwidth mobile and desktop screens. Beautiful interactive Recharts visualizations and dynamic Mermaid diagrams. |
+| **Frontend UI** | **React 18 + Vite + Tailwind CSS + Recharts + Lucide** | High-speed, responsive, Orbit-inspired UI designed for low-bandwidth mobile and desktop screens. Beautiful interactive Recharts visualizations and dynamic Mermaid diagrams. |
+| **Web Research** | **Tavily Search + TinyFish page reader** | Dated, cited outside context (prices, news, GST rules), kept separate from the shop's own numbers. |
+| **Live Data** | **Google Sheets CSV export + read-only SQL + signed webhook** | Owners keep the tools they already use; every change is re-validated before it counts. |
+| **Hosting** | **Vercel** (frontend) | The landing page and app shell deploy as a static Vite build; the FastAPI backend runs separately. |
 
 ### Why ArangoDB + SQLite? Why No Heavy Docker Dependency?
 * **Zero Barrier to Entry**: Indian small businesses cannot maintain complex Kubernetes clusters or multi-container Docker environments. Muneem runs out of the box in 60 seconds with pure Python and Node.js.
@@ -405,7 +427,7 @@ flowchart TD
 
 # Optional flags:
 ./dev.ps1 -Backend   # Launch FastAPI backend only
-./dev.ps1 -Test      # Run full backend test suite (169 tests)
+./dev.ps1 -Test      # Run full backend test suite (231 tests)
 ```
 
 #### On macOS / Linux (Bash)
@@ -423,7 +445,14 @@ npm install
 npm run dev
 ```
 
-Open your browser at **http://localhost:5173** to access the Muneem AI dashboard.
+Open your browser at **http://localhost:5173** to access the Muneem AI dashboard, or **http://localhost:5173/welcome** for the landing page.
+
+### Deploying the frontend to Vercel
+```bash
+cd frontend
+npx vercel@latest deploy --prod --yes --name muneem
+```
+`frontend/vercel.json` builds with Vite and rewrites every path to `index.html`, so links such as `/welcome` and `/customers` load directly. The app screens need the FastAPI backend; on Vercel alone only the landing page is fully functional.
 
 ---
 
@@ -448,15 +477,21 @@ cp .env.example .env
 | `REVIEW_PERIOD_DAYS` | Inventory reorder review cycle | `2` |
 | `SERVICE_Z` | Safety stock Z-factor (95% service level) | `1.65` |
 | `DEAD_STOCK_DAYS` | Threshold to classify non-moving stock | `30` |
+| `TAVILY_API_KEY` | Tavily web search key. Leave empty to turn web search off. | `""` |
+| `TINYFISH_API_KEY` | TinyFish page-reader key. Leave empty to turn page reading off. | `""` |
+| `TAVILY_DAILY_LIMIT` / `TINYFISH_DAILY_LIMIT` | Daily call caps per provider | `200` / `20` |
+| `WEB_CACHE_HOURS` | How long web results are cached | `24` |
+| `SHEETS_POLL_MINUTES` | How often linked Google Sheets are re-read (`0` = off) | `2` |
+| `WEBHOOK_SECRET` | HMAC secret for the billing-app webhook. Empty = webhook off. | `""` |
 
 ---
 
 ## 🧪 Comprehensive Test Suite & Live Evaluation
 
-Muneem AI features an extensive automated test suite covering financial precision, GST calculation, graph traversals, agent grounding, and scenario simulations.
+Muneem AI features an extensive automated test suite covering financial precision, GST calculation, graph traversals, agent grounding, smart import, Google Sheets sync and web research (Google, Tavily and TinyFish are mocked, so tests never call them).
 
 ```bash
-# Run all 169 automated tests
+# Run all 231 automated tests (live Postgres / ArangoDB tests are opt-in)
 pytest backend/tests -v
 ```
 
@@ -489,6 +524,11 @@ Follow this 5-minute walkthrough to experience the full power of Muneem AI:
    * Examine how 84.2% of outreach recipients returned vs 55.0% in the control group, generating **+₹29,208** in statistically verified incremental sales ($p = 0.0002$).
 5. **Data Ingest & Validation (`/data`)**:
    * Upload custom CSV/XLSX files or reload the synthetic sample with 1 click to inspect the row-level anomaly report and GST validation audit.
+   * Paste a Google Sheet link (shared as "Anyone with the link can view"), confirm the mapping, and watch it re-sync every 2 minutes.
+6. **Customers (`/customers`)**:
+   * Click a segment in the donut (e.g. *At risk*) and a bar in "when did they last come?" to narrow the list to who needs a message first.
+7. **Market Context (`/`)**:
+   * Ask: *"What is the latest sugar market price trend in India this week?"* → The answer cites dated sources in a separate "From the web" block.
 
 ---
 
